@@ -9,14 +9,28 @@
   - name: Create directory C:\spring-boot\spring_boot_app_name, if not there
     win_file: path={{spring_boot_app_path}} state=directory
 
+  - name: Install Containers natively as Windows Feature
+    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All
+
+  - name: Install Hyper-V as Windows Feature
+    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+
+
   - name: Install Docker via chocolatey
     win_chocolatey:
       name: docker
 
-  - name: Install Containers natively as Windows Feature
-    win_feature:
-      name: containers
-      state: present
+  - name: Install nssm (non-sucking service manager) via chocolatey
+    win_chocolatey:
+      name: nssm
+
+  - name: Register Docker as Windows Service
+    win_nssm:
+      name: dockerd
+      application: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe"
+      state: started
+
+
 
   ###### Stop services, if they´re already in place
   - name: Stop Spring Boot service, if there - so we can extract JRE & other necessary files without Windows file handle problems

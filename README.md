@@ -20,7 +20,7 @@ Bringing Docker to the table, we should start with the following step:
 
 ### Additional Preparation Steps for Windows with native Docker
 
-Install Container feature:
+###### Install Container feature:
 
 ```
 Enable-WindowsOptionalFeature -Online -FeatureName containers -All
@@ -28,6 +28,17 @@ Enable-WindowsOptionalFeature -Online -FeatureName containers -All
 
 Only needed, because Ansible doesn´t support installation of Windows features in Windows 10 non-Server edition, although it is possible with the [Anniversary Edition](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10). Your Box will restart after that command...
 
+Therefor try this:
+
+```
+- win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All
+```
+
+####### Install Hyper-V
+
+```
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+```
 
 
 ## Craft a Windows-ready ansible playbook
