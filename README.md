@@ -22,7 +22,11 @@ Bringing Docker to the table, we should start with the following step:
 
 Install Container feature:
 
-https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10
+```
+Enable-WindowsOptionalFeature -Online -FeatureName containers -All
+```
+
+Only needed, because Ansible doesn´t support installation of Windows features in Windows 10 non-Server edition, although it is possible with the [Anniversary Edition](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10). Your Box will restart after that command...
 
 
 
