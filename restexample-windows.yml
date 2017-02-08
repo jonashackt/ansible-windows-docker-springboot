@@ -13,9 +13,10 @@
     win_chocolatey:
       name: docker
 
-  - name: Install nssm (non-sucking service manager) via chocolatey
-    win_chocolatey:
-      name: nssm
+  - name: Install Containers natively as Windows Feature
+    win_feature:
+      name: containers
+      state: present
 
   ###### Stop services, if they´re already in place
   - name: Stop Spring Boot service, if there - so we can extract JRE & other necessary files without Windows file handle problems
