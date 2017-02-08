@@ -1,0 +1,68 @@
+---
+- hosts: "{{host}}"
+  vars:
+    spring_boot_app_path: "C:\\spring-boot\\{{spring_boot_app_name}}"
+    path_to_java_exe: "C:\\ProgramData\\Oracle\\Java\\javapath\\java.exe"
+
+  tasks:
+  ###### Preparation steps
+  - name: Create directory C:\spring-boot\spring_boot_app_name, if not there
+    win_file: path={{spring_boot_app_path}} state=directory
+
+  - name: Install Docker via chocolatey
+    win_chocolatey:
+      name: docker
+
+  - name: Install nssm (non-sucking service manager) via chocolatey
+    win_chocolatey:
+      name: nssm
+
+  ###### Stop services, if they´re already in place
+  - name: Stop Spring Boot service, if there - so we can extract JRE & other necessary files without Windows file handle problems
+    win_service:
+      name: "{{spring_boot_app_name}}"
+      state: stopped
+    ignore_errors: yes
+
+  ###### Extraction and copying of all necessary files (unzip or install JRE, deploy Spring Boot jar)
+  - name: Install Java Runtime Environment (JRE) 8 via chocolatey
+    win_chocolatey:
+      name: jre8
+
+  - name: Copy Spring Boot app´s jar-File to directory C:\spring-boot\spring_boot_app_name
+    win_copy:
+      src: "{{spring_boot_app_jar}}"
+      dest: "{{spring_boot_app_path}}\\{{spring_boot_app_name}}.jar"
+
+  ####### Service installation
+  # (stopping and configuration of Application directory is only done for demontration purposes - for apps that need certain .dlls on the path for example)
+  - name: Install Spring Boot app as Windows service (via nssm), if not already there - but remain stopped to configure Application directory
+    win_nssm:
+      name: "{{spring_boot_app_name}}"
+      application: "{{path_to_java_exe}}"
+      app_parameters:
+          "-jar": "{{spring_boot_app_path}}\\{{spring_boot_app_name}}.jar"
+      state: stopped
+
+  ####### Configure Application path & Fire up the service
+  # If you need to have certain .exe or .dll files on the path where your Spring Boot .jar is located, you can configure the nssm Application Directory to that path
+  # this is currently not supported by the ansible win_nssm module http://docs.ansible.com/ansible/win_nssm_module.html, so we have to use raw component
+  # After that we have to (re-) start our nssm service to bring the configuration change to life
+  - name: Set the Application path for the Spring Boot app to the folder where the needed native libraries reside
+    raw: nssm set {{spring_boot_app_name}} AppDirectory {{spring_boot_app_path}}
+
+  - name: Fire up Spring Boot app Windows service
+    win_service:
+      name: "{{spring_boot_app_name}}"
+      state: restarted
+
+  ###### Smoke test, if app has booted up correctly
+  - name: Wait until our Spring Boot app is up & running
+    win_uri:
+      url: "http://localhost:8080/swagger-ui.html"
+      method: GET
+    register: result
+    until: result.status_code == 200  
+    retries: 5
+    delay: 5
+
