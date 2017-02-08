@@ -1,6 +1,6 @@
 galaxy_info:
   author: Jonas Hecht
-  description: Ansible playbook to deploy Spring Boot apps on windows.
+  description: Ansible playbook to deploy and run Spring Boot apps with Docker natively on Windows.
   # company: your company (optional)
 
   license: license (MIT)
@@ -165,7 +165,6 @@ galaxy_info:
 
     - windows
     - windowsserver
-    - 2012R2
     - spring
     - springboot
     - java
