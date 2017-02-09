@@ -12,6 +12,9 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
      # Display the VirtualBox GUI when booting the machine
      vb.gui = true
+     # More Power for the Windows Box with Docker
+     vb.memory = 6144
+     vb.cpus = 2
    end
 
   # Run Ansible from the Vagrant Host

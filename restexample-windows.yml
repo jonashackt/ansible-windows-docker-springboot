@@ -29,6 +29,7 @@
       name: dockerd
       application: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe"
       state: started
+      start_mode: auto
 
 
 
