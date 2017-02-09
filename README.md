@@ -41,6 +41,12 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 ```
 
 
+Also a good resource: https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-server
+
+Worth a look: [Powershell tools for docker](https://github.com/artisticcheese/artisticcheesecontainer/wiki) - didn´t try, but maybe interesting for some scenarios
+
+
+
 ## Craft a Windows-ready ansible playbook
 
 I did that step already for you :) So let´s run our the playbook restexample-windows.yml:

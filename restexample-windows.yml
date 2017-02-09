@@ -28,8 +28,20 @@
     win_nssm:
       name: dockerd
       application: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe"
-      state: started
+      state: restarted
       start_mode: auto
+
+  - name: Template and copy Dockerfile to directory C:\spring-boot\spring_boot_app_name
+    win_template:
+      src: "templates/Dockerfile.j2"
+      dest: "{{spring_boot_app_path}}\\Dockerfile"
+
+  - name: Copy Spring Boot app´s jar-File to directory C:\spring-boot\spring_boot_app_name
+    win_copy:
+      src: "{{spring_boot_app_jar}}"
+      dest: "{{spring_boot_app_path}}\\{{spring_boot_app_name}}.jar"
+
+
 
 
 
