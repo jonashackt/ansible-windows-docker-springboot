@@ -1,7 +1,6 @@
 #jinja2: newline_sequence:'\r\n'
 FROM microsoft/windowsservercore
-VOLUME /tmp
-ADD {{spring_boot_app_name}}.jar app.jar
-RUN sh -c 'touch /app.jar'
-ENV JAVA_OPTS=""
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar" ]
+VOLUME C:\\tmp
+WORKDIR \spring-boot\{{spring_boot_app_name}}
+ADD {{spring_boot_app_name}}.jar \spring-boot\{{spring_boot_app_name}}\app.jar
+ENTRYPOINT ["java.exe -jar \spring-boot\{{spring_boot_app_name}}\app.jar"]

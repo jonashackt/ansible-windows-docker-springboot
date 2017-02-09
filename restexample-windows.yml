@@ -41,6 +41,28 @@
       src: "{{spring_boot_app_jar}}"
       dest: "{{spring_boot_app_path}}\\{{spring_boot_app_name}}.jar"
 
+  - name: Build the service Docker Image
+    win_shell: docker build . --tag {{spring_boot_app_name}}:1
+    args:
+      chdir: "{{spring_boot_app_path}}"
+
+  - name: Stop the service docker container
+    win_shell: docker stop {{spring_boot_app_name}}
+    ignore_errors: yes
+
+  - name: Remove the service docker container
+    win_shell: docker rm {{spring_boot_app_name}}
+    ignore_errors: yes
+
+  - name: Run the service docker image
+    win_shell: docker run -d --name={{spring_boot_app_name}} --restart=unless-stopped {{spring_boot_app_name}}:1
+
+
+
+
+
+
+
 
 
 
