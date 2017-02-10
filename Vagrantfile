@@ -2,6 +2,8 @@ Vagrant.configure("2") do |config|
   config.vm.box = "windows10"
   config.vm.guest = :windows
 
+  config.windows.halt_timeout = 15
+
   # Configure Vagrant to use WinRM instead of SSH
   config.vm.communicator = "winrm"
 
@@ -9,12 +11,15 @@ Vagrant.configure("2") do |config|
   config.winrm.username = "IEUser"
   config.winrm.password = "Passw0rd!"
 
+  config.vm.provision "shell", path: "vagrant-scripts/configure-ansible.ps1", privileged: true
+  config.vm.provision "shell", path: "vagrant-scripts/configure-containers.ps1", privileged: true
+
   config.vm.provider "virtualbox" do |vb|
      # Display the VirtualBox GUI when booting the machine
      vb.gui = true
      # More Power for the Windows Box with Docker
      vb.memory = 6144
-     vb.cpus = 2
+     vb.cpus = 4
    end
 
   # Run Ansible from the Vagrant Host

@@ -9,13 +9,6 @@
   - name: Create directory C:\spring-boot\spring_boot_app_name, if not there
     win_file: path={{spring_boot_app_path}} state=directory
 
-  - name: Install Containers natively as Windows Feature
-    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All
-
-  - name: Install Hyper-V as Windows Feature
-    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
-
-
   - name: Install Docker via chocolatey
     win_chocolatey:
       name: docker
@@ -24,6 +17,12 @@
     win_chocolatey:
       name: nssm
 
+  - name: Remove (maybe previously) installed Docker Windows Service
+    win_nssm:
+      name: dockerd
+      state: absent
+    ignore_errors: yes
+
   - name: Register Docker as Windows Service
     win_nssm:
       name: dockerd
@@ -31,7 +30,32 @@
       state: restarted
       start_mode: auto
 
-  - name: Template and copy Dockerfile to directory C:\spring-boot\spring_boot_app_name
+  - name: Create directory C:\spring-boot\spring_boot_app_name\windows-java, if not there
+    win_file: path={{spring_boot_app_path}}\windows-java state=directory
+
+  - name: Copy Java 8 zip to directory C:\spring-boot\spring_boot_app_name\windows-java
+    win_copy:
+      src: "windows-java/server-jre-8u121-windows-x64.tar.gz"
+      dest: "{{spring_boot_app_path}}\\windows-java\\server-jre-8u121-windows-x64.tar.gz"
+
+  - name: Copy Java 8 Windows Dockerfile to directory C:\spring-boot\spring_boot_app_name\windows-java
+    win_template:
+      src: "windows-java/Dockerfile"
+      dest: "{{spring_boot_app_path}}\\windows-java\\Dockerfile"
+
+  - name: Pull the small Windows Docker Base Image microsoft/nanoserver from hub.docker.com
+    win_shell: docker pull microsoft/nanoserver  
+
+  - name: Get the second (but 10GB big) Windows Docker Base Image microsoft/windowsservercore from hub.docker.com (you may grab a coffee now...)
+    win_shell: docker pull microsoft/windowsservercore  
+
+  - name: Build the Java 8 Windows Docker Image
+    win_shell: docker build . --tag windows-java:1
+    args:
+      chdir: "{{spring_boot_app_path}}\\windows-java"
+
+
+  - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app_name
     win_template:
       src: "templates/Dockerfile.j2"
       dest: "{{spring_boot_app_path}}\\Dockerfile"
