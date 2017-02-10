@@ -16,6 +16,7 @@
   - name: Install nssm (non-sucking service manager) via chocolatey
     win_chocolatey:
       name: nssm
+      version: 2.24.0
 
   - name: Remove (maybe previously) installed Docker Windows Service
     win_nssm:
