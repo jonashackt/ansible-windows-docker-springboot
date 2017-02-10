@@ -12,7 +12,6 @@ Vagrant.configure("2") do |config|
   config.winrm.password = "Passw0rd!"
 
   config.vm.provision "shell", path: "vagrant-scripts/configure-ansible.ps1", privileged: true
-  config.vm.provision "shell", path: "vagrant-scripts/configure-containers.ps1", privileged: true
 
   config.vm.provider "virtualbox" do |vb|
      # Display the VirtualBox GUI when booting the machine

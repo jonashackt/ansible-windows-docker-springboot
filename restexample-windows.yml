@@ -9,6 +9,14 @@
   - name: Create directory C:\spring-boot\spring_boot_app_name, if not there
     win_file: path={{spring_boot_app_path}} state=directory
 
+  - name: Install Containers natively as Windows Feature   
+    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All
+    ignore_errors: yes   
+
+  - name: Install Hyper-V as Windows Feature    
+    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+    ignore_errors: yes
+
   - name: Install Docker via chocolatey
     win_chocolatey:
       name: docker
