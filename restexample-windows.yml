@@ -30,18 +30,18 @@
       state: restarted
       start_mode: auto
 
-  - name: Create directory C:\spring-boot\spring_boot_app_name\windows-java, if not there
-    win_file: path={{spring_boot_app_path}}\windows-java state=directory
+  - name: Create directory C:\spring-boot\spring_boot_app_name\windowsservercore-oraclejdk8, if not there
+    win_file: path={{spring_boot_app_path}}\windowsservercore-oraclejdk8 state=directory
 
-  - name: Copy Java 8 zip to directory C:\spring-boot\spring_boot_app_name\windows-java
+  - name: Copy Java 8 zip to directory C:\spring-boot\spring_boot_app_name\windowsservercore-oraclejdk8
     win_copy:
-      src: "windows-java/server-jre-8u121-windows-x64.tar.gz"
-      dest: "{{spring_boot_app_path}}\\windows-java\\server-jre-8u121-windows-x64.tar.gz"
+      src: "windowsservercore-oraclejdk8/server-jre-8u121-windows-x64.tar.gz"
+      dest: "{{spring_boot_app_path}}\\windowsservercore-oraclejdk8\\server-jre-8u121-windows-x64.tar.gz"
 
-  - name: Copy Java 8 Windows Dockerfile to directory C:\spring-boot\spring_boot_app_name\windows-java
+  - name: Copy Java 8 Windows Dockerfile to directory C:\spring-boot\spring_boot_app_name\windowsservercore-oraclejdk8
     win_template:
-      src: "windows-java/Dockerfile"
-      dest: "{{spring_boot_app_path}}\\windows-java\\Dockerfile"
+      src: "windowsservercore-oraclejdk8/Dockerfile"
+      dest: "{{spring_boot_app_path}}\\windowsservercore-oraclejdk8\\Dockerfile"
 
   - name: Pull the small Windows Docker Base Image microsoft/nanoserver from hub.docker.com
     win_shell: docker pull microsoft/nanoserver  
@@ -50,9 +50,9 @@
     win_shell: docker pull microsoft/windowsservercore  
 
   - name: Build the Java 8 Windows Docker Image
-    win_shell: docker build . --tag windows-java:1
+    win_shell: docker build . --tag jonashackt/windowsservercore-oraclejdk8:latest
     args:
-      chdir: "{{spring_boot_app_path}}\\windows-java"
+      chdir: "{{spring_boot_app_path}}\\windowsservercore-oraclejdk8"
 
 
   - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app_name

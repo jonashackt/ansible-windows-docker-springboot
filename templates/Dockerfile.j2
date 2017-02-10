@@ -1,5 +1,5 @@
 #jinja2: newline_sequence:'\r\n'
-FROM windows-java:latest
+FROM jonashackt/windowsservercore-oraclejdk8:latest
 VOLUME C:\\tmp
 WORKDIR \spring-boot\{{spring_boot_app_name}}
 ADD {{spring_boot_app_name}}.jar \spring-boot\{{spring_boot_app_name}}\app.jar

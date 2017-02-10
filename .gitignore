@@ -28,3 +28,6 @@ target
 
 # logback
 logback.out.xml
+
+# zips
+*.tar.gz

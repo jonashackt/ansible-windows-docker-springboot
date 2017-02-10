@@ -6,4 +6,4 @@ ENV JAVA_PKG=server-jre-8u121-windows-x64.tar.gz \
 
 ADD $JAVA_PKG /
 
-RUN setx /M PATH %PATH%;%JAVA_HOME%\bin
+# RUN setx /M PATH %PATH%;%JAVA_HOME%\bin
