@@ -9,35 +9,29 @@
   - name: Create directory C:\spring-boot\spring_boot_app_name, if not there
     win_file: path={{spring_boot_app_path}} state=directory
 
-  - name: Install Containers natively as Windows Feature   
-    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All
-    ignore_errors: yes   
+#  - name: Install Containers natively as Windows Feature   
+#    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All
+#    ignore_errors: yes   
 
-  - name: Install Hyper-V as Windows Feature    
-    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
-    ignore_errors: yes
+#  - name: Install Hyper-V as Windows Feature    
+#    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+#    ignore_errors: yes
+
+# Irgendwie ein If einbauen, ob die oberen Befehle ausgeführt wurden - nur dann neustarten
+#  - name: Reboot Machine to have Containers & Hyper-V take effect
+#    win_reboot:
+
 
   - name: Install Docker via chocolatey
     win_chocolatey:
       name: docker
 
-  - name: Install nssm (non-sucking service manager) via chocolatey
-    win_chocolatey:
-      name: nssm
-      version: 2.24.0
-
-  - name: Remove (maybe previously) installed Docker Windows Service
-    win_nssm:
-      name: dockerd
-      state: absent
+  - name: Register Docker as a Windows Service (if not already there)
+    win_shell: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe --register-service"
     ignore_errors: yes
 
-  - name: Register Docker as Windows Service
-    win_nssm:
-      name: dockerd
-      application: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe"
-      state: restarted
-      start_mode: auto
+  - name: Start Docker as Windows Service
+    win_shell: Start-Service Docker
 
   - name: Create directory C:\spring-boot\spring_boot_app_name\windowsservercore-oraclejdk8, if not there
     win_file: path={{spring_boot_app_path}}\windowsservercore-oraclejdk8 state=directory
@@ -74,8 +68,12 @@
       src: "{{spring_boot_app_jar}}"
       dest: "{{spring_boot_app_path}}\\{{spring_boot_app_name}}.jar"
 
+  - name: Remove the Service Docker Container Image
+    win_shell: docker rmi {{spring_boot_app_name}}:latest
+    ignore_errors: yes
+
   - name: Build the service Docker Image
-    win_shell: docker build . --tag {{spring_boot_app_name}}:1
+    win_shell: docker build . --tag {{spring_boot_app_name}}:latest
     args:
       chdir: "{{spring_boot_app_path}}"
 
@@ -88,56 +86,10 @@
     ignore_errors: yes
 
   - name: Run the service docker image
-    win_shell: docker run -d --name={{spring_boot_app_name}} --restart=unless-stopped {{spring_boot_app_name}}:1
+    win_shell: docker run -d --name={{spring_boot_app_name}} --restart=unless-stopped {{spring_boot_app_name}}:latest
 
 
 
-
-
-
-
-
-
-
-
-  ###### Stop services, if they´re already in place
-  - name: Stop Spring Boot service, if there - so we can extract JRE & other necessary files without Windows file handle problems
-    win_service:
-      name: "{{spring_boot_app_name}}"
-      state: stopped
-    ignore_errors: yes
-
-  ###### Extraction and copying of all necessary files (unzip or install JRE, deploy Spring Boot jar)
-  - name: Install Java Runtime Environment (JRE) 8 via chocolatey
-    win_chocolatey:
-      name: jre8
-
-  - name: Copy Spring Boot app´s jar-File to directory C:\spring-boot\spring_boot_app_name
-    win_copy:
-      src: "{{spring_boot_app_jar}}"
-      dest: "{{spring_boot_app_path}}\\{{spring_boot_app_name}}.jar"
-
-  ####### Service installation
-  # (stopping and configuration of Application directory is only done for demontration purposes - for apps that need certain .dlls on the path for example)
-  - name: Install Spring Boot app as Windows service (via nssm), if not already there - but remain stopped to configure Application directory
-    win_nssm:
-      name: "{{spring_boot_app_name}}"
-      application: "{{path_to_java_exe}}"
-      app_parameters:
-          "-jar": "{{spring_boot_app_path}}\\{{spring_boot_app_name}}.jar"
-      state: stopped
-
-  ####### Configure Application path & Fire up the service
-  # If you need to have certain .exe or .dll files on the path where your Spring Boot .jar is located, you can configure the nssm Application Directory to that path
-  # this is currently not supported by the ansible win_nssm module http://docs.ansible.com/ansible/win_nssm_module.html, so we have to use raw component
-  # After that we have to (re-) start our nssm service to bring the configuration change to life
-  - name: Set the Application path for the Spring Boot app to the folder where the needed native libraries reside
-    raw: nssm set {{spring_boot_app_name}} AppDirectory {{spring_boot_app_path}}
-
-  - name: Fire up Spring Boot app Windows service
-    win_service:
-      name: "{{spring_boot_app_name}}"
-      state: restarted
 
   ###### Smoke test, if app has booted up correctly
   - name: Wait until our Spring Boot app is up & running
