@@ -24,6 +24,58 @@ I´am not sure, but it could turn out, that this isn´t possible for now - see t
 
 Thanks to the many insights from [StefanScherer](https://github.com/StefanScherer)!
 
+###### Reload Plugin for Vagrant
+```
+vagrant plugin install vagrant-reload
+```
+
+
+###### From VirtualBox to VMWare... Let´s try packer
+
+I lost many hours on my way trying to run Windows 10 with Containers inside of VirtualBox - but because Microsoft & Docker Inc. don´t officially support Virtualized Windows Docker Installations and there´s a slight note, that maybe VMWare or Parallels will work, I changed my Vagrant Provider under the hood. Getting VMWare Fusion Pro to work on your machine, you need to install it first (e.g. via `brew cask install vmware-fusion`).
+
+I really wanted to stay with Vagrant and it´s nice Yaml like API, but I had to understand that the [official Vagrant VMWare plugin](https://www.vagrantup.com/docs/vmware/installation.html) is not free and you have to pay for it. So I gave this new (at least for me) tool a try: [packer.io](https://packer.io/). On a Mac you can install it with:
+
+`brew install packer` 
+
+
+Here you get a 2016 Server with 180 Days Evaluation licence, but you have to register...
+
+Or this one... https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016
+
+
+Then Download the a VMWare Fusion Image `MSEdge.Win10_RS1.VMWare` from https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/#downloads and unzip it. Check out the packer config [windows_10_docker.json](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/packer/windows_10_docker.json) and adjust the `source_path` to the location where you unzipped the VMWare image data:
+
+```
+variables": {
+    "source_path": "../../win10boxes/MSEdge.Win10_RS1.VMWare/MSEdge - Win10_preview.vmx"
+  }
+```
+
+Now start packer with this command:
+
+```
+packer build windows_10_docker.json
+```
+
+
+
+
+###### VirtualBox is sadly not 100% compatible
+
+I lost many hours on my way trying to run Windows 10 with Containers inside of VirtualBox - but because Microsoft & Docker Inc. don´t officially support Virtualized Windows Docker Installations and there´s a slight note, that maybe VMWare or Parallels will work, I changed my Vagrant Provider under the hood. Getting VMWare Fusion Pro to work on your machine, install it (e.g. via `brew cask install vmware-fusion`) and install the [official Vagrant VMWare plugin](https://www.vagrantup.com/docs/vmware/installation.html) via:
+
+```
+vagrant plugin install vagrant-vmware-fusion
+```
+
+You sadly need a licence here :( 
+
+```
+vagrant box add dev-msedge.box --name "windows10docker" --provider vmware_fusion
+```
+
+
 ###### Install Container feature:
 
 ```
@@ -46,7 +98,71 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 
 
 
+###### Testdrive Docker Windows Container on Windows
+
+Try this:
+
+```
+docker run microsoft/dotnet-samples:dotnetapp-nanoserver
+```
+
+If everything went well, you should see something like this:
+
+```
+         Dotnet-bot: Welcome to using .NET Core!
+    __________________
+                      \
+                       \
+                          ....
+                          ....'
+                           ....
+                        ..........
+                    .............'..'..
+                 ................'..'.....
+               .......'..........'..'..'....
+              ........'..........'..'..'.....
+             .'....'..'..........'..'.......'.
+             .'..................'...   ......
+             .  ......'.........         .....
+             .                           ......
+            ..    .            ..        ......
+           ....       .                 .......
+           ......  .......          ............
+            ................  ......................
+            ........................'................
+           ......................'..'......    .......
+        .........................'..'.....       .......
+     ........    ..'.............'..'....      ..........
+   ..'..'...      ...............'.......      ..........
+  ...'......     ...... ..........  ......         .......
+ ...........   .......              ........        ......
+.......        '...'.'.              '.'.'.'         ....
+.......       .....'..               ..'.....
+   ..       ..........               ..'........
+          ............               ..............
+         .............               '..............
+        ...........'..              .'.'............
+       ...............              .'.'.............
+      .............'..               ..'..'...........
+      ...............                 .'..............
+       .........                        ..............
+        .....
+
+
+**Environment**
+Platform: .NET Core 1.0
+OS: Microsoft Windows 10.0.14393
+```
+
+
+
 ## Craft a Windows-ready ansible playbook
+
+###### Downlaod Java
+
+[Download Server JRE 8](http://www.oracle.com/technetwork/java/javase/downloads/server-jre8-downloads-2133154.html) `.tar.gz` file and drop into the projects dir.
+
+
 
 I did that step already for you :) So let´s run our the playbook restexample-windows.yml:
 
@@ -65,6 +181,8 @@ tbd
 
 ## Resources
 
+Really good examples: https://github.com/StefanScherer/dockerfiles-windows & https://github.com/StefanScherer/docker-windows-box
+
 https://blog.docker.com/2016/09/build-your-first-docker-windows-server-container/
 
 https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-server
@@ -72,5 +190,16 @@ https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/qu
 [Configure Docker on Windows](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon)
 
 Worth a look: [Powershell tools for docker](https://github.com/artisticcheese/artisticcheesecontainer/wiki) - didn´t try, but maybe interesting for some scenarios
+
+
+
+https://docs.docker.com/docker-for-windows/troubleshoot/
+
+https://docs.docker.com/docker-for-windows/#docker-settings
+
+https://www.docker.com/microsoft
+
+
+https://alexandrnikitin.github.io/blog/running-java-inside-windows-container-on-windows-server/
 
 

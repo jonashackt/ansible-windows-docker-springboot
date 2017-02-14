@@ -1,0 +1,50 @@
+---
+  - name: Create directory C:\spring-boot\spring_boot_app_name, if not there
+    win_file: path={{spring_boot_app_path}} state=directory
+
+
+  - name: Copy Java 8 zip to directory C:\spring-boot\windowsservercore-oraclejdk8
+    win_copy:
+      src: "server-jre-8u121-windows-x64.tar.gz"
+      dest: "{{spring_boot_app_path}}\\server-jre-8u121-windows-x64.tar.gz"
+
+  - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app_name
+    win_template:
+      src: "templates/Dockerfile.j2"
+      dest: "{{spring_boot_app_path}}\\Dockerfile"
+
+  - name: Copy Spring Boot app´s jar-File to directory C:\spring-boot\spring_boot_app_name
+    win_copy:
+      src: "{{spring_boot_app_jar}}"
+      dest: "{{spring_boot_app_path}}\\{{spring_boot_app_name}}.jar"
+
+  - name: Remove the Service Docker Container Image
+    win_shell: docker rmi {{spring_boot_app_name}}:latest
+    ignore_errors: yes
+
+  - name: Build the service Docker Image
+    win_shell: docker build . --tag {{spring_boot_app_name}}:latest
+    args:
+      chdir: "{{spring_boot_app_path}}"
+
+  - name: Stop the service docker container
+    win_shell: docker stop {{spring_boot_app_name}}
+    ignore_errors: yes
+
+  - name: Remove the service docker container
+    win_shell: docker rm {{spring_boot_app_name}}
+    ignore_errors: yes
+
+  - name: Run the service docker image
+    win_shell: docker run -d --name={{spring_boot_app_name}} --restart=unless-stopped {{spring_boot_app_name}}:latest
+
+  ###### Smoke test, if app has booted up correctly
+  - name: Wait until our Spring Boot app is up & running
+    win_uri:
+      url: "http://localhost:8080/swagger-ui.html"
+      method: GET
+    register: result
+    until: result.status_code == 200  
+    retries: 5
+    delay: 5
+

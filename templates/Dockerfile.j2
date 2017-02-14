@@ -1,20 +1,18 @@
 #jinja2: newline_sequence:'\r\n'
 FROM microsoft/windowsservercore:latest
 
-# Install chocolatey & latest JRE 8 inside the Container
-SHELL ["powershell", "iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex"]
-SHELL ["powershell", "choco install -y jre8"]
+# Expose the apps Port
+EXPOSE 8080
+
+# Extract Server-JRE into C:\\jdk1.8.0_121 in the Container
+ADD JAVA_PKG=server-jre-8u121-windows-x64.tar.gz /
 
 # Create logging default path for Spring Boot
 VOLUME C:\\tmp
 
-WORKDIR \spring-boot\{{spring_boot_app_name}}
-
 # Add Spring Boot app.jar to Container
-ADD {{spring_boot_app_name}}.jar \spring-boot\{{spring_boot_app_name}}\app.jar
+ADD {{spring_boot_app_name}}.jar app.jar
 
 # Fire up our Spring Boot app by default
-ENTRYPOINT ["java", "-jar \spring-boot\{{spring_boot_app_name}}\app.jar"]
+CMD ["C:\\jdk1.8.0_121\\bin\\java.exe", "-jar app.jar"]
 
-# Expose the apps Port
-EXPOSE 8080
