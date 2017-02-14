@@ -154,6 +154,11 @@ Platform: .NET Core 1.0
 OS: Microsoft Windows 10.0.14393
 ```
 
+###### Testdrive your App
+
+```
+docker run -it -P --name containername1 imagename:1
+```
 
 
 ## Craft a Windows-ready ansible playbook
@@ -171,6 +176,9 @@ ansible-playbook -i hostsfile restexample-windows.yml --extra-vars "spring_boot_
 ```
 
 Although the [chocolatey package Docker](https://chocolatey.org/packages/docker) claims to only install the client, it also provides the Docker Server (which means this is 100% identical with the [step 2. Install Docker in Microsoft´s tutorial](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10)).
+
+
+#####
 
 
 
