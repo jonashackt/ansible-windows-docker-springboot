@@ -20,6 +20,9 @@ I´am not sure, but it could turn out, that this isn´t possible for now - see t
 
 
 
+
+
+
 ### Additional Preparation Steps for Windows with native Docker
 
 Thanks to the many insights from [StefanScherer](https://github.com/StefanScherer)!
@@ -30,34 +33,33 @@ vagrant plugin install vagrant-reload
 ```
 
 
-###### From VirtualBox to VMWare... Let´s try packer
 
-I lost many hours on my way trying to run Windows 10 with Containers inside of VirtualBox - but because Microsoft & Docker Inc. don´t officially support Virtualized Windows Docker Installations and there´s a slight note, that maybe VMWare or Parallels will work, I changed my Vagrant Provider under the hood. Getting VMWare Fusion Pro to work on your machine, you need to install it first (e.g. via `brew cask install vmware-fusion`).
 
-I really wanted to stay with Vagrant and it´s nice Yaml like API, but I had to understand that the [official Vagrant VMWare plugin](https://www.vagrantup.com/docs/vmware/installation.html) is not free and you have to pay for it. So I gave this new (at least for me) tool a try: [packer.io](https://packer.io/). On a Mac you can install it with:
+##### Another Base - the Windows 2016 Evalutation ISO
+
+I lost many hours on my way trying to run Windows 10 with Containers inside the easy to download Vagrant box or VMWare image from https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/#downloads. But this somehow didn´t work - either with Virtualbox nor with VMWare Fusion Pro. Therefore we have to take another way. Let´s switch to another base image: The Windows 2016 Server ISO with 180 Days Evaluation licence (you have to register a live-ID for that): https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016
+
+Download the __14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO__ and place it into the __/packer__ folder.
+
+The problem with an ISO - it´s not a nice Vagrant box we can fireup easily for development. But hey! There´s something for us: [packer.io](https://packer.io/). This smart tool is able to produce machine images in every flavour - also as a Vagrant box ;) 
+
+On a Mac you can install it with:
 
 `brew install packer` 
 
-
-Here you get a 2016 Server with 180 Days Evaluation licence, but you have to register...
-
-Or this one... https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016
-
-
-Then Download the a VMWare Fusion Image `MSEdge.Win10_RS1.VMWare` from https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/#downloads and unzip it. Check out the packer config [windows_10_docker.json](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/packer/windows_10_docker.json) and adjust the `source_path` to the location where you unzipped the VMWare image data:
-
-```
-variables": {
-    "source_path": "../../win10boxes/MSEdge.Win10_RS1.VMWare/MSEdge - Win10_preview.vmx"
-  }
-```
 
 Now start packer with this command:
 
 ```
 packer build windows_10_docker.json
+
+packer build --only=virtualbox-iso -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2016_docker.json
 ```
 
+After successful packer build, you can add the box to your Vagrant installation:
+```
+vagrant box add windows_2016_docker windows_2016_docker_virtualbox.box
+```
 
 
 
@@ -69,7 +71,7 @@ I lost many hours on my way trying to run Windows 10 with Containers inside of V
 vagrant plugin install vagrant-vmware-fusion
 ```
 
-You sadly need a licence here :( 
+I really wanted to stay with Vagrant and it´s nice Yaml like API, but I had to understand that the [official Vagrant VMWare plugin](https://www.vagrantup.com/docs/vmware/installation.html) is not free and you have to pay for it. You sadly need a licence here :( 
 
 ```
 vagrant box add dev-msedge.box --name "windows10docker" --provider vmware_fusion
