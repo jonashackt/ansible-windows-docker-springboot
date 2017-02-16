@@ -1,5 +1,5 @@
 Vagrant.configure("2") do |config|
-  config.vm.box = "windows10"
+  config.vm.box = "windows_2016_docker"
   config.vm.guest = :windows
 
   config.windows.halt_timeout = 15
@@ -8,10 +8,8 @@ Vagrant.configure("2") do |config|
   config.vm.communicator = "winrm"
 
   # Configure WinRM Connectivity
-  config.winrm.username = "IEUser"
-  config.winrm.password = "Passw0rd!"
-
-  config.vm.provision "shell", path: "vagrant-scripts/configure-ansible.ps1", privileged: true
+  config.winrm.username = "vagrant"
+  config.winrm.password = "vagrant"
 
   config.vm.provider "virtualbox" do |vb|
      # Display the VirtualBox GUI when booting the machine

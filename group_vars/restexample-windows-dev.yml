@@ -1,7 +1,7 @@
 # http://docs.ansible.com/ansible/intro_windows.html#windows-how-does-it-work
 
-ansible_user: IEUser
-ansible_password: Passw0rd!
+ansible_user: vagrant
+ansible_password: vagrant
 ansible_port: 55986 # not 5986, as we would use for non-virtualized environments
 ansible_connection: winrm
 

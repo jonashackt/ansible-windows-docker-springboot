@@ -41,7 +41,12 @@ I lost many hours on my way trying to run Windows 10 with Containers inside the 
 
 Download the __14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO__ and place it into the __/packer__ folder.
 
-The problem with an ISO - it´s not a nice Vagrant box we can fireup easily for development. But hey! There´s something for us: [packer.io](https://packer.io/). This smart tool is able to produce machine images in every flavour - also as a Vagrant box ;) 
+The problem with an ISO - it´s not a nice Vagrant box we can fireup easily for development. But hey! There´s something for us: [packer.io](https://packer.io/). This smart tool is able to produce machine images in every flavour - also as a Vagrant box ;) And [from the docs](https://www.packer.io/docs/post-processors/vagrant.html):
+
+> "[Packer] ... is in fact how the official boxes distributed by Vagrant are created."
+
+We also install Windows Server 2016 in an [unattended mode](https://social.technet.microsoft.com/wiki/contents/articles/36609.windows-server-2016-unattended-installation.aspx).
+
 
 On a Mac you can install it with:
 
@@ -51,10 +56,10 @@ On a Mac you can install it with:
 Now start packer with this command:
 
 ```
-packer build windows_10_docker.json
-
 packer build --only=virtualbox-iso -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2016_docker.json
 ```
+
+After you clicked "Evaluation Licence ok", you can get yourself a coffee. This will take some time ;)
 
 After successful packer build, you can add the box to your Vagrant installation:
 ```
