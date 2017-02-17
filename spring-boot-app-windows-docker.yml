@@ -36,12 +36,12 @@
     ignore_errors: yes
 
   - name: Run the service docker image
-    win_shell: docker run -d --name={{spring_boot_app_name}} --restart=unless-stopped {{spring_boot_app_name}}:latest
+    win_shell: docker run -d --publish 9876:8080 --name={{spring_boot_app_name}} --restart=unless-stopped {{spring_boot_app_name}}:latest
 
   ###### Smoke test, if app has booted up correctly
   - name: Wait until our Spring Boot app is up & running
     win_uri:
-      url: "http://localhost:8080/swagger-ui.html"
+      url: "http://localhost:9876/swagger-ui.html"
       method: GET
     register: result
     until: result.status_code == 200  
