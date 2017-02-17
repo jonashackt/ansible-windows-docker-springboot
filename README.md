@@ -11,33 +11,28 @@ Because [Microsoft &amp; Docker Inc. developed a native Docker implementation on
 
 Firing up Spring Boot apps with Ansible on Windows using Docker sound´s like the next step after [Running Spring Boot Apps on Windows with Ansible (codecentric.de)](https://blog.codecentric.de/en/2017/01/ansible-windows-spring-boot/).
 
-Every [Prerequisite](https://github.com/jonashackt/ansible-windows-springboot#prerequisites), [preparation step](https://github.com/jonashackt/ansible-windows-springboot#prepare-the-windows-box-for-ansible-communication) and the need to [choose a Spring Boot app](https://github.com/jonashackt/ansible-windows-springboot#choose-an-spring-boot-app-to-deploy) to run stays the same.
 
-Bringing Docker to the table, we should start with the following step:
+> Before we start: The most important point here is to start with a __correct Build Number__ of Windows 10 (1607, Anniversary Update)/Windows Server 2016. It took me days to figure that out, but it won´t work with for example 10.0.14393.67 - but will with 10.0.14393.206! I ran over [the advice on this howto](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10) to fast, because I thought "Windows 10 Anniversary should be enough, don´t bother me with build numbers". But take care! The final `docker run` won´t work (but all the other steps before, which made it so hard to understand)... Here are two examples of the output of a `(Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.FileVersion` on a Powershell:
 
-> Disclaimer for using a Mac or Linux Machine to Host a virtualized Windows 10 with Hyper-V to run Docker on
-I´am not sure, but it could turn out, that this isn´t possible for now - see the [nested Virtualization docs](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization)
+__Good build number:__
 
+![Windows_build_number_Docker_working](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/Windows_build_number_Docker_working.png)
 
+__Bad build number:__
 
+![Windows_build_number_Docker_failing](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/Windows_build_number_Docker_failing.png)
 
-
-
-### Additional Preparation Steps for Windows with native Docker
-
-Thanks to the many insights from [StefanScherer](https://github.com/StefanScherer)!
-
-###### Reload Plugin for Vagrant
-```
-vagrant plugin install vagrant-reload
-```
-
-
+Because of the minimal required build of Windows 10 or Server 2016, we sadly can´t use the easy to download and easy to handle [Vagrant box with Windows 10 from the Microsoft Edge developer site](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/#downloads). So we have to look after an alternative box to start from. My goal was to start from a original Microsoft Image and show a 100% replicable way how to get to a running Vagrant box. Because besides the Microsoft Edge boxes (which have don´t have the correct build number for now) there aren´t any official from Microsoft around in [Vagrant Atlas](https://atlas.hashicorp.com/boxes/search?utf8=%E2%9C%93&sort=&provider=&q=windows+10). And hey - we´re dealing with Windows! I don´t want to have someone installing things on a VM I don´t know... 
 
 
 ##### Another Base - the Windows 2016 Evalutation ISO
 
-I lost many hours on my way trying to run Windows 10 with Containers inside the easy to download Vagrant box or VMWare image from https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/#downloads. But this somehow didn´t work - either with Virtualbox nor with VMWare Fusion Pro. Therefore we have to take another way. Let´s switch to another base image: The Windows 2016 Server ISO with 180 Days Evaluation licence (you have to register a live-ID for that): https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016
+After a bit of research, you´ll find another way to evaluate a current Windows 10 Version: The [Windows Server 2016 Evalutation ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016). But how do we get from ISO to our easy-to-use Vagrant box? Well, we can  packer tbd
+
+
+
+
+The Windows 2016 Server ISO with 180 Days Evaluation licence (you have to register a live-ID for that): https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016
 
 Download the __14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO__ and place it into the __/packer__ folder.
 
@@ -64,22 +59,6 @@ After you clicked "Evaluation Licence ok", you can get yourself a coffee. This w
 After successful packer build, you can add the box to your Vagrant installation:
 ```
 vagrant box add windows_2016_docker windows_2016_docker_virtualbox.box
-```
-
-
-
-###### VirtualBox is sadly not 100% compatible
-
-I lost many hours on my way trying to run Windows 10 with Containers inside of VirtualBox - but because Microsoft & Docker Inc. don´t officially support Virtualized Windows Docker Installations and there´s a slight note, that maybe VMWare or Parallels will work, I changed my Vagrant Provider under the hood. Getting VMWare Fusion Pro to work on your machine, install it (e.g. via `brew cask install vmware-fusion`) and install the [official Vagrant VMWare plugin](https://www.vagrantup.com/docs/vmware/installation.html) via:
-
-```
-vagrant plugin install vagrant-vmware-fusion
-```
-
-I really wanted to stay with Vagrant and it´s nice Yaml like API, but I had to understand that the [official Vagrant VMWare plugin](https://www.vagrantup.com/docs/vmware/installation.html) is not free and you have to pay for it. You sadly need a licence here :( 
-
-```
-vagrant box add dev-msedge.box --name "windows10docker" --provider vmware_fusion
 ```
 
 
