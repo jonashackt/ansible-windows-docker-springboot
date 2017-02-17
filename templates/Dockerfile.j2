@@ -5,7 +5,7 @@ FROM microsoft/windowsservercore:latest
 EXPOSE 8080
 
 # Extract Server-JRE into C:\\jdk1.8.0_121 in the Container
-ADD JAVA_PKG=server-jre-8u121-windows-x64.tar.gz /
+ADD server-jre-8u121-windows-x64.tar.gz /
 
 # Create logging default path for Spring Boot
 VOLUME C:\\tmp

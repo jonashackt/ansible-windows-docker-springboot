@@ -1,15 +1,15 @@
 ---
 
-  - name: Install Containers natively as Windows Feature   
-    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All
-    ignore_errors: yes   
+#  - name: Install Containers natively as Windows Feature   
+#    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All
+#    ignore_errors: yes   
 
-  - name: Install Hyper-V as Windows Feature    
-    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
-    ignore_errors: yes
+#  - name: Install Hyper-V as Windows Feature    
+#    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+#    ignore_errors: yes
 
-  - name: Reboot Machine to have Containers and Hyper-V take effect
-    win_reboot:
+#  - name: Reboot Machine to have Containers and Hyper-V take effect
+#    win_reboot:
 
   - name: Install Docker via chocolatey
     win_chocolatey:
