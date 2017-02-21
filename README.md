@@ -30,6 +30,10 @@ Because of the minimal required build of Windows 10 or Server 2016, we sadly can
 After a bit of research, you´ll find another way to evaluate a current Windows 10 Version: The [Windows Server 2016 Evalutation ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016). But how do we get from ISO to our easy-to-use Vagrant box? Well, we can  packer tbd
 
 
+Or Windows 10 Anniversary Enterprise: https://www.microsoft.com/de-de/evalcenter/evaluate-windows-10-enterprise
+
+14393.0.160715-1616.RS1_RELEASE_CLIENTENTERPRISE_S_EVAL_X64FRE_EN-US.ISO  
+
 
 
 The Windows 2016 Server ISO with 180 Days Evaluation licence (you have to register a live-ID for that): https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016
@@ -164,9 +168,16 @@ ansible-playbook -i hostsfile restexample-windows.yml --extra-vars "spring_boot_
 Although the [chocolatey package Docker](https://chocolatey.org/packages/docker) claims to only install the client, it also provides the Docker Server (which means this is 100% identical with the [step 2. Install Docker in Microsoft´s tutorial](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10)).
 
 
-#####
+##### Container Networking - or how to reach your Spring Boot app from outside of all the containers
+
+"Container endpoints are only reachable from the container host using container internal IPs and ports (find this info using 'docker network inspect ')." - [good quote from the docs](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-networking)
 
 
+#### Just testing
+
+```
+iwr http://download.oracle.com/otn-pub/java/jdk/8u121-b13/jdk-8u121-windows-x64.tar.gz -Headers @{"Cookie: oraclelicense"="accept-securebackup-cookie"}
+```
 
 ## Best practices
 
@@ -195,5 +206,7 @@ https://www.docker.com/microsoft
 
 
 https://alexandrnikitin.github.io/blog/running-java-inside-windows-container-on-windows-server/
+
+Windows Container Docs: https://docs.microsoft.com/en-us/virtualization/windowscontainers/about
 
 
