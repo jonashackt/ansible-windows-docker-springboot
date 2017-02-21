@@ -1,5 +1,19 @@
 ---
 
+  - name: Get Windows Build Number
+    win_file_version:
+      path: C:\Windows\System32\hal.dll
+    register: hal_dll_version_return
+
+  - name: Fail, if Windows Build number doesn´t support Windows Docker Containers correctly
+    fail:
+      msg: "Windows Build Number {{hal_dll_version_return.win_file_version.product_version}} doesn´t support Windows Docker Container correctly ({{hal_dll_version_return.win_file_version.file_private_part}} is to small)"
+    when: hal_dll_version_return.win_file_version.file_private_part|int < 206
+
+  - name: Congratulations
+    debug:
+      msg: "With your Build Number {{hal_dll_version_return.win_file_version.product_version}} you have choosen a good basis for Windows Docker Containers!"
+
 #  - name: Install Containers natively as Windows Feature   
 #    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All
 #    ignore_errors: yes   

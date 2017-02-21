@@ -181,7 +181,31 @@ iwr http://download.oracle.com/otn-pub/java/jdk/8u121-b13/jdk-8u121-windows-x64.
 
 ## Best practices
 
-tbd
+##### Using Powershell on Host to Connect to Container
+
+```
+docker ps -a 
+```
+Look up your containers´ id, then do
+```
+docker exec -ti YourContainerIdHere powershell
+```
+
+##### Check if your Spring Boot app is running inside the Container
+
+```
+iwr http://localhost:8080/swagger-ui.html -UseBasicParsing
+```
+
+
+## Known Issues
+
+##### localhost to forward to Windows Containers isn´t working as expected
+
+[On Windows it isn´t possible to do what you know from Linux](https://blog.sixeyed.com/published-ports-on-windows-containers-dont-do-loopback/): Run a `docker run -d -p 80:80 microsoft/iis` and go to `http://localhost` won´t work sadly! But before I hear you scream: "Hey, why is that `-p 80:80` thingy for - if that simple thing isn´t working?!" Well, if you come from outside the Windows Docker Host Maschine and try this IP, it will work - so everything will work, except of your localhost-Tests :D
+
+> But this is only temporarily --> The Windows Docker team is on it and the fix will be released soon as a Windows Update - see [github Issue 458](https://github.com/docker/for-win/issues/458)
+
 
 
 ## Resources
@@ -192,9 +216,13 @@ https://blog.docker.com/2016/09/build-your-first-docker-windows-server-container
 
 https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-server
 
+
+
+[Windows Containers Documentation](https://docs.microsoft.com/en-us/virtualization/windowscontainers/index)
+
 [Configure Docker on Windows](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon)
 
-Worth a look: [Powershell tools for docker](https://github.com/artisticcheese/artisticcheesecontainer/wiki) - didn´t try, but maybe interesting for some scenarios
+Worth a look: [Walktrough Windows Docker Containers](https://github.com/artisticcheese/artisticcheesecontainer/wiki) - didn´t try, but maybe interesting for some scenarios
 
 
 
@@ -208,5 +236,8 @@ https://www.docker.com/microsoft
 https://alexandrnikitin.github.io/blog/running-java-inside-windows-container-on-windows-server/
 
 Windows Container Docs: https://docs.microsoft.com/en-us/virtualization/windowscontainers/about
+
+
+[Video: John Starks’ black belt session about Windows Server & Docker at DockerCon ‘16](https://www.youtube.com/watch?v=85nCF5S8Qok)
 
 

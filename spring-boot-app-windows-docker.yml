@@ -1,6 +1,6 @@
 ---
   - name: Create directory C:\spring-boot\spring_boot_app_name, if not there
-    win_file: path={{spring_boot_app_path}} state=directory
+    win_file: path={{spring_boot_app.path}} state=directory
 
   - name: Install wget for downloading JRE
     win_chocolatey:
@@ -12,12 +12,12 @@
   - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app_name
     win_template:
       src: "templates/Dockerfile.j2"
-      dest: "{{spring_boot_app_path}}\\Dockerfile"
+      dest: "{{spring_boot_app.path}}\\Dockerfile"
 
   - name: Copy Spring Boot app´s jar-File to directory C:\spring-boot\spring_boot_app_name
     win_copy:
       src: "{{spring_boot_app_jar}}"
-      dest: "{{spring_boot_app_path}}\\{{spring_boot_app_name}}.jar"
+      dest: "{{spring_boot_app.path}}\\{{spring_boot_app_name}}.jar"
 
   - name: Remove the Service Docker Container Image
     win_shell: docker rmi {{spring_boot_app_name}}:latest
@@ -26,7 +26,7 @@
   - name: Build the service Docker Image
     win_shell: docker build . --tag {{spring_boot_app_name}}:latest
     args:
-      chdir: "{{spring_boot_app_path}}"
+      chdir: "{{spring_boot_app.path}}"
 
   - name: Stop the service docker container
     win_shell: docker stop {{spring_boot_app_name}}
@@ -37,12 +37,12 @@
     ignore_errors: yes
 
   - name: Run the service docker image
-    win_shell: docker run -d --publish 9876:8080 --name={{spring_boot_app_name}} --restart=unless-stopped {{spring_boot_app_name}}:latest
+    win_shell: "docker run -d --publish {{spring_boot_app.port}}:{{spring_boot_app.port}} --name={{spring_boot_app_name}} --restart=unless-stopped {{spring_boot_app_name}}:latest"
 
   ###### Smoke test, if app has booted up correctly
   - name: Wait until our Spring Boot app is up & running
     win_uri:
-      url: "http://localhost:9876/swagger-ui.html"
+      url: "http://localhost:{{spring_boot_app.port}}/swagger-ui.html"
       method: GET
     register: result
     until: result.status_code == 200  

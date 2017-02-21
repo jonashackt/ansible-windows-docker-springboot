@@ -4,7 +4,7 @@ FROM microsoft/windowsservercore:latest
 MAINTAINER Jonas Hecht
 
 # Expose the apps Port
-EXPOSE 8080
+EXPOSE {{spring_boot_app.port}}
 
 # Extract Server-JRE into C:\\jdk1.8.0_121 in the Container
 ADD {{server_jre_name}} /
@@ -16,5 +16,5 @@ VOLUME C:\\tmp
 ADD {{spring_boot_app_name}}.jar app.jar
 
 # Fire up our Spring Boot app by default
-CMD ["C:\\jdk1.8.0_{{java8_update_version}}\\bin\\java.exe", "-jar app.jar"]
+CMD ["C:\\jdk1.8.0_{{java8_update_version}}\\bin\\java.exe", "-jar app.jar --server.port={{spring_boot_app.port}}"]
 
