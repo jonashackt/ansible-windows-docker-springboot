@@ -26,5 +26,9 @@
     win_shell: docker pull microsoft/nanoserver  
 
   - name: Get the second (but 10GB big) Windows Docker Base Image microsoft/windowsservercore from hub.docker.com (you may grab a coffee now...)
-    win_shell: docker pull microsoft/windowsservercore  
+    win_shell: docker pull microsoft/windowsservercore 
+
+  - name: Install Sysinternals Utilities, so that we can observe the Docker processes with the help of the Process Monitor´s Process Tree
+    win_chocolatey:
+      name: sysinternals
 
