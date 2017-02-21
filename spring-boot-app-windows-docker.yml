@@ -7,7 +7,7 @@
       name: wget
 
   - name: Download Server JRE to C:\spring-boot\spring_boot_app_name    
-    win_shell: "wget.exe --no-cookies --no-check-certificate --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \"http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/server-jre-8u121-windows-x64.tar.gz\" -O {{spring_boot_app_path}}\\server-jre-8u121-windows-x64.tar.gz"
+    win_shell: "wget.exe --no-cookies --no-check-certificate --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \"http://download.oracle.com/otn-pub/java/jdk/8u{{java8_update_version}}-{{java_build_version}}/e9e7ea248e2c4826b92b3f075a80e441/{{server_jre_name}}\" -O {{spring_boot_app_path}}\\{{server_jre_name}}"
 
   - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app_name
     win_template:

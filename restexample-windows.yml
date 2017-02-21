@@ -3,7 +3,9 @@
   vars:
     base_path: "C:\\spring-boot"
     spring_boot_app_path: "{{base_path}}\\{{spring_boot_app_name}}"
-    path_to_java_exe: "C:\\ProgramData\\Oracle\\Java\\javapath\\java.exe"
+    java8_update_version: 121
+    java_build_version: b13
+    server_jre_name: server-jre-8u{{java8_update_version}}-windows-x64.tar.gz
 
   tasks:
   ###### Preparation steps
