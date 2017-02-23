@@ -5,6 +5,7 @@
     spring_boot_app:
       path: "{{base_path}}\\{{spring_boot_app_name}}"
       port: 8080
+      health_url_ending: "swagger-ui.html"
     java8_update_version: 121
     java_build_version: b13
     server_jre_name: server-jre-8u{{java8_update_version}}-windows-x64.tar.gz
@@ -19,5 +20,8 @@
 
   - name: Run Spring Boot app inside Windows-Docker-Container
     include: spring-boot-app-windows-docker.yml
+
+  - name: Healthchecking the Spring Boot app
+    include: spring-boot-app-health-check.yml
 
 

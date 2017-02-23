@@ -6,8 +6,15 @@
     win_chocolatey:
       name: wget
 
-  - name: Download Server JRE to C:\spring-boot\spring_boot_app_name    
-    win_shell: "wget.exe --no-cookies --no-check-certificate --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \"http://download.oracle.com/otn-pub/java/jdk/8u{{java8_update_version}}-{{java_build_version}}/e9e7ea248e2c4826b92b3f075a80e441/{{server_jre_name}}\" -O {{spring_boot_app_path}}\\{{server_jre_name}}"
+#  - name: Check if JRE was already downloaded
+#    win_find:
+#      paths: "{{spring_boot_app_path}}\\{{server_jre_name}}"
+#    register: server_jre_on_server
+
+#   when: server_jre_on_server.win_find.matched == true
+
+#  - name: Download Server JRE to C:\spring-boot\spring_boot_app_name    
+#    win_shell: "wget.exe --no-cookies --no-check-certificate --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \"http://download.oracle.com/otn-pub/java/jdk/8u{{java8_update_version}}-{{java_build_version}}/e9e7ea248e2c4826b92b3f075a80e441/{{server_jre_name}}\" -O {{spring_boot_app_path}}\\{{server_jre_name}}"
 
   - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app_name
     win_template:
@@ -33,19 +40,9 @@
     ignore_errors: yes
 
   - name: Remove the service docker container
-    win_shell: docker rm {{spring_boot_app_name}}
+    win_shell: docker rm {{spring_boot_app_name}} --force
     ignore_errors: yes
 
   - name: Run the service docker image
     win_shell: "docker run -d --publish {{spring_boot_app.port}}:{{spring_boot_app.port}} --name={{spring_boot_app_name}} --restart=unless-stopped {{spring_boot_app_name}}:latest"
-
-  ###### Smoke test, if app has booted up correctly
-  - name: Wait until our Spring Boot app is up & running
-    win_uri:
-      url: "http://localhost:{{spring_boot_app.port}}/swagger-ui.html"
-      method: GET
-    register: result
-    until: result.status_code == 200  
-    retries: 5
-    delay: 5
 

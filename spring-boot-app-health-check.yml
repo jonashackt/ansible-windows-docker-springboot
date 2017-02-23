@@ -1,0 +1,25 @@
+---
+  - name: Obtain the Docker Container´s internal IP address (because localhost doesn´t work for now https://github.com/docker/for-win/issues/458)
+    win_shell: "docker inspect -f {% raw %}'{{ .NetworkSettings.Networks.nat.IPAddress }}' {% endraw %} {{spring_boot_app_name}} {{ '>' }} container_ip.txt"
+
+  - name: Get the Docker Container´s internal IP address from the temporary txt-file (we have to do this because of templating problems, see http://stackoverflow.com/a/32279729/4964553)
+    win_shell: cat container_ip.txt
+    register: win_shell_txt_return
+
+  - name: Define the IP as variable
+    set_fact:
+      docker_container_ip: "{{ win_shell_txt_return.stdout.splitlines()[0] }}"
+
+  - debug:
+      msg: "Your Docker Container has the internal IP {{ docker_container_ip }} --> Let´s do a health-check against this URI: 'http://{{ docker_container_ip }}:{{spring_boot_app.port}}/{{spring_boot_app.health_url_ending}}'"
+
+  ###### Smoke test, if app has booted up correctly
+  - name: Wait until our Spring Boot app is up & running
+    win_uri:
+      url: "http://{{ docker_container_ip }}:{{spring_boot_app.port}}/{{spring_boot_app.health_url_ending}}"
+      method: GET
+    register: health_result
+    until: health_result.status_code == 200  
+    retries: 5
+    delay: 5
+

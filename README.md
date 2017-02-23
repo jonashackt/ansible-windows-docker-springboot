@@ -210,6 +210,8 @@ iwr http://localhost:8080/swagger-ui.html -UseBasicParsing
 
 ## Resources
 
+https://stefanscherer.github.io/run-linux-and-windows-containers-on-windows-10/
+
 Really good examples: https://github.com/StefanScherer/dockerfiles-windows & https://github.com/StefanScherer/docker-windows-box
 
 https://blog.docker.com/2016/09/build-your-first-docker-windows-server-container/
@@ -239,5 +241,7 @@ Windows Container Docs: https://docs.microsoft.com/en-us/virtualization/windowsc
 
 
 [Video: John Starks’ black belt session about Windows Server & Docker at DockerCon ‘16](https://www.youtube.com/watch?v=85nCF5S8Qok)
+
+https://blog.sixeyed.com/windows-containers-and-docker-5-things-you-need-to-know/
 
 
