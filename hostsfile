@@ -1,5 +1,5 @@
-[restexample-windows-dev]
+[ansible-windows-docker-springboot-dev]
 127.0.0.1
 
-[restexample-windows-qa]
+[ansible-windows-docker-springboot-qa]
 127.0.0.1
