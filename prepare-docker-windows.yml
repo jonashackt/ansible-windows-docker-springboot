@@ -14,16 +14,35 @@
     debug:
       msg: "With your Build Number {{hal_dll_version_return.win_file_version.product_version}} you have choosen a good basis for Windows Docker Containers!"
 
-#  - name: Install Containers natively as Windows Feature   
-#    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All
-#    ignore_errors: yes   
+  - name: Check if Containers are already installed as Windows Feature   
+    win_shell: Get-WindowsFeature –Name Containers | Where Installed
+    register: check_feature_container_installed
 
-#  - name: Install Hyper-V as Windows Feature    
-#    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
-#    ignore_errors: yes
+  # Only install the feature, if not already installed - it´s not installed,
+  # if Get-WindowsFeature –Name FeatureName | Where Installed returns an empty response 
+  - name: Install Containers natively as Windows Feature (only, if not already installed)   
+    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart
+    when: check_feature_container_installed.stdout == ''
+    ignore_errors: yes
+    register: feature_container_installation   
 
-#  - name: Reboot Machine to have Containers and Hyper-V take effect
-#    win_reboot:
+  - name: Check if Hyper-V is already installed as Windows Feature   
+    win_shell: Get-WindowsFeature –Name Hyper-V | Where Installed
+    register: check_feature_hyperv_installed
+
+  - name: Install Hyper-V as Windows Feature (only, if not already installed)    
+    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
+    when: check_feature_hyperv_installed.stdout == ''
+    ignore_errors: yes
+    register: feature_hyperv_installation
+
+    # Because win_reboot doesnt recognize that the virtual machine is already up, we set the timeouts way lower & ignore_errors: yes
+  - name: When Containers and/or Hyper-V had to be installed, we have to reboot the Machine to have them take effect (mostly this step will fail, but it should work nevertheless)
+    win_reboot:
+      reboot_timeout_sec: 20
+      shutdown_timeout_sec: 20
+    when: feature_container_installation.changed or feature_hyperv_installation.changed
+    ignore_errors: yes
 
   - name: Install Docker via chocolatey
     win_chocolatey:
