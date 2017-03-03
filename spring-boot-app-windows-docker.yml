@@ -27,6 +27,14 @@
       src: "{{spring_boot_app_jar}}"
       dest: "{{spring_boot_app.path}}\\{{spring_boot_app_name}}.jar"
 
+  - name: Stop the service docker container
+    win_shell: docker stop {{spring_boot_app_name}}
+    ignore_errors: yes
+
+  - name: Remove the service docker container
+    win_shell: docker rm {{spring_boot_app_name}} --force
+    ignore_errors: yes
+
   - name: Remove the Service Docker Container Image
     win_shell: docker rmi {{spring_boot_app_name}}:latest --force
     ignore_errors: yes
@@ -35,14 +43,6 @@
     win_shell: docker build . --tag {{spring_boot_app_name}}:latest
     args:
       chdir: "{{spring_boot_app.path}}"
-
-  - name: Stop the service docker container
-    win_shell: docker stop {{spring_boot_app_name}}
-    ignore_errors: yes
-
-  - name: Remove the service docker container
-    win_shell: docker rm {{spring_boot_app_name}} --force
-    ignore_errors: yes
 
   - name: Run the service docker image
     win_shell: "docker run -d --publish {{spring_boot_app.port}}:{{spring_boot_app.port}} --name={{spring_boot_app_name}} --restart=unless-stopped {{spring_boot_app_name}}:latest"
