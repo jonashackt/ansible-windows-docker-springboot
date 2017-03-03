@@ -28,7 +28,7 @@
       dest: "{{spring_boot_app.path}}\\{{spring_boot_app_name}}.jar"
 
   - name: Remove the Service Docker Container Image
-    win_shell: docker rmi {{spring_boot_app_name}}:latest
+    win_shell: docker rmi {{spring_boot_app_name}}:latest --force
     ignore_errors: yes
 
   - name: Build the service Docker Image
