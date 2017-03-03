@@ -29,12 +29,21 @@
     win_chocolatey:
       name: docker
 
+  - name: Checking if Docker Windows Service is already configured
+    win_service:
+      name: docker
+    register: docker_service_info
+
+  # Only register & start Docker Windows Service, if not already done before
   - name: Register Docker as a Windows Service (if not already there)
     win_shell: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe --register-service"
+    when: docker_service_info.state != 'running'
     ignore_errors: yes
 
-  - name: Start Docker as Windows Service
-    win_shell: Start-Service Docker
+  - name: Start Docker as Windows Service (if not already running)
+    win_service:
+      name: docker
+      state: started
 
   - name: Pull the small Windows Docker Base Image microsoft/nanoserver from hub.docker.com
     win_shell: docker pull microsoft/nanoserver  
