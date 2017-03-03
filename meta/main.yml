@@ -83,7 +83,8 @@ galaxy_info:
   #  - Any
   - name: Windows
     versions:
-      - all
+      - 10
+      - 2016
   #- name: Amazon
   #  versions:
   #  - all
