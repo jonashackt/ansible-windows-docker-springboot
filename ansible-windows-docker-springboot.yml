@@ -15,9 +15,6 @@
   - name: Create base directory C:\spring-boot, if not there
     win_file: path={{base_path}} state=directory
 
-  - name: Prepare Windows Docker installation
-    include: prepare-docker-windows.yml
-
   - name: Run Spring Boot app inside Windows-Docker-Container
     include: spring-boot-app-windows-docker.yml
 

@@ -2,14 +2,15 @@
   - name: Create directory C:\spring-boot\spring_boot_app_name, if not there
     win_file: path={{spring_boot_app.path}} state=directory
 
-  - name: Install wget for downloading JRE
-    win_chocolatey:
-      name: wget
-
   - name: Check if JRE was already downloaded
     win_stat:
       path: "{{spring_boot_app.path}}\\{{server_jre_name}}"
     register: server_jre_on_server
+
+  - name: Install wget for downloading JRE
+    win_chocolatey:
+      name: wget
+    when: server_jre_on_server.stat.size is undefined
 
     ### As of Ansible 2.2 there´s only win_stat module available (and not win_find) - so we have to use a win_stat.stat attribute like size to check,
     ### if the JRE is already downloaded - because the return values arent defined, if there´s no file, this check should work for us

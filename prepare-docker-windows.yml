@@ -1,5 +1,8 @@
 ---
+- hosts: "{{host}}"
 
+  tasks:
+  ###### Preparation steps
   - name: Get Windows Build Number
     win_file_version:
       path: C:\Windows\System32\hal.dll
@@ -44,22 +47,38 @@
     when: feature_container_installation.changed or feature_hyperv_installation.changed
     ignore_errors: yes
 
+  - name: Checking if Docker Windows Service is already configured (to always ensure a fresh Window Docker installation)
+    win_service:
+      name: docker
+    register: docker_service_info
+    ignore_errors: yes
+
+  - name: Stop old Docker Windows Service if there 
+    win_service:
+      name: docker
+      state: stopped
+    when: docker_service_info|succeeded
+
+  - name: Remove old Docker Windows Service if there 
+    win_shell: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe --unregister-service"
+    when: docker_service_info|succeeded
+    ignore_errors: yes
+
+  - name: Uninstall Docker via chocolatey if there
+    win_chocolatey:
+      name: docker
+      state: absent
+    when: docker_service_info|succeeded
+
   - name: Install Docker via chocolatey
     win_chocolatey:
       name: docker
 
-  - name: Checking if Docker Windows Service is already configured
-    win_service:
-      name: docker
-    register: docker_service_info
-
-  # Only register & start Docker Windows Service, if not already done before
-  - name: Register Docker as a Windows Service (if not already there)
+  - name: Register Docker as a Windows Service
     win_shell: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe --register-service"
-    when: docker_service_info.state != 'running'
     ignore_errors: yes
 
-  - name: Start Docker as Windows Service (if not already running)
+  - name: Start Docker as Windows Service
     win_service:
       name: docker
       state: started
@@ -70,7 +89,7 @@
   - name: Get the second (but 10GB big) Windows Docker Base Image microsoft/windowsservercore from hub.docker.com (you may grab a coffee now...)
     win_shell: docker pull microsoft/windowsservercore 
 
-  - name: Install Sysinternals Utilities, so that we can observe the Docker processes with the help of the Process Monitor´s Process Tree
-    win_chocolatey:
-      name: sysinternals
+#  - name: Install Sysinternals Utilities, so that we can observe the Docker processes with the help of the Process Monitor´s Process Tree
+#    win_chocolatey:
+#      name: sysinternals
 
