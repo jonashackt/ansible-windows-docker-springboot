@@ -220,6 +220,8 @@ https://docs.docker.com/docker-for-windows/#docker-settings
 
 https://www.docker.com/microsoft
 
+Helpful knowledge! Docker Windows Networks work slightly different to Linux ones (localhost!) https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-networking
+
 
 ##### Good resources
 
