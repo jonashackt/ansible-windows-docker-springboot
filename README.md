@@ -157,6 +157,8 @@ Platform: .NET Core 1.0
 OS: Microsoft Windows 10.0.14393
 ```
 
+If something doesnt work as expected, see this guide here https://docs.microsoft.com/en-us/virtualization/windowscontainers/troubleshooting
+
 ## Craft a Windows-ready ansible playbook
 
 
@@ -186,6 +188,25 @@ docker exec -ti YourContainerIdHere powershell
 iwr http://localhost:8080/swagger-ui.html -UseBasicParsing
 ```
 
+##### Set Proxy with Ansible, if you have a corporate firewall
+
+See https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon:
+
+```
+  - name: Set Proxy for docker pull to work (http)
+    win_environment:
+      state: present
+      name: HTTP_PROXY
+      value: http://username:password@proxy:port/
+      level: machine
+
+  - name: Set Proxy for docker pull to work (https)
+    win_environment:
+      state: present
+      name: HTTPS_PROXY
+      value: http://username:password@proxy:port/
+      level: machine
+```
 
 ## Known Issues
 
