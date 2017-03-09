@@ -159,6 +159,13 @@ OS: Microsoft Windows 10.0.14393
 
 If something doesnt work as expected, see this guide here https://docs.microsoft.com/en-us/virtualization/windowscontainers/troubleshooting
 
+Especially this command here is useful to check, whether something isn´t working as expected:
+```
+Invoke-WebRequest https://aka.ms/Debug-ContainerHost.ps1 -UseBasicParsing | Invoke-Expression
+```
+
+And network seems to be a really tricky part with all this non-localhost, Hyper-V network-stuff ...
+
 ## Craft a Windows-ready ansible playbook
 
 
