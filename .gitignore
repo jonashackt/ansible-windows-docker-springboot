@@ -31,3 +31,7 @@ logback.out.xml
 
 # zips
 *.tar.gz
+
+# Vagrantboxes
+*.box
+Vagrantfile
