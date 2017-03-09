@@ -241,6 +241,12 @@ Inspect one of these networks
 docker network inspect networkNameHere
 ```
 
+A good (e.g. working) starting configuration for the Windows Docker Network shows something like this
+
+![docker-network-correct-nat-config](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-network-correct-nat-config.png)
+
+If the "IPAM" section shows an empty Subnet & Gateway, you may have the problem, that your NAT wont work and you can´t connect to your Docker-Containers from the Windows Docker Host itself (see Caveats and Gotchas section on https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-networking)
+
 ###### localhost to forward to Windows Containers isn´t working as expected
 
 [On Windows it isn´t possible to do what you know from Linux](https://blog.sixeyed.com/published-ports-on-windows-containers-dont-do-loopback/): Run a `docker run -d -p 80:80 microsoft/iis` and go to `http://localhost` won´t work sadly! But before I hear you scream: "Hey, why is that `-p 80:80` thingy for - if that simple thing isn´t working?!" Well, if you come from outside the Windows Docker Host Maschine and try this IP, it will work - so everything will work, except of your localhost-Tests :D
