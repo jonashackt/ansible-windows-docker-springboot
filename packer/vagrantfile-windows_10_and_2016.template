@@ -1,0 +1,22 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "windows_docker"
+  config.vm.guest = :windows
+
+  config.windows.halt_timeout = 15
+
+  # Configure Vagrant to use WinRM instead of SSH
+  config.vm.communicator = "winrm"
+
+  # Configure WinRM Connectivity
+  config.winrm.username = "vagrant"
+  config.winrm.password = "vagrant"
+
+  config.vm.provider "virtualbox" do |vb|
+     # Display the VirtualBox GUI when booting the machine
+     vb.gui = true
+     # More Power for the Windows Box with Docker
+     vb.memory = 6144
+     vb.cpus = 4
+   end
+
+end

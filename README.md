@@ -31,31 +31,45 @@ After a bit of research, you´ll find another way to evaluate a current Windows 
 
 Both the Windows 2016 Server and the 10 Enterprise come with a 180 Days Evaluation licence (you have to register a live-ID for that)
 
-Here we´ll use the 2016 Server ISO, but you can switch to 10 Enterprise with no problem (use __14393.0.160715-1616.RS1_RELEASE_CLIENTENTERPRISE_S_EVAL_X64FRE_EN-US.ISO__ instead). Download the __14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO__ and place it into the __/packer__ folder.
-
 The problem with an ISO - it´s not a nice Vagrant box we can fireup easily for development. But hey! There´s something for us: [packer.io](https://packer.io/). This smart tool is able to produce machine images in every flavour - also as a Vagrant box ;) And [from the docs](https://www.packer.io/docs/post-processors/vagrant.html):
 
-> "[Packer] ... is in fact how the official boxes distributed by Vagrant are created."
-
-We also install Windows completely [unattended](https://social.technet.microsoft.com/wiki/contents/articles/36609.windows-server-2016-unattended-installation.aspx) - which means, we don´t have to click on a single installation screen ;)
-
-
-On a Mac you can install it with:
+> "[Packer] ... is in fact how the official boxes distributed by Vagrant are created." On a Mac you can install it with:
 
 `brew install packer` 
 
+We also install Windows completely [unattended](https://social.technet.microsoft.com/wiki/contents/articles/36609.windows-server-2016-unattended-installation.aspx) - which means, we don´t have to click on a single installation screen ;)
 
-Now start packer with this command:
+##### Build a Windows Server 2016 Vagrant box
+
+Download the __14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO__ and place it into the __/packer__ folder.
+
+Start packer with this command:
 
 ```
-packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2016_docker.json
+packer build -var vm_name=WindowsServer2016Docker -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f -var unattend=./scripts/2016/Autounattend.xml windows_10_and_2016_docker.json
 ```
 
 Now get yourself a coffee. This will take some time ;)
 
+##### Build a Windows 10 Vagrant box
+
+Download the __14393.0.160715-1616.RS1_RELEASE_CLIENTENTERPRISE_S_EVAL_X64FRE_EN-US.ISO__ and place it into the __/packer__ folder.
+
+Start packer with this command:
+
+```
+packer build -var vm_name=Windows10Docker -var iso_url=14393.0.160715-1616.RS1_RELEASE_CLIENTENTERPRISE_S_EVAL_X64FRE_EN-US.ISO -var iso_checksum=4d4828cb40554278d376f86cbaed0e03 -var unattend=./scripts/10/Autounattend.xml windows_10_and_2016_docker.json
+```
+
+Now get yourself a coffee. This will take some time ;)
+
+
+##### Add the box and run it
+
+
 After successful packer build, you can add the box to your Vagrant installation:
 ```
-vagrant box add windows_2016_docker windows_2016_docker_virtualbox.box
+vagrant box add windows_docker windows_docker_virtualbox.box
 ```
 
 If everything went fine, fire up your Windows 10/Server 2016 box:
