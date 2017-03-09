@@ -137,12 +137,6 @@
                     <RequiresUserInput>true</RequiresUserInput>
                 </SynchronousCommand>
                 <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd.exe /c C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -File a:\fixnetwork.ps1</CommandLine>
-                    <Description>Fix public network</Description>
-                    <Order>4</Order>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
                     <CommandLine>cmd.exe /c winrm quickconfig -q</CommandLine>
                     <Description>winrm quickconfig -q</Description>
                     <Order>5</Order>

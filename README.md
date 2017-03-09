@@ -34,16 +34,24 @@ After a bit of research, you´ll find another way to evaluate a current Windows 
 So if you really want to go with Windows 10 anyway, it shouldn´t be that much work to write your own Packer template and use the other ISO instead. Here we´ll stay with Windows Server 2016.
 
 
-## But how do we get from ISO to our easy-to-use Vagrant box?
+## How to build Ansible-ready Vagrant box from a Windows ISO
 
 The problem with an ISO - it´s not a nice Vagrant box we can fireup easily for development. But hey! There´s something for us: [packer.io](https://packer.io/). This smart tool is able to produce machine images in every flavour - also as a Vagrant box ;) And [from the docs](https://www.packer.io/docs/post-processors/vagrant.html): "[Packer] ... is in fact how the official boxes distributed by Vagrant are created." On a Mac you can install it with:
 
 `brew install packer` 
 
-We also install Windows completely [unattended](https://social.technet.microsoft.com/wiki/contents/articles/36609.windows-server-2016-unattended-installation.aspx) - which means, we don´t have to click on a single installation screen ;)
+We also install Windows completely [unattended](https://social.technet.microsoft.com/wiki/contents/articles/36609.windows-server-2016-unattended-installation.aspx) - which means, we don´t have to click on a single installation screen ;) And we configure it already completely for compatibility with Ansible. Which means several things:
+
+* configure WinRM (aka Powershell remoting) correctly (including Firewall settings)
+* install VirtualBox Guest tools (just for better usability)
+* configure Ansible connectivity 
+
+The WinRM connectivity is configured through the [Autounattend.xml[(https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/packer/Autounattend.xml). At the end we run the configure-ansible.ps1 - which will call the https://github.com/ansible/ansible/blob/devel/examples/scripts/ConfigureRemotingForAnsible.ps1. But this is done mostly for habing a better feeling, because WinRM should be configured already sufficiently. 
+
+If you like to dig deeper into the myriads of configuration options, have a look into Stefan Scherers GitHub repositories, e.g. https://github.com/StefanScherer/docker-windows-box - where I learned everything I had to - and also borrowed the mentioned [Autounattend.xml[(https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/packer/Autounattend.xml) from. You can also create one yourself from ground up - but you´ll need a running Windows instance and then install the [Windows Assessment and Deployment Kit (Windows ADK)](https://developer.microsoft.com/de-de/windows/hardware/windows-assessment-deployment-kit).
 
 
-##### Build your Windows Server 2016 Vagrant box
+#### Build your Windows Server 2016 Vagrant box
 
 Download the __14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO__ and place it into the __/packer__ folder.
 
@@ -55,15 +63,15 @@ packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-
 
 Now get yourself a coffee. This will take some time ;)
 
-##### Add the box and run it
+#### Add the box and run it
 
 
-After successful packer build, you can add the box to your Vagrant installation:
+After successful packer build, you can init the Vagrant box (and receive a Vagrantfile):
 ```
-vagrant box add windows_docker windows_docker_virtualbox.box
+vagrant init windows_2016_docker_virtualbox.box 
 ```
 
-If everything went fine, fire up your Windows 10/Server 2016 box:
+Now fire up your Windows Server 2016 box:
 
 ```
 vagrant up
@@ -74,7 +82,7 @@ vagrant up
 
 If you don´t want to go with the dicribed way of using packer to build your own Vagrant box and start with your own custom Windows 10 machine right away - no problem! Just be sure to [prepare your machine correctly for Ansible](https://github.com/jonashackt/ansible-windows-springboot#prepare-the-windows-box-for-ansible-communication).
 
-Now let´s check the Ansible connectivity:
+Now let´s check the Ansible connectivity. `cd..` into the root folder `ansible-windows-docker-springboot`:
 
 ```
 ansible ansible-windows-docker-springboot-dev -i hostsfile -m win_ping
