@@ -229,6 +229,18 @@ Good overview:
 ![windows-docker-network-architecture](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/windows-docker-network-architecture.png)
 (from https://blogs.technet.microsoft.com/virtualization/2016/05/05/windows-container-networking/)
 
+###### Useful commands
+
+Show Docker Networks
+```
+docker network ls
+```
+
+Inspect one of these networks
+```
+docker network inspect networkNameHere
+```
+
 ###### localhost to forward to Windows Containers isn´t working as expected
 
 [On Windows it isn´t possible to do what you know from Linux](https://blog.sixeyed.com/published-ports-on-windows-containers-dont-do-loopback/): Run a `docker run -d -p 80:80 microsoft/iis` and go to `http://localhost` won´t work sadly! But before I hear you scream: "Hey, why is that `-p 80:80` thingy for - if that simple thing isn´t working?!" Well, if you come from outside the Windows Docker Host Maschine and try this IP, it will work - so everything will work, except of your localhost-Tests :D
@@ -241,6 +253,7 @@ Helpful knowledge! Docker Windows Networks work slightly different to Linux ones
 
 https://blogs.technet.microsoft.com/virtualization/2016/05/05/windows-container-networking/
 
+https://4sysops.com/archives/windows-container-networking-part-1-configuring-nat/
 
 ## Resources
 
