@@ -18,7 +18,7 @@
       "guest_additions_mode": "disable",
       "disk_size": 61440,
       "floppy_files": [
-        "./scripts/2016/Autounattend.xml",
+        "./scripts/Autounattend.xml",
         "./scripts/enable-winrm.ps1",
         "./scripts/configure-ansible.ps1",
         "./scripts/oracle-cert.cer"
