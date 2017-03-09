@@ -39,6 +39,10 @@ The problem with an ISO - it´s not a nice Vagrant box we can fireup easily for 
 
 We also install Windows completely [unattended](https://social.technet.microsoft.com/wiki/contents/articles/36609.windows-server-2016-unattended-installation.aspx) - which means, we don´t have to click on a single installation screen ;)
 
+
+> There are [two Windows Container Types](https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/) : __Windows Server Containers__ (aka isolation level "process") and __Hyper-V-Containers__ (aka isolation level "hyper-v"). Windows 10 only supports the latter one. But Hyper-V-Containers seem not the thing you´re used to, when it comes to the Docker core concepts - because Docker relies on Process-Level isolation and __does not__ use a Hypervisor. So with that knowledge I would strongly encourage you to go with Windows Server 2016 and leave Windows 10 behind. At first glance it seems somehow "easier" to start with the "smaller" Windows 10. But don´t do that! I can also back this advice with lot´s of ours (when not days) trying to get things to work for myself or with customers - and finally switching to Windows Server and everything was just fine!
+
+
 ##### Build a Windows Server 2016 Vagrant box
 
 Download the __14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO__ and place it into the __/packer__ folder.
