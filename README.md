@@ -157,14 +157,6 @@ Platform: .NET Core 1.0
 OS: Microsoft Windows 10.0.14393
 ```
 
-If something doesnt work as expected, see this guide here https://docs.microsoft.com/en-us/virtualization/windowscontainers/troubleshooting
-
-Especially this command here is useful to check, whether something isn´t working as expected:
-```
-Invoke-WebRequest https://aka.ms/Debug-ContainerHost.ps1 -UseBasicParsing | Invoke-Expression
-```
-
-And network seems to be a really tricky part with all this non-localhost, Hyper-V network-stuff ...
 
 ## Craft a Windows-ready ansible playbook
 
@@ -217,12 +209,28 @@ See https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-doc
 
 ## Known Issues
 
-##### localhost to forward to Windows Containers isn´t working as expected
+If something doesnt work as expected, see this guide here https://docs.microsoft.com/en-us/virtualization/windowscontainers/troubleshooting
+
+Especially this command here is useful to check, whether something isn´t working as expected:
+```
+Invoke-WebRequest https://aka.ms/Debug-ContainerHost.ps1 -UseBasicParsing | Invoke-Expression
+```
+
+And network seems to be a really tricky part with all this non-localhost, Hyper-V network-stuff ...
+
+#### Network
+
+###### localhost to forward to Windows Containers isn´t working as expected
 
 [On Windows it isn´t possible to do what you know from Linux](https://blog.sixeyed.com/published-ports-on-windows-containers-dont-do-loopback/): Run a `docker run -d -p 80:80 microsoft/iis` and go to `http://localhost` won´t work sadly! But before I hear you scream: "Hey, why is that `-p 80:80` thingy for - if that simple thing isn´t working?!" Well, if you come from outside the Windows Docker Host Maschine and try this IP, it will work - so everything will work, except of your localhost-Tests :D
 
 > But this is only temporarily --> The Windows Docker team is on it and the fix will be released soon as a Windows Update - see [github Issue 458](https://github.com/docker/for-win/issues/458)
 
+###### Network docs
+
+Helpful knowledge! Docker Windows Networks work slightly different to Linux ones (localhost!) https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-networking
+
+https://blogs.technet.microsoft.com/virtualization/2016/05/05/windows-container-networking/
 
 
 ## Resources
@@ -240,8 +248,6 @@ https://docs.docker.com/docker-for-windows/troubleshoot/
 https://docs.docker.com/docker-for-windows/#docker-settings
 
 https://www.docker.com/microsoft
-
-Helpful knowledge! Docker Windows Networks work slightly different to Linux ones (localhost!) https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-networking
 
 
 ##### Good resources
