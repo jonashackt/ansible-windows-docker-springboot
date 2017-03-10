@@ -94,10 +94,13 @@
       name: sysinternals
  
   - name: Run a Microsoft test docker container
-    win_shell: "docker run microsoft/dotnet-samples:dotnetapp-nanoserver"
+    win_shell: "docker run --name dotnetbot-container microsoft/dotnet-samples:dotnetapp-nanoserver"
     register: docker_test_run
 
   - name: Docker is ready on your Box and waiting for your Containers :)
     debug:
       msg: "{{ docker_test_run.stdout_lines }} "
 
+  - name: Remove the Microsoft test docker container
+    win_shell: docker rm dotnetbot-container --force
+    ignore_errors: yes

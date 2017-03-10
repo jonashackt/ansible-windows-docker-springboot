@@ -80,7 +80,7 @@ vagrant up
 
 ## Prepare your Windows Box to run Docker Windows Containers with Ansible
 
-If you don´t want to go with the dicribed way of using packer to build your own Vagrant box and start with your own custom Windows 10 machine right away - no problem! Just be sure to [prepare your machine correctly for Ansible](https://github.com/jonashackt/ansible-windows-springboot#prepare-the-windows-box-for-ansible-communication).
+If you don´t want to go with the discribed way of using packer to build your own Vagrant box and start with your own custom Windows Server 2016 machine right away - no problem! Just be sure to [prepare your machine correctly for Ansible](https://github.com/jonashackt/ansible-windows-springboot#prepare-the-windows-box-for-ansible-communication).
 
 Now let´s check the Ansible connectivity. `cd..` into the root folder `ansible-windows-docker-springboot`:
 
@@ -94,7 +94,7 @@ Getting a __SUCCESS__ responde, we can start to prepare our Windows box to run W
 ansible-playbook -i hostsfile prepare-docker-windows.yml --extra-vars "host=ansible-windows-docker-springboot-dev"
 ```
 
-This do everything for you: 
+This does those things for you: 
 
 * Checking, if you have the correct minimum build version of Windows
 * Install the necessary Windows Features `containers` and `Hyper-V` (this is done Windows Version agnostic - so it will work with Windows 10 AND Server 2016 - which is quite unique, becaue Microsoft itself always distinquishes between these versions)
@@ -104,7 +104,7 @@ This do everything for you:
 * Running a first Windows container inside your Windows box (via `docker run microsoft/dotnet-samples:dotnetapp-nanoserver`)
 
 
-If Docker on Windows with Windows Docker Containers is fully configured, you should see something like this:
+If Docker on Windows with Windows Docker Containers is fully configured, you should see something like this (which definitely means, Docker is running perfectly fine on your Windows box!):
 
 ```
 TASK [Docker is ready on your Box and waiting for your Containers :)] **********
