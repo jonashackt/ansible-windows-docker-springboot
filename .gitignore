@@ -35,3 +35,4 @@ logback.out.xml
 # Vagrantboxes
 *.box
 Vagrantfile
+*.ISO

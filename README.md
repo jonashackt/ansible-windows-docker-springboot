@@ -53,9 +53,9 @@ If you like to dig deeper into the myriads of configuration options, have a look
 
 #### Build your Windows Server 2016 Vagrant box
 
-Download the __14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO__ and place it into the __/packer__ folder.
+Download the [14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016) and place it into the __/packer__ folder.
 
-Start packer with this command:
+Inside the `packer` directory start the build with this command:
 
 ```
 packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2016_docker.json
@@ -101,59 +101,63 @@ This do everything for you:
 * Reboot your Windows Box, if necessary
 * Install the current Docker version (via [chocolatey docker package](https://chocolatey.org/packages/docker). And although the package claims to only install the client, it also provides the Docker Server (which means this is 100% identical with the [step 2. Install Docker in Microsoft´s tutorial](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10)).)
 * Register and Start the Docker Windows service
-
-If you want to, you can run your first Windows container inside your Windows box within a priviledged Powershell:
-
-```
-docker run microsoft/dotnet-samples:dotnetapp-nanoserver
+* Running a first Windows container inside your Windows box (via `docker run microsoft/dotnet-samples:dotnetapp-nanoserver`)
 ```
 
 If Docker on Windows with Windows Docker Containers is fully configured, you should see something like this:
 
 ```
-         Dotnet-bot: Welcome to using .NET Core!
-    __________________
-                      \
-                       \
-                          ....
-                          ....'
-                           ....
-                        ..........
-                    .............'..'..
-                 ................'..'.....
-               .......'..........'..'..'....
-              ........'..........'..'..'.....
-             .'....'..'..........'..'.......'.
-             .'..................'...   ......
-             .  ......'.........         .....
-             .                           ......
-            ..    .            ..        ......
-           ....       .                 .......
-           ......  .......          ............
-            ................  ......................
-            ........................'................
-           ......................'..'......    .......
-        .........................'..'.....       .......
-     ........    ..'.............'..'....      ..........
-   ..'..'...      ...............'.......      ..........
-  ...'......     ...... ..........  ......         .......
- ...........   .......              ........        ......
-.......        '...'.'.              '.'.'.'         ....
-.......       .....'..               ..'.....
-   ..       ..........               ..'........
-          ............               ..............
-         .............               '..............
-        ...........'..              .'.'............
-       ...............              .'.'.............
-      .............'..               ..'..'...........
-      ...............                 .'..............
-       .........                        ..............
-        .....
+TASK [Docker is ready on your Box and waiting for your Containers :)] **********
+ok: [127.0.0.1] => {
+    "msg": [
+        "", 
+        "        Dotnet-bot: Welcome to using .NET Core!", 
+        "    __________________", 
+        "                      \\", 
+        "                       \\", 
+        "                          ....", 
+        "                          ....'", 
+        "                           ....", 
+        "                        ..........", 
+        "                    .............'..'..", 
+        "                 ................'..'.....", 
+        "               .......'..........'..'..'....", 
+        "              ........'..........'..'..'.....", 
+        "             .'....'..'..........'..'.......'.", 
+        "             .'..................'...   ......", 
+        "             .  ......'.........         .....", 
+        "             .                           ......", 
+        "            ..    .            ..        ......", 
+        "           ....       .                 .......", 
+        "           ......  .......          ............", 
+        "            ................  ......................", 
+        "            ........................'................", 
+        "           ......................'..'......    .......", 
+        "        .........................'..'.....       .......", 
+        "     ........    ..'.............'..'....      ..........", 
+        "   ..'..'...      ...............'.......      ..........", 
+        "  ...'......     ...... ..........  ......         .......", 
+        " ...........   .......              ........        ......", 
+        ".......        '...'.'.              '.'.'.'         ....", 
+        ".......       .....'..               ..'.....", 
+        "   ..       ..........               ..'........", 
+        "          ............               ..............", 
+        "         .............               '..............", 
+        "        ...........'..              .'.'............", 
+        "       ...............              .'.'.............", 
+        "      .............'..               ..'..'...........", 
+        "      ...............                 .'..............", 
+        "       .........                        ..............", 
+        "        .....", 
+        "", 
+        "", 
+        "**Environment**", 
+        "Platform: .NET Core 1.0", 
+        "OS: Microsoft Windows 10.0.14393 ", 
+        ""
+    ]
+}
 
-
-**Environment**
-Platform: .NET Core 1.0
-OS: Microsoft Windows 10.0.14393
 ```
 
 
