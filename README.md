@@ -102,7 +102,7 @@ This do everything for you:
 * Install the current Docker version (via [chocolatey docker package](https://chocolatey.org/packages/docker). And although the package claims to only install the client, it also provides the Docker Server (which means this is 100% identical with the [step 2. Install Docker in Microsoft´s tutorial](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10)).)
 * Register and Start the Docker Windows service
 * Running a first Windows container inside your Windows box (via `docker run microsoft/dotnet-samples:dotnetapp-nanoserver`)
-```
+
 
 If Docker on Windows with Windows Docker Containers is fully configured, you should see something like this:
 
