@@ -1,0 +1,30 @@
+---
+  - name: Check if JRE was already downloaded
+    win_stat:
+      path: "{{base_path}}\\{{server_jre_name}}"
+    register: server_jre_on_server
+
+  - name: Install wget for downloading JRE
+    win_chocolatey:
+      name: wget
+    when: server_jre_on_server.stat.size is undefined
+
+    ### As of Ansible 2.2 there´s only win_stat module available (and not win_find) - so we have to use a win_stat.stat attribute like size to check,
+    ### if the JRE is already downloaded - because the return values arent defined, if there´s no file, this check should work for us
+  - name: Download Server JRE to C:\spring-boot (only if not already done before)
+    win_shell: "wget.exe --no-cookies --no-check-certificate --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \"http://download.oracle.com/otn-pub/java/jdk/8u{{java8_update_version}}-{{java_build_version}}/e9e7ea248e2c4826b92b3f075a80e441/{{server_jre_name}}\" -O {{base_path}}\\{{server_jre_name}}"
+    when: server_jre_on_server.stat.size is undefined
+
+  - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app.name
+    win_template:
+      src: "templates/Dockerfile-SpringBoot-OracleJRE-Nanoserver.j2"
+      dest: "{{base_path}}\\Dockerfile"
+
+  - name: Remove older springboot-oraclejre-nanoserver Docker image (if there)
+    win_shell: docker rmi springboot-oraclejre-nanoserver:latest --force
+    ignore_errors: yes
+
+  - name: Build springboot-oraclejre-nanoserver Docker image
+    win_shell: docker build . --tag springboot-oraclejre-nanoserver:latest
+    args:
+      chdir: "{{base_path}}"

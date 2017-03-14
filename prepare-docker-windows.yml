@@ -89,6 +89,14 @@
 #  - name: Get the second (but 10GB big) Windows Docker Base Image microsoft/windowsservercore from hub.docker.com (you may grab a coffee now...)
 #    win_shell: docker pull microsoft/windowsservercore 
 
+#  - name: Install docker-compose (this is currently not coupled with the Docker installation (because of https://github.com/docker/for-win/issues/448) and you have to check, if the release (https://github.com/docker/compose/releases) matches your Docker version)
+#    win_shell: iwr https://github.com/docker/compose/releases/download/1.11.2/docker-compose-Windows-x86_64.exe -OutFile c:\ProgramData\chocolatey\lib\docker\tools\docker\docker-compose.exe
+
+#  - name: Add docker-compose to Path for ease of use
+#    win_path:
+#      elements:
+#      - 'c:\ProgramData\chocolatey\lib\docker\tools\docker'
+
   - name: Install Sysinternals Utilities, so that we can observe the Docker processes with the help of the Process Monitor´s Process Tree
     win_chocolatey:
       name: sysinternals

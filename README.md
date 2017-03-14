@@ -167,7 +167,7 @@ ok: [127.0.0.1] => {
 As usual, I did that step already for you :) So let´s run our main playbook now:
 
 ```
-ansible-playbook -i hostsfile ansible-windows-docker-springboot.yml --extra-vars "spring_boot_app_jar=../restexamples/target/restexamples-0.0.1-SNAPSHOT.jar spring_boot_app_name=restexample-springboot host=ansible-windows-docker-springboot-dev"
+ansible-playbook -i hostsfile ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev"
 ```
 
 
@@ -276,6 +276,8 @@ https://docs.docker.com/docker-for-windows/#docker-settings
 
 https://www.docker.com/microsoft
 
+https://docs.com/taylorb/8408/dockercon-2016-dockerizing-windows-server?c=4TNCe4
+
 
 ##### Good resources
 
@@ -292,4 +294,6 @@ https://github.com/StefanScherer/dockerfiles-windows
 https://github.com/joefitzgerald/packer-windows
 
 https://github.com/StefanScherer/docker-windows-box
+
+Install docker-compose on Windows Server 2016: https://github.com/docker/for-win/issues/448#issuecomment-276328342
 

@@ -1,0 +1,12 @@
+#jinja2: newline_sequence:'\r\n'
+FROM microsoft/nanoserver:latest
+
+# This is a base-Image for running Spring Boot Apps on Docker Windows Containers
+MAINTAINER Jonas Hecht
+
+# Extract Server-JRE into C:\\jdk1.8.0_121 in the Container
+ADD {{server_jre_name}} /
+
+# Create logging default path for Spring Boot
+VOLUME C:\\tmp
+
