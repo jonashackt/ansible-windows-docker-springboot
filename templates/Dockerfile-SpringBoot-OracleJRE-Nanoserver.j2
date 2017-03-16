@@ -4,8 +4,12 @@ FROM microsoft/nanoserver:latest
 # This is a base-Image for running Spring Boot Apps on Docker Windows Containers
 MAINTAINER Jonas Hecht
 
-# Extract Server-JRE into C:\\jdk1.8.0_121 in the Container
+# Extract Server-JRE into C:\\jdk1.8.0_xyz in the Container
 ADD {{server_jre_name}} /
+
+# Configure Path for easy Java usage
+ENV JAVA_HOME=C:\\jdk1.8.0_{{java8_update_version}}
+RUN setx /M PATH %PATH%;%JAVA_HOME%\bin
 
 # Create logging default path for Spring Boot
 VOLUME C:\\tmp

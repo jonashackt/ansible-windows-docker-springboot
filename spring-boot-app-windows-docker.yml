@@ -3,6 +3,10 @@
     debug:
       msg: "Processing '{{spring_boot_app.name}}'"
 
+  - name: Define some needed variables
+    set_fact:
+      path: "{{base_path}}\\{{spring_boot_app.name}}"
+
   - name: Create directory C:\spring-boot\spring_boot_app.name, if not there
     win_file: path={{path}} state=directory
 

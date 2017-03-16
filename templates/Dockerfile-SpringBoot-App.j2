@@ -13,5 +13,5 @@ EXPOSE {{spring_boot_app.port}}
 ADD {{spring_boot_app.name}}.jar app.jar
 
 # Fire up our Spring Boot app by default
-CMD ["C:\\jdk1.8.0_{{java8_update_version}}\\bin\\java.exe", "-jar app.jar --server.port={{spring_boot_app.port}}"]
+CMD ["java.exe", "-jar app.jar --server.port={{spring_boot_app.port}}"]
 
