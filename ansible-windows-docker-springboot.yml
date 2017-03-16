@@ -13,10 +13,10 @@
 #  - name: Build the springboot-oraclejre-nanoserver Docker image
 #    include: build-springboot-oraclejre-nanoserver-image.yml
 
-  - name: Copy docker-compose.yml to directory C:\spring-boot
-    win_template:
-      src: "../spring-cloud-netflix-docker/docker-compose.yml"
-      dest: "{{base_path}}\\docker-compose.yml"
+#  - name: Copy docker-compose.yml to directory C:\spring-boot
+#    win_template:
+#      src: "../spring-cloud-netflix-docker/docker-compose.yml"
+#      dest: "{{base_path}}\\docker-compose.yml"
 
   - name: Run Service Registry (Eurika Spring Boot app) inside Windows-Docker-Container
     include: spring-boot-app-windows-docker.yml
@@ -44,5 +44,14 @@
         port: 8090
       path: "{{base_path}}\\{{spring_boot_app.name}}"
       jar_input_path: "../spring-cloud-netflix-docker/{{spring_boot_app.name}}/target/{{spring_boot_app.name}}-0.0.1-SNAPSHOT.jar"
+
+  - name: Run Weather Backend Service 2 (Spring Boot app) inside Windows-Docker-Container
+    include: spring-boot-app-windows-docker.yml
+    vars:
+      spring_boot_app:
+        name: weatherbackend-second
+        port: 8091
+      path: "{{base_path}}\\{{spring_boot_app.name}}"
+      jar_input_path: "../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
 
 
