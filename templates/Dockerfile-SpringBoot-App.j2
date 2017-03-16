@@ -3,6 +3,8 @@ FROM springboot-oraclejre-nanoserver:latest
 
 MAINTAINER Jonas Hecht
 
+ENV REGISTRY_HOST eureka-serviceregistry
+
 # Expose the apps Port
 EXPOSE {{spring_boot_app.port}}
 

@@ -13,6 +13,11 @@
 #  - name: Build the springboot-oraclejre-nanoserver Docker image
 #    include: build-springboot-oraclejre-nanoserver-image.yml
 
+  - name: Copy docker-compose.yml to directory C:\spring-boot
+    win_template:
+      src: "../spring-cloud-netflix-docker/docker-compose.yml"
+      dest: "{{base_path}}\\docker-compose.yml"
+
   - name: Run Service Registry (Eurika Spring Boot app) inside Windows-Docker-Container
     include: spring-boot-app-windows-docker.yml
     vars:
