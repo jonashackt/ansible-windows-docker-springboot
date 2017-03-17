@@ -14,11 +14,6 @@
   - name: Build the springboot-oraclejre-nanoserver Docker image
     include: build-springboot-oraclejre-nanoserver-image.yml
 
-#  - name: Copy docker-compose.yml to directory C:\spring-boot
-#    win_template:
-#      src: "../spring-cloud-netflix-docker/docker-compose.yml"
-#      dest: "{{base_path}}\\docker-compose.yml"
-
   - name: Run Service Registry (Eurika Spring Boot app) inside Windows-Docker-Container
     include: spring-boot-app-windows-docker.yml
     vars:
@@ -51,4 +46,7 @@
         port: 8091
       jar_input_path: "../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
 
-
+  - name: Copy docker-compose.yml to directory C:\spring-boot (this is only additionally, compose isn´t necessary for the apps to run)
+    win_template:
+      src: "../spring-cloud-netflix-docker/docker-compose.yml"
+      dest: "{{base_path}}\\docker-compose.yml"
