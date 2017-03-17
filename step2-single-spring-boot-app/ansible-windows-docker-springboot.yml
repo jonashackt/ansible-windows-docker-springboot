@@ -1,0 +1,16 @@
+---
+- hosts: "{{host}}"
+  vars:
+    base_path: "C:\\spring-boot"
+
+  tasks:
+  - name: Create base directory C:\spring-boot, if not there
+    win_file: path={{base_path}} state=directory
+
+  - name: Run Weather Backend Service (Spring Boot app) inside Windows-Docker-Container
+    include: spring-boot-app-windows-docker.yml
+    vars:
+      spring_boot_app:
+        name: weatherbackend
+        port: 8090
+      jar_input_path: "../../spring-cloud-netflix-docker/{{spring_boot_app.name}}/target/{{spring_boot_app.name}}-0.0.1-SNAPSHOT.jar"

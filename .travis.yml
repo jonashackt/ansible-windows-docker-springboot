@@ -22,8 +22,10 @@ install:
   - printf '[defaults]\nroles_path=../' >ansible.cfg
 
 script:
-  # Basic role syntax check
-  - ansible-playbook -i hostsfile ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev" --syntax-check
+  # Basic playbook syntax check
+  - ansible-playbook -i hostsfile step1-prepare-docker-windows/prepare-docker-windows.yml --extra-vars "host=ansible-windows-docker-springboot-dev" --syntax-check
+  - ansible-playbook -i hostsfile step2-single-spring-boot-app/ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev" --syntax-check
+  - ansible-playbook -i hostsfile step3-multiple-spring-boot-apps/ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev" --syntax-check
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/

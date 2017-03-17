@@ -2,7 +2,6 @@
 - hosts: "{{host}}"
 
   tasks:
-  ###### Preparation steps
   - name: Get Windows Build Number
     win_file_version:
       path: C:\Windows\System32\hal.dll
@@ -112,3 +111,11 @@
   - name: Remove the Microsoft test docker container
     win_shell: docker rm dotnetbot-container --force
     ignore_errors: yes
+
+  - name: Build the springboot-oraclejre-nanoserver Docker image
+    include: build-springboot-oraclejre-nanoserver-image.yml
+    vars:
+      image_name: springboot-oraclejre-nanoserver
+      java8_update_version: 121
+      java_build_version: b13
+      server_jre_name: server-jre-8u{{java8_update_version}}-windows-x64.tar.gz

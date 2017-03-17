@@ -34,7 +34,7 @@ After a bit of research, you´ll find another way to evaluate a current Windows 
 So if you really want to go with Windows 10 anyway, it shouldn´t be that much work to write your own Packer template and use the other ISO instead. Here we´ll stay with Windows Server 2016.
 
 
-## How to build Ansible-ready Vagrant box from a Windows ISO
+## How to build Ansible-ready Vagrant box from a Windows ISO ([step0-packer-windows-vagrantbox](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step0-packer-windows-vagrantbox))
 
 The problem with an ISO - it´s not a nice Vagrant box we can fireup easily for development. But hey! There´s something for us: [packer.io](https://packer.io/). This smart tool is able to produce machine images in every flavour - also as a Vagrant box ;) And [from the docs](https://www.packer.io/docs/post-processors/vagrant.html): "[Packer] ... is in fact how the official boxes distributed by Vagrant are created." On a Mac you can install it with:
 
@@ -55,7 +55,7 @@ If you like to dig deeper into the myriads of configuration options, have a look
 
 Download the [14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016) and place it into the __/packer__ folder.
 
-Inside the `packer` directory start the build with this command:
+Inside the `step0-packer-windows-vagrantbox` directory start the build with this command:
 
 ```
 packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2016_docker.json
@@ -78,7 +78,7 @@ vagrant up
 ```
 
 
-## Prepare your Windows Box to run Docker Windows Containers with Ansible
+## Prepare your Windows Box to run Docker Windows Containers with Ansible ([step1-prepare-docker-windows](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step1-prepare-docker-windows))
 
 If you don´t want to go with the discribed way of using packer to build your own Vagrant box and start with your own custom Windows Server 2016 machine right away - no problem! Just be sure to [prepare your machine correctly for Ansible](https://github.com/jonashackt/ansible-windows-springboot#prepare-the-windows-box-for-ansible-communication).
 
@@ -101,7 +101,9 @@ This does those things for you:
 * Reboot your Windows Box, if necessary
 * Install the current Docker version (via [chocolatey docker package](https://chocolatey.org/packages/docker). And although the package claims to only install the client, it also provides the Docker Server (which means this is 100% identical with the [step 2. Install Docker in Microsoft´s tutorial](https://docs.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10)).)
 * Register and Start the Docker Windows service
+* Installing docker-compose (this is only needed for multiple containers)
 * Running a first Windows container inside your Windows box (via `docker run microsoft/dotnet-samples:dotnetapp-nanoserver`)
+* Building the `springboot-oraclejre-nanoserver` Docker image to run our Spring Boot Apps later on
 
 
 If Docker on Windows with Windows Docker Containers is fully configured, you should see something like this (which definitely means, Docker is running perfectly fine on your Windows box!):
@@ -161,15 +163,32 @@ ok: [127.0.0.1] => {
 ```
 
 
-## Craft a Windows-ready ansible playbook
+## How to run a simple Spring Boot App inside a Docker Windows Container with Ansible ([step2-single-spring-boot-app](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step2-single-spring-boot-app))
 
 
-As usual, I did that step already for you :) So let´s run our main playbook now:
+Everything needed here is inside [step2-single-spring-boot-app](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step2-single-spring-boot-app). Let´s cd into `step2-single-spring-boot-app` and run the playbook:
 
 ```
 ansible-playbook -i hostsfile ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev"
 ```
 
+This should run a single Spring Boot app inside a Docker Windows Container on your Windows box.
+
+![spring-boot-example-running-docker-windows-containers](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/spring-boot-example-running-docker-windows-containers.png)
+
+
+## How to run multiple Spring Boot Apps inside a Docker Windows Containers with Ansible and Spring Cloud Netflix ([step3-multiple-spring-boot-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step3-multiple-spring-boot-apps))
+
+
+Everything needed here is inside [step3-multiple-spring-boot-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step3-multiple-spring-boot-apps). Let´s cd into `step3-multiple-spring-boot-apps` and run the playbook:
+
+```
+ansible-playbook -i hostsfile ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev"
+```
+
+This will fire up multiple containers running Spring Boot Apps inside Docker Windows Containers on your Windows box. They will leverage the power of Spring Cloud Netflix with Zuul as a Proxy and Eureka as Service Registry (which dynamically tells Zuul, which Apps to route).
+
+![spring-cloud-example-running-docker-windows-containers](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/spring-cloud-example-running-docker-windows-containers.png)
 
 
 ## Best practices
