@@ -5,6 +5,7 @@
     java8_update_version: 121
     java_build_version: b13
     server_jre_name: server-jre-8u{{java8_update_version}}-windows-x64.tar.gz
+    service_registry_name: eureka-serviceregistry
 
   tasks:
   - name: Create base directory C:\spring-boot, if not there
@@ -22,7 +23,7 @@
     include: spring-boot-app-windows-docker.yml
     vars:
       spring_boot_app:
-        name: eureka-serviceregistry
+        name: "{{service_registry_name}}"
         port: 8761
       jar_input_path: "../spring-cloud-netflix-docker/{{spring_boot_app.name}}/target/{{spring_boot_app.name}}-0.0.1-SNAPSHOT.jar"
 
