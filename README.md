@@ -166,7 +166,7 @@ ok: [127.0.0.1] => {
 ## How to run a simple Spring Boot App inside a Docker Windows Container with Ansible ([step2-single-spring-boot-app](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step2-single-spring-boot-app))
 
 
-Everything needed here is inside [step2-single-spring-boot-app](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step2-single-spring-boot-app). Let´s cd into `step2-single-spring-boot-app` and run the playbook:
+Everything needed here is inside [step2-single-spring-boot-app](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step2-single-spring-boot-app). Be sure to have cloned and (Maven-) build the example simple Spring Boot app [weatherbackend](https://github.com/jonashackt/spring-cloud-netflix-docker/tree/master/weatherbackend). Let´s cd into `step2-single-spring-boot-app` and run the playbook:
 
 ```
 ansible-playbook -i hostsfile ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev"
@@ -180,7 +180,7 @@ This should run a single Spring Boot app inside a Docker Windows Container on yo
 ## How to run multiple Spring Boot Apps inside a Docker Windows Containers with Ansible and Spring Cloud Netflix ([step3-multiple-spring-boot-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step3-multiple-spring-boot-apps))
 
 
-Everything needed here is inside [step3-multiple-spring-boot-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step3-multiple-spring-boot-apps). Let´s cd into `step3-multiple-spring-boot-apps` and run the playbook:
+Everything needed here is inside [step3-multiple-spring-boot-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step3-multiple-spring-boot-apps). Be sure to have cloned and (Maven-) build the complete Spring Cloud example apps [spring-cloud-netflix-docker](https://github.com/jonashackt/spring-cloud-netflix-docker).  Let´s cd into `step3-multiple-spring-boot-apps` and run the playbook:
 
 ```
 ansible-playbook -i hostsfile ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev"
