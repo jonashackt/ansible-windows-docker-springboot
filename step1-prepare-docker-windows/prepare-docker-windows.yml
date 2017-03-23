@@ -41,8 +41,8 @@
   # Because win_reboot doesnt recognize that the virtual machine is already up, we set the timeouts way lower & ignore_errors: yes
   - name: When Containers and/or Hyper-V had to be installed, we have to reboot the Machine to have them take effect (mostly this step will fail, but it should work nevertheless)
     win_reboot:
-      reboot_timeout_sec: 40
-      shutdown_timeout_sec: 40
+      reboot_timeout_sec: 60
+      shutdown_timeout_sec: 60
     when: feature_container_installation.changed or feature_hyperv_installation.changed
     ignore_errors: yes
 
@@ -119,3 +119,7 @@
       java8_update_version: 121
       java_build_version: b13
       server_jre_name: server-jre-8u{{java8_update_version}}-windows-x64.tar.gz
+
+  - name: Running Spring Boot Apps inside Windows Docker Containers should be easy
+    debug:
+      msg: "springboot-oraclejre8-nanoserver Docker image is ready for you Spring Boot Apps!"
