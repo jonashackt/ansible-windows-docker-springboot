@@ -40,7 +40,18 @@
         port: 8091
       jar_input_path: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
 
-  - name: Copy docker-compose.yml to directory C:\spring-boot (this is only additionally, compose isn´t necessary for the apps to run)
-    win_template:
-      src: "../../spring-cloud-netflix-docker/docker-compose.yml"
-      dest: "{{base_path}}\\docker-compose.yml"
+  - name: Run Weather Backend Service 3 (Spring Boot app) inside Windows-Docker-Container
+    include: spring-boot-app-windows-docker.yml
+    vars:
+      spring_boot_app:
+        name: weatherbackend-third
+        port: 8092
+      jar_input_path: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+
+  - name: Run Weather Backend Service 4 (Spring Boot app) inside Windows-Docker-Container
+    include: spring-boot-app-windows-docker.yml
+    vars:
+      spring_boot_app:
+        name: weatherbackend-forth
+        port: 8093
+      jar_input_path: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"

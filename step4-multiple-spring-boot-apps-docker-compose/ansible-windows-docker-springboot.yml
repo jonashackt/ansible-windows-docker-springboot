@@ -1,0 +1,35 @@
+---
+- hosts: "{{host}}"
+  vars:
+    base_path: "C:\\spring-boot"
+    service_registry_name: eureka-serviceregistry
+    services:
+      - name: eureka-serviceregistry
+        path_to_jar: "../../spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
+        port: 8761
+      - name: zuul-edgeservice
+        path_to_jar: "../../spring-cloud-netflix-docker/zuul-edgeservice/target/zuul-edgeservice-0.0.1-SNAPSHOT.jar"
+        port: 8080
+      - name: weatherbackend
+        path_to_jar: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+        port: 8090
+      - name: weatherbackend-second
+        path_to_jar: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+        port: 8090
+
+  tasks:
+  - name: Create base directory C:\spring-boot, if not there
+    win_file: path={{base_path}} state=directory
+
+  - name: Preparing the Spring Boot App´s Files for later docker-compose run
+    include: spring-boot-app-prepare.yml
+    with_items: "{{ vars.services }}"
+
+  - name: Template docker-compose.yml to directory C:\spring-boot
+    win_template:
+      src: "templates/docker-compose.j2"
+      dest: "{{base_path}}\\docker-compose.yml"
+
+  # Run docker-compose
+
+  # Do Healthchecks
