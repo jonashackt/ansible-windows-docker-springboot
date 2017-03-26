@@ -32,6 +32,28 @@
       src: "templates/docker-compose.j2"
       dest: "{{base_path}}\\docker-compose.yml"
 
-  # Run docker-compose
+  - name: Stop all Service Docker containers (if there)
+    win_shell: docker-compose stop
+    args:
+      chdir: "{{base_path}}"
+    ignore_errors: yes
+
+  - name: Remove all Service Docker containers (if there)
+    win_shell: docker-compose rm -f
+    args:
+      chdir: "{{base_path}}"
+    ignore_errors: yes
+
+  - name: (Re-)Build all Service Docker images
+    win_shell: docker-compose build
+    args:
+      chdir: "{{base_path}}"
+    ignore_errors: yes
+
+  - name: Run all Services Docker containers
+    win_shell: docker-compose up -d
+    args:
+      chdir: "{{base_path}}"
+    ignore_errors: yes
 
   # Do Healthchecks
