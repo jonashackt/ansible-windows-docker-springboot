@@ -7,9 +7,11 @@
       - name: eureka-serviceregistry
         path_to_jar: "../../spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
         port: 8761
+        map_port_to_host: true
       - name: zuul-edgeservice
         path_to_jar: "../../spring-cloud-netflix-docker/zuul-edgeservice/target/zuul-edgeservice-0.0.1-SNAPSHOT.jar"
         port: 8080
+        map_port_to_host: true
       - name: weatherbackend
         path_to_jar: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
         port: 8090

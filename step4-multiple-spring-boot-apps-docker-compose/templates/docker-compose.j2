@@ -3,31 +3,16 @@ version: '3.1'
 
 services:
 
- eureka-serviceregistry:
-  build: ./eureka-serviceregistry
-  ports:
-   - "8761:8761"
-  tty:
-    true
-
- # no portbinding here - the actual services should be accessible through Zuul proxy
- weatherbackend:
-  build: ./weatherbackend
-  tty:
-    true
-
- # no portbinding here - the actual services should be accessible through Zuul proxy
- weatherbackend-second:
-  build: ./weatherbackend-second
-  tty:
-    true
-
- zuul-edgeservice:
-  build: ./zuul-edgeservice
-  ports:
-   - "8080:8080"
-  tty:
-    true
+{% for service in vars.services %}
+  {{ service.name }}:
+    build: ./{{ service.name }}
+{% if service.map_port_to_host is defined %}
+    ports:
+         - "{{ service.port }}:{{ service.port }}"
+{% endif %}
+    tty:
+      true
+{% endfor %}
 
 networks:
  default:
