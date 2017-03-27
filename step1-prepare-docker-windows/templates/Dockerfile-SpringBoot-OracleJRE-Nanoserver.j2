@@ -14,3 +14,9 @@ RUN setx /M PATH %PATH%;%JAVA_HOME%\bin
 # Create logging default path for Spring Boot
 VOLUME C:\\tmp
 
+# A 'Temporary workaround for Windows DNS client weirdness' randomly found at https://github.com/docker/labs/blob/master/windows/windows-containers/MultiContainerApp.md
+# Without this, DNS
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop';"]
+RUN set-itemproperty -path 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters' -Name ServerPriorityTimeLimit -Value 0 -Type DWord
+
+
