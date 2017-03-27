@@ -339,3 +339,4 @@ https://github.com/StefanScherer/docker-windows-box
 
 Install docker-compose on Windows Server 2016: https://github.com/docker/for-win/issues/448#issuecomment-276328342
 
+If Service discovery doen´t work reliable: http://stackoverflow.com/questions/43041297/docker-dns-for-service-discovery-to-resolve-windows-container%C2%B4s-address-by-name/43041298#43041298
