@@ -3,6 +3,7 @@
   vars:
     base_path: "C:\\spring-boot"
     service_registry_name: eureka-serviceregistry
+    zipkin_name: zipkin-dashboard
     services:
       - name: eureka-serviceregistry
         path_to_jar: "../../spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
@@ -15,9 +16,14 @@
         path_to_jar: "../../spring-cloud-netflix-docker/zuul-edgeservice/target/zuul-edgeservice-0.0.1-SNAPSHOT.jar"
         port: 8080
         map_port_to_host: true
+      - name: zipkin-dashboard
+        path_to_jar: "../../spring-cloud-netflix-docker/zipkin-dashboard/target/zipkin-dashboard-0.0.1-SNAPSHOT.jar"
+        port: 9411
+        map_port_to_host: true
       - name: weatherbackend
         path_to_jar: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
         port: 8090
+        map_port_to_host: true
       - name: weatherbackend-second
         path_to_jar: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
         port: 8090
