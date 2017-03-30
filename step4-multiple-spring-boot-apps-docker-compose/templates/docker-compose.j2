@@ -6,9 +6,12 @@ services:
 {% for service in vars.services %}
   {{ service.name }}:
     build: ./{{ service.name }}
-{% if service.map_port_to_host is defined %}
+{% if service.map_to_same_port_on_host is defined %}
     ports:
          - "{{ service.port }}:{{ service.port }}"
+{% else %}
+    ports:
+         - "{{ service.port }}"
 {% endif %}
     tty:
       true
