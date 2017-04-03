@@ -35,6 +35,3 @@
     win_shell: docker build . --tag springboot-oraclejre-nanoserver:latest
     args:
       chdir: "{{image_path}}"
-
-  - name: Delete directory C:\springboot-oraclejre-nanoserver
-    win_file: path={{image_path}} state=absent

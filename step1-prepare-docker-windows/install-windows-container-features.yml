@@ -1,0 +1,30 @@
+---
+  - name: Check if Containers are already installed as Windows Feature
+    win_shell: Get-WindowsOptionalFeature -Online –FeatureName Containers | Where State -CContains "Enabled"
+    register: check_feature_container_installed
+
+  # Only install the feature, if not already installed - it´s not installed,
+  # if Get-WindowsFeature –Name FeatureName | Where Installed returns an empty response 
+  - name: Install Containers natively as Windows Feature (only, if not already installed)   
+    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart
+    when: check_feature_container_installed.stdout == ''
+    ignore_errors: yes
+    register: feature_container_installation   
+
+  - name: Check if Hyper-V is already installed as Windows Feature
+    win_shell: Get-WindowsOptionalFeature -Online –FeatureName Microsoft-Hyper-V | Where State -CContains "Enabled"
+    register: check_feature_hyperv_installed
+
+  - name: Install Hyper-V as Windows Feature (only, if not already installed)    
+    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
+    when: check_feature_hyperv_installed.stdout == ''
+    ignore_errors: yes
+    register: feature_hyperv_installation
+
+  # Because win_reboot doesnt recognize that the virtual machine is already up, we set the timeouts way lower & ignore_errors: yes
+  - name: When Containers and/or Hyper-V had to be installed, we have to reboot the Machine to have them take effect (mostly this step will fail, but it should work nevertheless)
+    win_reboot:
+      reboot_timeout_sec: 60
+      shutdown_timeout_sec: 60
+    when: feature_container_installation.changed or feature_hyperv_installation.changed
+    ignore_errors: yes

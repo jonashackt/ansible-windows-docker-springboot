@@ -1,0 +1,42 @@
+---
+  - name: Checking if Docker Windows Service is already configured (to always ensure a fresh Windows Docker installation)
+    win_service:
+      name: docker
+    register: docker_service_info
+    ignore_errors: yes
+
+  - name: Stop old Docker Windows Service if there 
+    win_service:
+      name: docker
+      state: stopped
+    when: docker_service_info|succeeded
+
+  - name: Remove old Docker Windows Service if there 
+    win_shell: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe --unregister-service"
+    when: docker_service_info|succeeded
+    ignore_errors: yes
+
+  - name: Uninstall Docker via chocolatey if there
+    win_chocolatey:
+      name: docker
+      state: absent
+    when: docker_service_info|succeeded
+
+  - name: Install Docker via chocolatey
+    win_chocolatey:
+      name: docker
+
+  - name: Register Docker as a Windows Service
+    win_shell: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe --register-service"
+    ignore_errors: yes
+
+  - name: Start Docker as Windows Service
+    win_service:
+      name: docker
+      state: started
+
+  - name: Pull the small Windows Docker Base Image microsoft/nanoserver from hub.docker.com
+    win_shell: docker pull microsoft/nanoserver  
+
+#  - name: Get the second (but 10GB big) Windows Docker Base Image microsoft/windowsservercore from hub.docker.com (you may grab a coffee now...)
+#    win_shell: docker pull microsoft/windowsservercore

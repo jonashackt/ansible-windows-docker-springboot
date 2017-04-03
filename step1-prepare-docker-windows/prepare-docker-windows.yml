@@ -2,115 +2,22 @@
 - hosts: "{{host}}"
 
   tasks:
-  - name: Get Windows Build Number
-    win_file_version:
-      path: C:\Windows\System32\hal.dll
-    register: hal_dll_version_return
+  - name: Check the minimum Windows build number
+    include: check-build-number.yml
 
-  - name: Fail, if Windows Build number doesn´t support Windows Docker Containers correctly
-    fail:
-      msg: "Windows Build Number {{hal_dll_version_return.win_file_version.product_version}} doesn´t support Windows Docker Container correctly ({{hal_dll_version_return.win_file_version.file_private_part}} is to small)"
-    when: hal_dll_version_return.win_file_version.file_private_part|int < 206
+  - name: Install Windows Containers and Hyper-V Windows Features (if not already present)
+    include: install-windows-container-features.yml
 
-  - name: Congratulations
-    debug:
-      msg: "With your Build Number {{hal_dll_version_return.win_file_version.product_version}} you have choosen a good basis for Windows Docker Containers!"
-
-  - name: Check if Containers are already installed as Windows Feature
-    win_shell: Get-WindowsOptionalFeature -Online –FeatureName Containers | Where State -CContains "Enabled"
-    register: check_feature_container_installed
-
-  # Only install the feature, if not already installed - it´s not installed,
-  # if Get-WindowsFeature –Name FeatureName | Where Installed returns an empty response 
-  - name: Install Containers natively as Windows Feature (only, if not already installed)   
-    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart
-    when: check_feature_container_installed.stdout == ''
-    ignore_errors: yes
-    register: feature_container_installation   
-
-  - name: Check if Hyper-V is already installed as Windows Feature
-    win_shell: Get-WindowsOptionalFeature -Online –FeatureName Microsoft-Hyper-V | Where State -CContains "Enabled"
-    register: check_feature_hyperv_installed
-
-  - name: Install Hyper-V as Windows Feature (only, if not already installed)    
-    win_shell: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
-    when: check_feature_hyperv_installed.stdout == ''
-    ignore_errors: yes
-    register: feature_hyperv_installation
-
-  # Because win_reboot doesnt recognize that the virtual machine is already up, we set the timeouts way lower & ignore_errors: yes
-  - name: When Containers and/or Hyper-V had to be installed, we have to reboot the Machine to have them take effect (mostly this step will fail, but it should work nevertheless)
-    win_reboot:
-      reboot_timeout_sec: 60
-      shutdown_timeout_sec: 60
-    when: feature_container_installation.changed or feature_hyperv_installation.changed
-    ignore_errors: yes
-
-  - name: Checking if Docker Windows Service is already configured (to always ensure a fresh Windows Docker installation)
-    win_service:
-      name: docker
-    register: docker_service_info
-    ignore_errors: yes
-
-  - name: Stop old Docker Windows Service if there 
-    win_service:
-      name: docker
-      state: stopped
-    when: docker_service_info|succeeded
-
-  - name: Remove old Docker Windows Service if there 
-    win_shell: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe --unregister-service"
-    when: docker_service_info|succeeded
-    ignore_errors: yes
-
-  - name: Uninstall Docker via chocolatey if there
-    win_chocolatey:
-      name: docker
-      state: absent
-    when: docker_service_info|succeeded
-
-  - name: Install Docker via chocolatey
-    win_chocolatey:
-      name: docker
-
-  - name: Register Docker as a Windows Service
-    win_shell: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe --register-service"
-    ignore_errors: yes
-
-  - name: Start Docker as Windows Service
-    win_service:
-      name: docker
-      state: started
-
-  - name: Pull the small Windows Docker Base Image microsoft/nanoserver from hub.docker.com
-    win_shell: docker pull microsoft/nanoserver  
-
-#  - name: Get the second (but 10GB big) Windows Docker Base Image microsoft/windowsservercore from hub.docker.com (you may grab a coffee now...)
-#    win_shell: docker pull microsoft/windowsservercore 
+  - name: Install Docker on Windows (always the newest version) and pull needed base images
+    include: install-docker.yml
 
   - name: Install docker-compose
     include: install-docker-compose.yml
     vars:
       docker_install_path: c:\ProgramData\chocolatey\lib\docker\tools\docker
 
-  # Because win_reboot doesnt recognize that the virtual machine is already up, we set the timeouts way lower & ignore_errors: yes
-  - name: After fresh Docker installation we reboot our Windows box once again - it´s Windows after all and after that Docker should be ready :)
-    win_reboot:
-      reboot_timeout_sec: 40
-      shutdown_timeout_sec: 40
-    ignore_errors: yes
-
-  - name: Run a Microsoft test docker container
-    win_shell: "docker run --name dotnetbot-container microsoft/dotnet-samples:dotnetapp-nanoserver"
-    register: docker_test_run
-
-  - name: Docker is ready on your Box and waiting for your Containers :)
-    debug:
-      msg: "{{ docker_test_run.stdout_lines }} "
-
-  - name: Remove the Microsoft test docker container
-    win_shell: docker rm dotnetbot-container --force
-    ignore_errors: yes
+  - name: Run a Microsoft Docker Windows Testcontainer
+    include: run-test-container.yml
 
   - name: Build the springboot-oraclejre-nanoserver Docker image
     include: build-springboot-oraclejre-nanoserver-image.yml
@@ -120,6 +27,6 @@
       java_build_version: b13
       server_jre_name: server-jre-8u{{java8_update_version}}-windows-x64.tar.gz
 
-  - name: Running Spring Boot Apps inside Windows Docker Containers should be easy
+  - name: Your Windows Box is now fully ready to run Spring Boot Apps inside Windows Docker Containers
     debug:
       msg: "springboot-oraclejre8-nanoserver Docker image is ready for you Spring Boot Apps!"

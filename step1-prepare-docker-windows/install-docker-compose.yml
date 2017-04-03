@@ -9,3 +9,10 @@
   # Because Ansible 2.3 isn´t released until now, we sadly can´t use http://docs.ansible.com/ansible/win_path_module.html
   - name: Add docker-compose to Path for ease of use
     win_shell: "[Environment]::SetEnvironmentVariable('Path', $env:Path + ';' + $env:DOCKER_HOME, 'Machine')"
+
+  # Because win_reboot doesnt recognize that the virtual machine is already up, we set the timeouts way lower & ignore_errors: yes
+  - name: After fresh Docker installation we reboot our Windows box once again - it´s Windows after all and after that Docker should be ready :) (mostly this step will fail, but it should work nevertheless)
+    win_reboot:
+      reboot_timeout_sec: 40
+      shutdown_timeout_sec: 40
+    ignore_errors: yes
