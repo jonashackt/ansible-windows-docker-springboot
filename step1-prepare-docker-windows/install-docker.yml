@@ -16,15 +16,10 @@
     when: docker_service_info|succeeded
     ignore_errors: yes
 
-  - name: Uninstall Docker via chocolatey if there
+  - name: Install (or upgrade) Docker via chocolatey
     win_chocolatey:
       name: docker
-      state: absent
-    when: docker_service_info|succeeded
-
-  - name: Install Docker via chocolatey
-    win_chocolatey:
-      name: docker
+      upgrade: true
 
   - name: Register Docker as a Windows Service
     win_shell: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe --register-service"
