@@ -4,11 +4,11 @@ FROM springboot-oraclejre-nanoserver:latest
 MAINTAINER Jonas Hecht
 
 # Expose the apps Port
-EXPOSE {{spring_boot_app.port}}
+EXPOSE {{port}}
 
 # Add Spring Boot app.jar to Container
-ADD {{spring_boot_app.name}}.jar app.jar
+ADD {{app_name}}.jar app.jar
 
 # Fire up our Spring Boot app by default
-CMD ["java.exe", "-jar app.jar --server.port={{spring_boot_app.port}}"]
+CMD ["java.exe", "-jar app.jar --server.port={{port}}"]
 

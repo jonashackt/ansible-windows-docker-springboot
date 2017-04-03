@@ -2,45 +2,67 @@
 - hosts: "{{host}}"
   vars:
     base_path: "C:\\spring-boot"
-    spring_boot_app:
-      name: weatherbackend
-      port: 8090
-    jar_input_path: "../../spring-cloud-netflix-docker/{{spring_boot_app.name}}/target/{{spring_boot_app.name}}-0.0.1-SNAPSHOT.jar"
-    target_path: "{{base_path}}\\{{spring_boot_app.name}}"
+    port: 8090
+    target_path: "{{base_path}}\\{{app_name}}"
 
   tasks:
-  - name: Create directory C:\spring-boot\spring_boot_app.name, if not there
+  # Prepare for the Docker build...
+  - name: Create directory C:\spring-boot\app_name, if not there
     win_file: path={{target_path}} state=directory
 
-  - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app.name
+  - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\app_name
     win_template:
       src: "templates/Dockerfile-SpringBoot-App.j2"
       dest: "{{target_path}}\\Dockerfile"
 
-  - name: Copy Spring Boot app´s jar-File to directory C:\spring-boot\spring_boot_app.name
+  - name: Copy Spring Boot app´s jar-File to directory C:\spring-boot\app_name
     win_copy:
       src: "{{jar_input_path}}"
-      dest: "{{target_path}}\\{{spring_boot_app.name}}.jar"
+      dest: "{{target_path}}\\{{app_name}}.jar"
 
+  # Cleanup old Docker containers & images
   - name: Stop the Service Docker container
-    win_shell: docker stop {{spring_boot_app.name}}
+    win_shell: docker stop {{app_name}}
     ignore_errors: yes
 
   - name: Remove the Service Docker container
-    win_shell: docker rm {{spring_boot_app.name}} --force
+    win_shell: docker rm {{app_name}} --force
     ignore_errors: yes
 
   - name: Remove the Service Docker image
-    win_shell: docker rmi {{spring_boot_app.name}}:latest --force
+    win_shell: docker rmi {{app_name}}:latest --force
     ignore_errors: yes
 
+  # Build & run our Spring Boot App
   - name: Build the Service Docker image
-    win_shell: docker build . --tag {{spring_boot_app.name}}:latest
+    win_shell: docker build . --tag {{app_name}}:latest
     args:
       chdir: "{{target_path}}"
 
   - name: Run the Service Docker container
-    win_shell: "docker run -d --publish {{spring_boot_app.port}}:{{spring_boot_app.port}} --name={{spring_boot_app.name}} --restart=unless-stopped {{spring_boot_app.name}}:latest"
+    win_shell: "docker run -d --publish {{port}}:{{port}} --name={{app_name}} --restart=unless-stopped {{app_name}}:latest"
 
-  - name: Healthchecking the Spring Boot app
-    include: spring-boot-app-health-check.yml
+  # Healthcheck our Spring Boot App
+  - name: Obtain the Docker Container´s internal IP address (because localhost doesn´t work for now https://github.com/docker/for-win/issues/458)
+    win_shell: "docker inspect -f {% raw %}'{{ .NetworkSettings.Networks.nat.IPAddress }}' {% endraw %} {{app_name}} {{ '>' }} container_ip.txt"
+
+  - name: Get the Docker Container´s internal IP address from the temporary txt-file (we have to do this because of templating problems, see http://stackoverflow.com/a/32279729/4964553)
+    win_shell: cat container_ip.txt
+    register: win_shell_txt_return
+
+  - name: Define the IP as variable
+    set_fact:
+      docker_container_ip: "{{ win_shell_txt_return.stdout.splitlines()[0] }}"
+
+  - debug:
+      msg: "Your Docker Container has the internal IP {{ docker_container_ip }} --> Let´s do a health-check against this URI: 'http://{{ docker_container_ip }}:{{port}}/health'"
+
+  - name: Wait until our Spring Boot app is up & running
+    win_uri:
+      url: "http://{{ docker_container_ip }}:{{port}}/health"
+      method: GET
+    register: health_result
+    until: health_result.status_code == 200
+    retries: 10
+    delay: 5
+    ignore_errors: yes
