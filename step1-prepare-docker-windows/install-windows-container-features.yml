@@ -3,8 +3,8 @@
     win_shell: Get-WindowsOptionalFeature -Online –FeatureName Containers | Where State -CContains "Enabled"
     register: check_feature_container_installed
 
-  # Only install the feature, if not already installed - it´s not installed,
-  # if Get-WindowsFeature –Name FeatureName | Where Installed returns an empty response 
+  # Only install the feature, if not already installed
+  # It isn´t installed, if Get-WindowsFeature –Name FeatureName | Where Installed returns an empty response
   - name: Install Containers natively as Windows Feature (only, if not already installed)   
     win_shell: Enable-WindowsOptionalFeature -Online -FeatureName containers -All -NoRestart
     when: check_feature_container_installed.stdout == ''
