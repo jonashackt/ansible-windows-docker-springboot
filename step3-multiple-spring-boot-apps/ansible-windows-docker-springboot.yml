@@ -14,7 +14,7 @@
       spring_boot_app:
         name: "{{service_registry_name}}"
         port: 8761
-      jar_input_path: "../../spring-cloud-netflix-docker/{{spring_boot_app.name}}/target/{{spring_boot_app.name}}-0.0.1-SNAPSHOT.jar"
+      jar_input_path: "../../cxf-spring-cloud-netflix-docker/{{spring_boot_app.name}}/target/{{spring_boot_app.name}}-0.0.1-SNAPSHOT.jar"
 
   - name: Run Reverse Proxy (Zuul Spring Boot app) inside Windows-Docker-Container
     include: spring-boot-app-windows-docker.yml
@@ -22,7 +22,7 @@
       spring_boot_app:
         name: zuul-edgeservice
         port: 8080
-      jar_input_path: "../../spring-cloud-netflix-docker/{{spring_boot_app.name}}/target/{{spring_boot_app.name}}-0.0.1-SNAPSHOT.jar"
+      jar_input_path: "../../cxf-spring-cloud-netflix-docker/{{spring_boot_app.name}}/target/{{spring_boot_app.name}}-0.0.1-SNAPSHOT.jar"
 
   - name: Run Weather Backend Service (Spring Boot app) inside Windows-Docker-Container
     include: spring-boot-app-windows-docker.yml
@@ -30,7 +30,7 @@
       spring_boot_app:
         name: weatherbackend
         port: 8090
-      jar_input_path: "../../spring-cloud-netflix-docker/{{spring_boot_app.name}}/target/{{spring_boot_app.name}}-0.0.1-SNAPSHOT.jar"
+      jar_input_path: "../../cxf-spring-cloud-netflix-docker/{{spring_boot_app.name}}/target/{{spring_boot_app.name}}-0.0.1-SNAPSHOT.jar"
 
   - name: Run Weather Backend Service 2 (Spring Boot app) inside Windows-Docker-Container
     include: spring-boot-app-windows-docker.yml
@@ -38,7 +38,7 @@
       spring_boot_app:
         name: weatherbackend-second
         port: 8091
-      jar_input_path: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+      jar_input_path: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
 
   - name: Run Weather Backend Service 3 (Spring Boot app) inside Windows-Docker-Container
     include: spring-boot-app-windows-docker.yml
@@ -46,7 +46,7 @@
       spring_boot_app:
         name: weatherbackend-third
         port: 8092
-      jar_input_path: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+      jar_input_path: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
 
   - name: Run Weather Backend Service 4 (Spring Boot app) inside Windows-Docker-Container
     include: spring-boot-app-windows-docker.yml
@@ -54,4 +54,4 @@
       spring_boot_app:
         name: weatherbackend-forth
         port: 8093
-      jar_input_path: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+      jar_input_path: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"

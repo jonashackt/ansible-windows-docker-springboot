@@ -5,7 +5,7 @@ ansible-windows-docker-springboot
 
 ## Example project showing how to provision, deploy and run Spring Boot apps inside Docker Windows Containers on Windows Host using Packer, Powershell, Vagrant & Ansible
 
-This is a follow-up to the repository [ansible-windows-springboot](https://github.com/jonashackt/ansible-windows-springboot) and the blog post [Running Spring Boot Apps on Windows with Ansible (codecentric.de)](https://blog.codecentric.de/en/2017/01/ansible-windows-spring-boot/).
+This is a follow-up to the repository [ansible-windows-springboot](https://github.com/jonashackt/ansible-windows-springboot) and the blog post [Running Spring Boot Apps on Windows with Ansible (codecentric.de)](https://blog.codecentric.de/en/2017/01/ansible-windows-spring-boot/). There is a corresponding new blog post available here: [Running Spring Boot Apps on Docker Windows Containers with Ansible: A Complete Guide incl Packer, Vagrant & Powershell](https://blog.codecentric.de/en/2017/04/ansible-docker-windows-containers-spring-boot/).
 
 Because [Microsoft &amp; Docker Inc. developed a native Docker implementation on Windows](https://blog.docker.com/2016/09/dockerforws2016/) using Hyper-V (or even a thinner layer) which let´s you run tiny little Windows containers inside your Windows box, which are accessible through the Docker API, I wanted to get my hands on them as soon as I heard of it. A list of [example Windows Docker Images is provided here](https://hub.docker.com/r/microsoft/).
 
@@ -180,7 +180,7 @@ This should run a single Spring Boot app inside a Docker Windows Container on yo
 ## Step 3 - How to run multiple Spring Boot Apps inside a Docker Windows Containers with Ansible and Spring Cloud Netflix ([step3-multiple-spring-boot-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step3-multiple-spring-boot-apps))
 
 
-Everything needed here is inside [step3-multiple-spring-boot-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step3-multiple-spring-boot-apps). Be sure to have cloned and (Maven-) build the complete Spring Cloud example apps [spring-cloud-netflix-docker](https://github.com/jonashackt/spring-cloud-netflix-docker).  Let´s cd into `step3-multiple-spring-boot-apps` and run the playbook:
+Everything needed here is inside [step3-multiple-spring-boot-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step3-multiple-spring-boot-apps). Be sure to have cloned and (Maven-) build the complete Spring Cloud example apps [cxf-spring-cloud-netflix-docker](https://github.com/jonashackt/cxf-spring-cloud-netflix-docker).  Let´s cd into `step3-multiple-spring-boot-apps` and run the playbook:
 
 ```
 ansible-playbook -i hostsfile ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev"
@@ -194,7 +194,7 @@ This will fire up multiple containers running Spring Boot Apps inside Docker Win
 ## Step 4 - How to scale multiple Spring Boot Apps inside a Docker Windows Containers with Ansible, docker-compose and Spring Cloud Netflix ([step4-multiple-spring-boot-apps-docker-compose](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-multiple-spring-boot-apps-docker-compose))
 
 
-Everything needed here is inside [step4-multiple-spring-boot-apps-docker-compose](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-multiple-spring-boot-apps-docker-compose). Be sure to have cloned and (Maven-) build the complete Spring Cloud example apps [spring-cloud-netflix-docker](https://github.com/jonashackt/spring-cloud-netflix-docker).  Let´s cd into `step4-multiple-spring-boot-apps-docker-compose` and run the playbook:
+Everything needed here is inside [step4-multiple-spring-boot-apps-docker-compose](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-multiple-spring-boot-apps-docker-compose). Be sure to have cloned and (Maven-) build the complete Spring Cloud example apps [cxf-spring-cloud-netflix-docker](https://github.com/jonashackt/spring-cloud-netflix-docker).  Let´s cd into `step4-multiple-spring-boot-apps-docker-compose` and run the playbook:
 
 ```
 ansible-playbook -i hostsfile ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev"

@@ -6,25 +6,25 @@
     zipkin_name: zipkin-dashboard
     services:
       - name: eureka-serviceregistry
-        path_to_jar: "../../spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
         port: 8761
         map_to_same_port_on_host: true
       - name: eureka-serviceregistry-backup
-        path_to_jar: "../../spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
         port: 8761
       - name: zuul-edgeservice
-        path_to_jar: "../../spring-cloud-netflix-docker/zuul-edgeservice/target/zuul-edgeservice-0.0.1-SNAPSHOT.jar"
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/zuul-edgeservice/target/zuul-edgeservice-0.0.1-SNAPSHOT.jar"
         port: 8080
         map_to_same_port_on_host: true
       - name: zipkin-dashboard
-        path_to_jar: "../../spring-cloud-netflix-docker/zipkin-dashboard/target/zipkin-dashboard-0.0.1-SNAPSHOT.jar"
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/zipkin-dashboard/target/zipkin-dashboard-0.0.1-SNAPSHOT.jar"
         port: 9411
         map_to_same_port_on_host: true
       - name: weatherbackend
-        path_to_jar: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
         port: 8090
       - name: weatherbackend-second
-        path_to_jar: "../../spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
         port: 8090
 
   tasks:
