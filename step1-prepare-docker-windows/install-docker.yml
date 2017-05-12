@@ -9,11 +9,11 @@
     win_service:
       name: docker
       state: stopped
-    when: docker_service_info|succeeded
+    when: docker_service_info.exists == True
 
   - name: Remove old Docker Windows Service if there 
     win_shell: "C:\\ProgramData\\chocolatey\\lib\\docker\\tools\\docker\\dockerd.exe --unregister-service"
-    when: docker_service_info|succeeded
+    when: docker_service_info.exists == True
     ignore_errors: yes
 
   - name: Install (or upgrade) Docker via chocolatey
