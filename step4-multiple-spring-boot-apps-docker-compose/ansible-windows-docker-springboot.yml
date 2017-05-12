@@ -26,6 +26,9 @@
       - name: weatherbackend-second
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
         port: 8090
+      - name: weatherservice
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherservice/target/weatherservice-0.0.1-SNAPSHOT.jar"
+        port: 8095
 
   tasks:
   - name: Create base directory C:\spring-boot, if not there
