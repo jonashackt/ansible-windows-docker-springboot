@@ -11,10 +11,8 @@
   - name: Install Docker on Windows (always the newest version) and pull needed base images
     include: install-docker.yml
 
-  - name: Install docker-compose
+  - name: Install docker-compose (also always the newest version)
     include: install-docker-compose.yml
-    vars:
-      docker_install_path: c:\ProgramData\chocolatey\lib\docker\tools\docker
 
   - name: Run a Microsoft Docker Windows Testcontainer
     include: run-test-container.yml

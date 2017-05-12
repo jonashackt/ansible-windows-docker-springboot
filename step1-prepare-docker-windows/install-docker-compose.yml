@@ -1,18 +1,5 @@
 ---
-  # Set a simple environment variable with http://docs.ansible.com/ansible/win_environment_module.html didn´t work, so we have to use PS again
-  - name: Set Docker path as environment variable
-    win_shell: "[Environment]::SetEnvironmentVariable('DOCKER_HOME', '{{docker_install_path}}', 'Machine')"
-
-  - name: Install docker-compose (this is currently not coupled with the Docker installation (because of https://github.com/docker/for-win/issues/448) and you have to check, if the release (https://github.com/docker/compose/releases) matches your Docker version)
-    win_shell: iwr https://github.com/docker/compose/releases/download/1.11.2/docker-compose-Windows-x86_64.exe -OutFile $env:DOCKER_HOME\docker-compose.exe
-
-  # Because Ansible 2.3 isn´t released until now, we sadly can´t use http://docs.ansible.com/ansible/win_path_module.html
-  - name: Add docker-compose to Path for ease of use
-    win_shell: "[Environment]::SetEnvironmentVariable('Path', $env:Path + ';' + $env:DOCKER_HOME, 'Machine')"
-
-  # Because win_reboot doesnt recognize that the virtual machine is already up, we set the timeouts way lower & ignore_errors: yes
-  - name: After fresh Docker installation we reboot our Windows box once again - it´s Windows after all and after that Docker should be ready :) (mostly this step will fail, but it should work nevertheless)
-    win_reboot:
-      reboot_timeout_sec: 40
-      shutdown_timeout_sec: 40
-    ignore_errors: yes
+  - name: Install (or upgrade) Docker Compose via chocolatey
+    win_chocolatey:
+      name: docker-compose
+      upgrade: true
