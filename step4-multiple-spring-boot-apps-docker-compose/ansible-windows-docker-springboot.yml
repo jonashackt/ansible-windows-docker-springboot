@@ -44,13 +44,13 @@
       dest: "{{base_path}}\\docker-compose.yml"
 
   - name: Stop all Service Docker containers (if there)
-    win_shell: docker-compose stop
+    win_shell: docker-compose --project-name app stop
     args:
       chdir: "{{base_path}}"
     ignore_errors: yes
 
   - name: Remove all Service Docker containers (if there)
-    win_shell: docker-compose rm -f
+    win_shell: docker-compose --project-name app rm -f
     args:
       chdir: "{{base_path}}"
     ignore_errors: yes
@@ -61,10 +61,27 @@
       chdir: "{{base_path}}"
     ignore_errors: yes
 
+  # As we later need to know our container's names for healthchecking but also want to be able to scale out, we're not able to use
+  # containername feature https://docs.docker.com/compose/compose-file/#containername
+  # But there's help! With docker-compose --project-name aCustomContainerNameBeginning (https://github.com/docker/compose/issues/3722)
+  # we'll know exactly the names of our containers, which are app_service.name_1 - like app_weatherservice_1
   - name: Run all Services Docker containers
-    win_shell: docker-compose up -d
+    win_shell: docker-compose --project-name app up -d
     args:
       chdir: "{{base_path}}"
+    register: first_compose_up_run_result
     ignore_errors: yes
 
-  # Do Healthchecks
+  # Sadly there are situations, where the first attempt to do a docker-compose up will fail for only some of our services
+  # with this error: 'failed to create endpoint app_xyz_1 on network nat: HNS failed with error : Unspecified error'
+  # But as we want to have them all running, simply giving the docker-compose a second 'up' mostly fixes the problem
+  - name: If one container failed at startup, try to run it again
+    win_shell: docker-compose --project-name app up -d
+    args:
+      chdir: "{{base_path}}"
+    when: first_compose_up_run_result|failed
+    ignore_errors: yes
+
+  - name: Do healthchecks for all services
+    include: spring-boot-app-health-check.yml
+    with_items: "{{ vars.services }}"

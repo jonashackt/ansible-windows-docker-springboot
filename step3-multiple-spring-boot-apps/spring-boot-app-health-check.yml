@@ -13,11 +13,15 @@
   - debug:
       msg: "Your Docker Container has the internal IP {{ docker_container_ip }} --> Let´s do a health-check against this URI: 'http://{{ docker_container_ip }}:{{spring_boot_app.port}}/health'"
 
-  ###### Smoke test, if app has booted up correctly
+  # Spring Boot Actuators strange Content-Type 'application/vnd.spring-boot.actuator.v1+json' when calling
+  # http://appname:port/health can be avoided by using the a correct header: 'Accept: application/json'
+  # Doing so, the app reacts with a normal 'application/json' in the response and the healthcheck run's fine again :)
   - name: Wait until our Spring Boot app is up & running
     win_uri:
       url: "http://{{ docker_container_ip }}:{{spring_boot_app.port}}/health"
       method: GET
+      headers:
+        Accept: application/json
     register: health_result
     until: health_result.status_code == 200  
     retries: 10
