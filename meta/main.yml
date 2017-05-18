@@ -5,7 +5,7 @@ galaxy_info:
 
   license: license (MIT)
 
-  min_ansible_version: 2.2.0
+  min_ansible_version: 2.3.0
 
   github_branch: release
 
