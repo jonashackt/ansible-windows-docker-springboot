@@ -31,7 +31,7 @@
     register: health_result
     until: health_result.status_code == 200  
     retries: 10
-    delay: 5
+    delay: 10
     ignore_errors: yes
 
   - name: Show some more info, only when health check went wrong
