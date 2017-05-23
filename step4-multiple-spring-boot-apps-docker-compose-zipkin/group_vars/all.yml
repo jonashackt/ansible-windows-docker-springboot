@@ -1,0 +1,7 @@
+# http://docs.ansible.com/ansible/intro_windows.html#windows-how-does-it-work
+
+ansible_port: 55986 # not 5986, as we would use for non-virtualized environments
+ansible_connection: winrm
+
+# The following is necessary for Python 2.7.9+ when using default WinRM self-signed certificates:
+ansible_winrm_server_cert_validation: ignore

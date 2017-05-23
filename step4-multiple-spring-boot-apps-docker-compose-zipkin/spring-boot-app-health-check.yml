@@ -30,7 +30,7 @@
         Accept: application/json
     register: health_result
     until: health_result.status_code == 200  
-    retries: 30
+    retries: 10
     delay: 10
     ignore_errors: yes
 

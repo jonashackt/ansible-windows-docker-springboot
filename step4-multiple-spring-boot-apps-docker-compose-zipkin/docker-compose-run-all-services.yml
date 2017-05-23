@@ -1,0 +1,44 @@
+---
+  - name: Template docker-compose.yml to directory C:\spring-boot
+    win_template:
+      src: "templates/docker-compose.j2"
+      dest: "{{base_path}}\\docker-compose.yml"
+
+  - name: Stop all Docker containers (if there)
+    win_shell: docker-compose --project-name springboot stop
+    args:
+      chdir: "{{base_path}}"
+    ignore_errors: yes
+
+  - name: Remove all Docker containers (if there)
+    win_shell: docker-compose --project-name springboot rm -f
+    args:
+      chdir: "{{base_path}}"
+    ignore_errors: yes
+
+  - name: (Re-)Build all Docker images
+    win_shell: docker-compose build
+    args:
+      chdir: "{{base_path}}"
+    ignore_errors: yes
+
+  # As we later need to know our container's names for healthchecking but also want to be able to scale out, we're not able to use
+  # containername feature https://docs.docker.com/compose/compose-file/#containername
+  # But there's help! With docker-compose --project-name a CustomContainerNameBeginning (https://github.com/docker/compose/issues/3722)
+  # we'll know exactly the names of our containers, which are springboot_service.name_1 - like springboot_weatherservice_1
+  - name: Run all Docker containers
+    win_shell: docker-compose --project-name springboot up -d
+    args:
+      chdir: "{{base_path}}"
+    register: first_compose_up_run_result
+    ignore_errors: yes
+
+  # Sadly there are situations, where the first attempt to do a docker-compose up will fail for only some of our services
+  # with this error: 'failed to create endpoint app_xyz_1 on network nat: HNS failed with error : Unspecified error'
+  # But as we want to have them all running, simply giving the docker-compose a second 'up' mostly fixes the problem
+  - name: If one container failed at startup, try to run it again (e.g. with 'failed to create endpoint app_xyz_1 on network nat .. HNS failed with error .. Unspecified error')
+    win_shell: docker-compose --project-name springboot up -d
+    args:
+      chdir: "{{base_path}}"
+    when: first_compose_up_run_result|failed
+    ignore_errors: yes
