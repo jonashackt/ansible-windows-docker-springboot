@@ -6,7 +6,7 @@
         port: "{{ item.port }}"
 
   - name: Obtain the Docker Container´s internal IP address (because localhost doesn´t work for now https://github.com/docker/for-win/issues/458)
-    win_shell: "docker inspect -f {% raw %}'{{ .NetworkSettings.Networks.nat.IPAddress }}' {% endraw %} app_{{spring_boot_app.name}}_1 {{ '>' }} container_ip.txt"
+    win_shell: "docker inspect -f {% raw %}'{{ .NetworkSettings.Networks.nat.IPAddress }}' {% endraw %} springboot_{{spring_boot_app.name}}_1 {{ '>' }} container_ip.txt"
 
   - name: Get the Docker Container´s internal IP address from the temporary txt-file (we have to do this because of templating problems, see http://stackoverflow.com/a/32279729/4964553)
     win_shell: cat container_ip.txt

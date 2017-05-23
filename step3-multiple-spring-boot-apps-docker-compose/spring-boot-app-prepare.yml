@@ -10,15 +10,15 @@
     debug:
       msg: "Processing '{{spring_boot_app.name}}' with port '{{ spring_boot_app.port }}'"
 
-  - name: Create directory C:\spring-boot\spring_boot_app.name, if not there
+  - name: Create directory C:\springboot\spring_boot_app.name, if not there
     win_file: path={{base_path}}\\{{spring_boot_app.name}} state=directory
 
-  - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app.name
+  - name: Template and copy Spring Boot app´s Dockerfile to directory C:\springboot\spring_boot_app.name
     win_template:
       src: "templates/Dockerfile-SpringBoot-App.j2"
       dest: "{{base_path}}\\{{spring_boot_app.name}}\\Dockerfile"
 
-  - name: Copy Spring Boot app´s jar-File to directory C:\spring-boot\spring_boot_app.name
+  - name: Copy Spring Boot app´s jar-File to directory C:\springboot\spring_boot_app.name
     win_copy:
       src: "{{spring_boot_app.jar}}"
       dest: "{{base_path}}\\{{spring_boot_app.name}}\\{{spring_boot_app.name}}.jar"
