@@ -5,6 +5,7 @@
         name: "{{ item.name }}"
         port: "{{ item.port }}"
         jar: "{{ item.path_to_jar }}"
+        registry_name: "{{ item.service_registry_name }}"
 
   - name: Preparing the following Spring Boot App´s Files for docker-compose run
     debug:
