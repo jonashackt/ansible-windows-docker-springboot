@@ -1,21 +1,21 @@
 ---
 - hosts: "{{host}}"
   vars:
-    base_path: "C:\\spring-boot"
+    base_path: "C:\\springboot\\simpleapp"
     port: 8088
     target_path: "{{base_path}}\\{{app_name}}"
 
   tasks:
   # Prepare for the Docker build...
-  - name: Create directory C:\spring-boot\app_name, if not there
+  - name: Create directory C:\springboot\simpleapp\app_name, if not there
     win_file: path={{target_path}} state=directory
 
-  - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\app_name
+  - name: Template and copy Spring Boot app´s Dockerfile to directory C:\springboot\simpleapp\app_name
     win_template:
       src: "templates/Dockerfile-SpringBoot-App.j2"
       dest: "{{target_path}}\\Dockerfile"
 
-  - name: Copy Spring Boot app´s jar-File to directory C:\spring-boot\app_name
+  - name: Copy Spring Boot app´s jar-File to directory C:\springboot\simpleapp\app_name
     win_copy:
       src: "{{jar_input_path}}"
       dest: "{{target_path}}\\{{app_name}}.jar"
@@ -35,16 +35,16 @@
 
   # Build & run our Spring Boot App
   - name: Build the Service Docker image
-    win_shell: docker build . --tag {{app_name}}:latest
+    win_shell: docker build . --tag simpleapp_{{app_name}}:latest
     args:
       chdir: "{{target_path}}"
 
   - name: Run the Service Docker container
-    win_shell: "docker run -d --publish {{port}}:{{port}} --name={{app_name}} --restart=unless-stopped {{app_name}}:latest"
+    win_shell: "docker run -d --publish {{port}}:{{port}} --name=simpleapp_{{app_name}} --restart=unless-stopped simpleapp_{{app_name}}:latest"
 
   # Healthcheck our Spring Boot App
   - name: Obtain the Docker Container´s internal IP address (because localhost doesn´t work for now https://github.com/docker/for-win/issues/458)
-    win_shell: "docker inspect -f {% raw %}'{{ .NetworkSettings.Networks.nat.IPAddress }}' {% endraw %} {{app_name}} {{ '>' }} container_ip.txt"
+    win_shell: "docker inspect -f {% raw %}'{{ .NetworkSettings.Networks.nat.IPAddress }}' {% endraw %} simpleapp_{{app_name}} {{ '>' }} container_ip.txt"
 
   - name: Get the Docker Container´s internal IP address from the temporary txt-file (we have to do this because of templating problems, see http://stackoverflow.com/a/32279729/4964553)
     win_shell: cat container_ip.txt
