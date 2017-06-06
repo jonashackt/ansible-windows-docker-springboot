@@ -2,7 +2,7 @@
 - hosts: "{{host}}"
   vars:
     base_path: "C:\\spring-boot"
-    port: 8090
+    port: 8088
     target_path: "{{base_path}}\\{{app_name}}"
 
   tasks:
