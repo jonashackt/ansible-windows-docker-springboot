@@ -61,6 +61,8 @@
     win_uri:
       url: "http://{{ docker_container_ip }}:{{port}}/health"
       method: GET
+      headers:
+        Accept: application/json
     register: health_result
     until: health_result.status_code == 200
     retries: 10
