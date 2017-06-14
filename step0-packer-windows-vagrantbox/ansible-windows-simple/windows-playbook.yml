@@ -1,0 +1,7 @@
+---
+- hosts: "{{host}}"
+
+  tasks:
+  - name: Install firefox
+    win_chocolatey:
+      name: firefox
