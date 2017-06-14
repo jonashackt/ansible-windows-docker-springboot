@@ -23,18 +23,9 @@
         "./scripts/oracle-cert.cer"
       ],
       "vboxmanage": [
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--memory",
-          "6144"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--cpus",
-          "4"
-        ]
+        ["modifyvm", "{{.Name}}", "--memory", "6144"],
+        ["modifyvm", "{{.Name}}", "--cpus", "4"],
+        ["modifyvm", "{{.Name}}", "--vram", "32"]
       ]
     }
   ],
