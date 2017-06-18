@@ -2,7 +2,7 @@
 - hosts: "{{host}}"
   vars:
     base_path: "C:\\springboot\\simpleapp"
-    port: 8088
+    app_port: 8088
     target_path: "{{base_path}}\\{{app_name}}"
 
   tasks:
@@ -21,26 +21,26 @@
       dest: "{{target_path}}\\{{app_name}}.jar"
 
   # Cleanup old Docker containers & images
-  - name: Stop the Service Docker container
-    win_shell: docker stop {{app_name}}
+  - name: Stop the Service´ Docker container
+    win_shell: docker stop simpleapp_{{app_name}}
     ignore_errors: yes
 
-  - name: Remove the Service Docker container
-    win_shell: docker rm {{app_name}} --force
+  - name: Remove the Service´ Docker container
+    win_shell: docker rm simpleapp_{{app_name}} --force
     ignore_errors: yes
 
-  - name: Remove the Service Docker image
-    win_shell: docker rmi {{app_name}}:latest --force
+  - name: Remove the Service´ Docker image
+    win_shell: docker rmi simpleapp_{{app_name}}:latest --force
     ignore_errors: yes
 
   # Build & run our Spring Boot App
-  - name: Build the Service Docker image
+  - name: Build the Service´ Docker image
     win_shell: docker build . --tag simpleapp_{{app_name}}:latest
     args:
       chdir: "{{target_path}}"
 
-  - name: Run the Service Docker container
-    win_shell: "docker run -d --publish {{port}}:{{port}} --name=simpleapp_{{app_name}} --restart=unless-stopped simpleapp_{{app_name}}:latest"
+  - name: Run the Service´ Docker container
+    win_shell: "docker run -d --publish {{app_port}}:{{app_port}} --name=simpleapp_{{app_name}} --restart=unless-stopped simpleapp_{{app_name}}:latest"
 
   # Healthcheck our Spring Boot App
   - name: Obtain the Docker Container´s internal IP address (because localhost doesn´t work for now https://github.com/docker/for-win/issues/458)
@@ -55,16 +55,30 @@
       docker_container_ip: "{{ win_shell_txt_return.stdout.splitlines()[0] }}"
 
   - debug:
-      msg: "Your Docker Container has the internal IP {{ docker_container_ip }} --> Let´s do a health-check against this URI: 'http://{{ docker_container_ip }}:{{port}}/health'"
+      msg: "Your Docker Container has the internal IP {{ docker_container_ip }} --> Let´s do a health-check against this URI: 'http://{{ docker_container_ip }}:{{app_port}}/health'"
+
+  - name: Sadly the first win_uri call responds with non-correctly filled fields - so we do a second one & ignore this error
+    win_uri:
+      url: "http://{{ docker_container_ip }}:{{app_port}}/health"
+      method: GET
+      headers:
+        Accept: application/json
+    register: health_result_bad
+    until: health_result_bad.status_code == 200
+    ignore_errors: yes
+
+  - name:
+    debug:
+      msg: "Our first check gave us: {{ health_result_bad }}"
 
   - name: Wait until our Spring Boot app is up & running
     win_uri:
-      url: "http://{{ docker_container_ip }}:{{port}}/health"
+      url: "http://{{ docker_container_ip }}:{{app_port}}/health"
       method: GET
       headers:
         Accept: application/json
     register: health_result
     until: health_result.status_code == 200
-    retries: 10
-    delay: 5
+    retries: 30
+    delay: 20
     ignore_errors: yes
