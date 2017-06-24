@@ -16,6 +16,12 @@
       chdir: "{{base_path}}"
     ignore_errors: yes
 
+  - name: Remove all Services Docker images - just to be 100% save, that everything is build from the ground up
+    win_shell: docker-compose --project-name springboot down --rmi all
+    args:
+      chdir: "{{base_path}}"
+    ignore_errors: yes
+
   - name: (Re-)Build all Docker images
     win_shell: docker-compose build
     args:
