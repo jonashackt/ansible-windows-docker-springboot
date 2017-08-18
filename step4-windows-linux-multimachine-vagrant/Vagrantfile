@@ -1,0 +1,56 @@
+Vagrant.configure("2") do |config|
+
+    # One Master / Manager Node with Linux
+    config.vm.define "masterlinux" do |ml|
+        ml.vm.box = "ubuntu/trusty64"
+        ml.vm.hostname = "masterlinux"
+        ml.ssh.insert_key = false
+
+        ml.vm.provider :virtualbox do |mlvb|
+            mlvb.name = "MasterLinuxUbuntu"
+            mlvb.memory = 1024
+            mlvb.cpus = 2
+            mlvb.customize ["modifyvm", :id, "--ioapic", "on"]
+        end
+
+        ml.vm.provision "ansible" do |ansible|
+           ansible.playbook = "provision/playbook-client.yml"
+           ansible.sudo = true
+        end
+    end
+
+    # One Master / Manager Node with Windows Server 2016
+    config.vm.define "masterwindows" do |mw|
+        mw.vm.box = "windows_2016_docker_virtualbox.box"
+        mw.vm.hostname = "masterwindows"
+
+        mw.vm.provider "masterwindowsvirtualbox" do |mwvb|
+            mwvb.name = "MasterWindowsServer2016"
+            mwvb.gui = true
+            mwvb.memory = 2048
+            mwvb.cpus = 2
+        end
+
+        mw.vm.provision "ansible" do |ansible|
+           ansible.playbook = "../step1-prepare-docker-windows/prepare-docker-windows.yml"
+        end
+    end
+
+    # One Worker Node with Windows Server 2016
+    config.vm.define "workerwindows" do |ww|
+        ww.vm.box = "windows_2016_docker_virtualbox.box"
+        ww.vm.hostname = "workerwindows"
+
+        ww.vm.provider "workerwindowsvirtualbox" do |wwvb|
+            wwvb.name = "WorkerWindowsServer2016"
+            wwvb.gui = true
+            wwvb.memory = 2048
+            wwvb.cpus = 2
+        end
+
+        ww.vm.provision "ansible" do |ansible|
+           ansible.playbook = "../step1-prepare-docker-windows/prepare-docker-windows.yml"
+        end
+    end
+
+end

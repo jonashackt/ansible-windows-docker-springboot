@@ -34,5 +34,5 @@ logback.out.xml
 
 # Vagrantboxes
 *.box
-Vagrantfile
+step0-packer-windows-vagrantbox/Vagrantfile
 *.ISO

@@ -340,3 +340,81 @@ https://github.com/StefanScherer/docker-windows-box
 Install docker-compose on Windows Server 2016: https://github.com/docker/for-win/issues/448#issuecomment-276328342
 
 If Service discovery doen´t work reliable: http://stackoverflow.com/questions/43041297/docker-dns-for-service-discovery-to-resolve-windows-container%C2%B4s-address-by-name/43041298#43041298
+
+
+
+# Docker Container Orchestration with Linux & Windows mixed OS setup
+
+Example steps showing how to provision and run Spring Boot Apps with Docker Swarm &amp; Docker in mixed mode on Linux AND Windows (Docker Windows Containers!)
+
+## Why more?
+
+We went quite fare with that setup - and broke up most boundaries inside our heads, what´s possible with Windows. But there´s one step left: leaving the one machine our services are running on and do a step further to go for a multi-machine setup, incl. blue-green-deployments/no-time-out-deployments and kind of "bring-my-hole-app-UP" (regardles, on which server it is running)
+
+## Kubernetes or Docker Swarm?
+
+Everything seems to point to Kubernetes - biggest mediashare, most google searches, most blog posts and so on. But there´s one thing that __today__ bring´s me on the Docker Swarm path: And that´s the __Docker Windows Container Support__ in the current feature set implemented. As of Kubernetes 1.6 Windows Server 2016 (which is capable of running Windows Server Containers) there´s a basic support of Docker Windows Containers in Kubernetes - with two main limitations:
+
+* Networksubsystem HNS isn´t really Kubernetes-ready - so you have to manually put Routingtables together
+* Only one Docker Container per Pod is supported right now
+
+Both things mean, that you litterally can´t leverage the benefits of Kubernetes as a Container Orchestration tool with Docker Windows Containers right now. Things might change soon though, if Microsoft releases it´s Version 1709 Windows Server 2016 and Kubernetes 1.8 goes live. But both isn´t now, so we first of all have to go with the competitor Docker Swarm, which should be also a good thing to start - and we´ll later switch to Kubernetes.
+
+
+## Step 4 - A Multi-machine Windows- & Linux- mixed OS Vagrant setup ([step4-windows-linux-multimachine-vagrant](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant))
+
+There are basically two options to achieve a completely comprehensible setup: running more than one virtual machine on your local machine or go into the cloud. To decide which way to go, I had to rethink about what I wanted to show with this project. My goal is to show a setup of an Docker Orchestration tool to scale Docker Containers on both Windows and Linux - without messing with the specialities of one of the many cloud providers. Not to mention the financial perspective. So for the first setup, I wanted to go with a few virtual machines that run on my laptop.
+
+As I really got to love Vagrant as a tool to handle my Virtual machines, why not do it with that again? And thank´s to a colleague of mine´s hint, I found the [Vagrant multi-machine docs](https://www.vagrantup.com/docs/multi-machine/).
+
+
+# Links
+
+#### General comparison of Docker Container Orchestrators
+
+mindshare: https://platform9.com/blog/kubernetes-docker-swarm-compared/
+
+marketshare: https://blog.netsil.com/kubernetes-vs-docker-swarm-vs-dc-os-may-2017-orchestrator-shootout-fdc59c28ec16
+
+https://www.loomsystems.com/blog/single-post/2017/06/19/kubernetes-vs-docker-swarm-vs-apache-mesos-container-orchestration-comparison
+
+#### Windows Server
+
+https://blogs.technet.microsoft.com/hybridcloud/
+
+https://blogs.technet.microsoft.com/hybridcloud/2017/05/10/windows-server-for-developers-news-from-microsoft-build-2017/
+
+Windows Server Pre-Release (Insider): https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewserver
+
+Current state discription: https://blogs.windows.com/windowsexperience/2017/07/13/announcing-windows-server-insider-preview-build-16237/#tx4mFJzTSMIjl2gX.97 --> coming version 1709 of Windows Server 2016 will have better Kubernetes support with no more manual tinkering with routing tables (better HNS)
+
+#### Docker Swarm
+
+Docker Swarm Windows Docs: https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode
+
+Windows Server 2016 Overlay Networking Support (Windows & Linux mixed mode): https://blogs.technet.microsoft.com/virtualization/2017/04/18/ws2016-overlay-network-driver/
+
+Windows & Linux mixed Video: https://www.youtube.com/watch?v=ZfMV5JmkWCY
+
+#### Kubernetes
+
+Docker Windows Containers & Kubernetes: https://blogs.technet.microsoft.com/networking/2017/04/04/windows-networking-for-kubernetes/
+
+Kubernetes Networking on Windows: https://www.youtube.com/watch?v=P-D8x2DndIA&t=6s&list=PL69nYSiGNLP2OH9InCcNkWNu2bl-gmIU4&index=1
+
+http://www.serverwatch.com/server-news/why-kubernetes-sucks-and-how-to-fix-it.html
+
+http://blog.kubernetes.io/2016/12/windows-server-support-kubernetes.html
+
+https://www.youtube.com/watch?v=Tbrckccvxwg
+
+https://kubernetes.io/docs/getting-started-guides/windows/
+
+https://github.com/kubernetes/features/issues/116
+
+minikube howto: http://www.sqlservercentral.com/blogs/the-database-avenger/2017/06/13/orchestrating-sql-server-with-kubernetes/
+
+https://groups.google.com/forum/#!forum/kubernetes-sig-windows
+
+http://blog.kubernetes.io/2017/08/kompose-helps-developers-move-docker.html?m=1
+
