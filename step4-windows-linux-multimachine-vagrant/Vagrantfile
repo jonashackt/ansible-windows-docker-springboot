@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
         end
 
         ml.vm.provision "ansible" do |ansible|
-           ansible.playbook = "provision/playbook-client.yml"
+           ansible.playbook = "prepare-docker-linux.yml"
            ansible.sudo = true
         end
     end
