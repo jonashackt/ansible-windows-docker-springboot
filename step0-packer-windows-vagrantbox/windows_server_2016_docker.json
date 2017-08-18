@@ -23,7 +23,7 @@
         "./scripts/oracle-cert.cer"
       ],
       "vboxmanage": [
-        ["modifyvm", "{{.Name}}", "--memory", "6144"],
+        ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--cpus", "4"],
         ["modifyvm", "{{.Name}}", "--vram", "32"]
       ]
@@ -48,13 +48,15 @@
     {
       "type": "vagrant",
       "keep_input_artifact": false,
-      "output": "windows_2016_docker_{{.Provider}}.box",
-      "vagrantfile_template": "vagrantfile-windows_2016.template"
+      "output": "{{user `box_output_name`}}",
+      "vagrantfile_template": "{{user `template_url`}}"
     }
   ],
   "variables": {
     "iso_url": "http://care.dlservice.microsoft.com/dl/download/1/4/9/149D5452-9B29-4274-B6B3-5361DBDA30BC/14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO",
     "iso_checksum_type": "md5",
-    "iso_checksum": "70721288BBCDFE3239D8F8C0FAE55F1F"
+    "iso_checksum": "70721288BBCDFE3239D8F8C0FAE55F1F",
+    "template_url": "vagrantfile-windows_2016.template",
+    "box_output_name": "windows_2016_docker_{{.Provider}}.box"
   }
 }

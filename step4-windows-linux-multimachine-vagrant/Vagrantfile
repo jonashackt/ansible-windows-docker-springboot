@@ -8,7 +8,8 @@ Vagrant.configure("2") do |config|
 
         ml.vm.provider :virtualbox do |mlvb|
             mlvb.name = "MasterLinuxUbuntu"
-            mlvb.memory = 1024
+            mlvb.gui = true
+            mlvb.memory = 2048
             mlvb.cpus = 2
             mlvb.customize ["modifyvm", :id, "--ioapic", "on"]
         end
@@ -21,10 +22,10 @@ Vagrant.configure("2") do |config|
 
     # One Master / Manager Node with Windows Server 2016
     config.vm.define "masterwindows" do |mw|
-        mw.vm.box = "windows_2016_docker_virtualbox.box"
+        mw.vm.box = "windows_2016_multimachine"
         mw.vm.hostname = "masterwindows"
 
-        mw.vm.provider "masterwindowsvirtualbox" do |mwvb|
+        mw.vm.provider :virtualbox do |mwvb|
             mwvb.name = "MasterWindowsServer2016"
             mwvb.gui = true
             mwvb.memory = 2048
@@ -33,15 +34,24 @@ Vagrant.configure("2") do |config|
 
         mw.vm.provision "ansible" do |ansible|
            ansible.playbook = "../step1-prepare-docker-windows/prepare-docker-windows.yml"
+           ansible.inventory_path = "../step1-prepare-docker-windows/hostsfile"
+           ansible.extra_vars = {
+             host: "ansible-windows-docker-springboot-dev"
+           }
+           ansible.limit = "ansible-windows-docker-springboot-dev"
         end
+
+        # Forwarding the Windows Server 2016 Guest Port 8080 t0 48080
+        # so that we can access it easily from outside the VM
+        # config.vm.network "forwarded_port", guest: 8080, host: 48080, host_ip: "127.0.0.1", id: "edgeservice"
     end
 
     # One Worker Node with Windows Server 2016
     config.vm.define "workerwindows" do |ww|
-        ww.vm.box = "windows_2016_docker_virtualbox.box"
+        ww.vm.box = "windows_2016_multimachine"
         ww.vm.hostname = "workerwindows"
 
-        ww.vm.provider "workerwindowsvirtualbox" do |wwvb|
+        ww.vm.provider :virtualbox do |wwvb|
             wwvb.name = "WorkerWindowsServer2016"
             wwvb.gui = true
             wwvb.memory = 2048
@@ -49,8 +59,17 @@ Vagrant.configure("2") do |config|
         end
 
         ww.vm.provision "ansible" do |ansible|
-           ansible.playbook = "../step1-prepare-docker-windows/prepare-docker-windows.yml"
+            ansible.playbook = "../step1-prepare-docker-windows/prepare-docker-windows.yml"
+            ansible.inventory_path = "../step1-prepare-docker-windows/hostsfile"
+            ansible.extra_vars = {
+                host: "ansible-windows-docker-springboot-dev"
+            }
+            ansible.limit = "ansible-windows-docker-springboot-dev"
         end
+
+        # Forwarding the Windows Server 2016 Guest Port 8080 t0 48080
+        # so that we can access it easily from outside the VM
+        # config.vm.network "forwarded_port", guest: 8080, host: 48080, host_ip: "127.0.0.1", id: "edgeservice"
     end
 
 end
