@@ -1,0 +1,68 @@
+{
+  "builders": [
+    {
+      "vm_name":"WindowsServer2016DockerPackerBuild",
+      "type": "virtualbox-iso",
+      "communicator": "winrm",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "headless": false,
+      "boot_wait": "2m",
+      "winrm_username": "vagrant",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "6h",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "post_shutdown_delay": "10s",
+      "guest_os_type": "Windows2012_64",
+      "guest_additions_mode": "attach",
+      "disk_size": 61440,
+      "floppy_files": [
+        "./scripts/Autounattend.xml",
+        "./scripts/configure-ansible.ps1",
+        "./scripts/oracle-cert.cer"
+      ],
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "4096"],
+        ["modifyvm", "{{.Name}}", "--cpus", "4"],
+        ["modifyvm", "{{.Name}}", "--vram", "32"]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "windows-shell",
+      "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
+      "scripts": [
+        "./scripts/vm-guest-tools.bat"        
+      ]
+    },
+    {
+      "type": "powershell",
+      "scripts": [
+        "./scripts/configure-ansible.ps1"
+      ]
+    },
+    {
+      "type": "ansible",
+      "playbook_file": "./../step1-prepare-docker-windows/prepare-docker-windows.yml",
+      "extra_arguments": [ "--extra-vars", "host=ansible-windows-docker-springboot-dev" ]
+
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "keep_input_artifact": false,
+      "output": "{{user `box_output_name`}}",
+      "vagrantfile_template": "{{user `template_url`}}"
+    }
+  ],
+  "variables": {
+    "iso_url": "http://care.dlservice.microsoft.com/dl/download/1/4/9/149D5452-9B29-4274-B6B3-5361DBDA30BC/14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO",
+    "iso_checksum_type": "md5",
+    "iso_checksum": "70721288BBCDFE3239D8F8C0FAE55F1F",
+    "template_url": "vagrantfile-windows_2016.template",
+    "box_output_name": "windows_2016_docker_{{.Provider}}.box"
+  }
+}
