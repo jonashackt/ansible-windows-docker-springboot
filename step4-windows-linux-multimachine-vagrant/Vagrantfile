@@ -6,17 +6,28 @@ Vagrant.configure("2") do |config|
         ml.vm.hostname = "masterlinux"
         ml.ssh.insert_key = false
 
+        # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
+        # we need to configure a private network, so that our machines are able to talk to one another
+        ml.vm.network :private_network, ip:  "172.16.2.10", auto_config: false, virtualbox__intnet: "isolated_network"
+
         ml.vm.provider :virtualbox do |mlvb|
             mlvb.name = "MasterLinuxUbuntu"
             mlvb.gui = true
             mlvb.memory = 2048
             mlvb.cpus = 2
             mlvb.customize ["modifyvm", :id, "--ioapic", "on"]
+            mlvb.customize ["modifyvm", :id, "--vram", "16"]
         end
 
         ml.vm.provision "ansible" do |ansible|
            ansible.playbook = "prepare-docker-linux.yml"
            ansible.sudo = true
+        end
+
+        ml.vm.provision "ansible2" do |ansible2|
+           ansible2.playbook = "masterlinux/swarm-master-linux.yml"
+           ansible2.inventory_path = "masterlinux/hostsfile"
+           ansible2.limit = "swarm-master-linux"
         end
     end
 
@@ -24,6 +35,10 @@ Vagrant.configure("2") do |config|
     config.vm.define "masterwindows" do |mw|
         mw.vm.box = "windows_2016_multimachine"
         mw.vm.hostname = "masterwindows"
+
+        # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
+        # we need to configure a private network, so that our machines are able to talk to one another
+        mw.vm.network :private_network, ip:  "172.16.2.11", auto_config: false, virtualbox__intnet: "isolated_network"
 
         mw.vm.provider :virtualbox do |mwvb|
             mwvb.name = "MasterWindowsServer2016"
@@ -33,12 +48,9 @@ Vagrant.configure("2") do |config|
         end
 
         mw.vm.provision "ansible" do |ansible|
-           ansible.playbook = "../step1-prepare-docker-windows/prepare-docker-windows.yml"
-           ansible.inventory_path = "../step1-prepare-docker-windows/hostsfile"
-           ansible.extra_vars = {
-             host: "ansible-windows-docker-springboot-dev"
-           }
-           ansible.limit = "ansible-windows-docker-springboot-dev"
+           ansible.playbook = "masterwindows/swarm-master-windows.yml"
+           ansible.inventory_path = "masterwindows/hostsfile"
+           ansible.limit = "swarm-master-windows"
         end
 
         # Forwarding the Windows Server 2016 Guest Port 8080 t0 48080
@@ -51,6 +63,10 @@ Vagrant.configure("2") do |config|
         ww.vm.box = "windows_2016_multimachine"
         ww.vm.hostname = "workerwindows"
 
+        # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
+        # we need to configure a private network, so that our machines are able to talk to one another
+        ww.vm.network :private_network, ip:  "172.16.2.12", auto_config: false, virtualbox__intnet: "isolated_network"
+
         ww.vm.provider :virtualbox do |wwvb|
             wwvb.name = "WorkerWindowsServer2016"
             wwvb.gui = true
@@ -59,12 +75,9 @@ Vagrant.configure("2") do |config|
         end
 
         ww.vm.provision "ansible" do |ansible|
-            ansible.playbook = "../step1-prepare-docker-windows/prepare-docker-windows.yml"
-            ansible.inventory_path = "../step1-prepare-docker-windows/hostsfile"
-            ansible.extra_vars = {
-                host: "ansible-windows-docker-springboot-dev"
-            }
-            ansible.limit = "ansible-windows-docker-springboot-dev"
+           ansible.playbook = "workerwindows/swarm-worker-windows.yml"
+           ansible.inventory_path = "workerwindows/hostsfile"
+           ansible.limit = "swarm-worker-windows"
         end
 
         # Forwarding the Windows Server 2016 Guest Port 8080 t0 48080

@@ -371,7 +371,7 @@ As I really got to love Vagrant as a tool to handle my Virtual machines, why not
 Inside the `step0-packer-windows-vagrantbox` directory start the build for another Windows box (that does not provide a provider config, which wouldn´t work within a Vagrant multimachine setup) with this command:
 
 ```
-packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f -var template_url=vagrantfile-windows_2016-multimachine.template -var box_output_name=windows_2016_docker_multimachine.box windows_server_2016_docker.json
+packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f -var template_url=vagrantfile-windows_2016-multimachine.template -var box_output_name=windows_2016_docker_multimachine2.box windows_server_2016_docker-multimachine.json
 ```
 
 Add new Windows 2016 Vagrant box:
@@ -385,6 +385,28 @@ Now switch over to `step4-windows-linux-multimachine-vagrant` directory and do a
 vagrant up
 ```
 
+Now we´re ready to play. And nevermind, if you want to have a break or your notebook is running hot - just type a `vagrant halt`. And the whole zoo of machines will be stopped for you :)
+
+
+#### Helpful tips
+
+Try to reach a machine, cd into `masterwindows` and:
+
+```
+ansible masterwindows -i hostsfile -m win_ping
+```
+
+cd into `workerwindows` and:
+
+```
+ansible workerwindows -i hostsfile -m win_ping
+```
+
+or cd into `masterlinux` and (you´ll maybe need to install sshpass (e.g. via `brew install sshpass`)):
+
+```
+ansible masterlinux -i hostsfile -m ping
+```
 
 
 # Links

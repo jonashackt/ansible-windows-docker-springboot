@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+  - name: Initialize Docker Swarm cluster
+    shell: docker swarm init --advertise-addr=172.16.2.11 --listen-addr 172.16.2.11:2377
+    ignore_errors: yes
