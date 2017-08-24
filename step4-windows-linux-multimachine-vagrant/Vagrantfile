@@ -23,12 +23,6 @@ Vagrant.configure("2") do |config|
            ansible.playbook = "prepare-docker-linux.yml"
            ansible.sudo = true
         end
-
-        #ml.vm.provision "ansible2" do |ansible2|
-        #   ansible2.playbook = "masterlinux/swarm-master-linux.yml"
-        #   ansible2.inventory_path = "masterlinux/hostsfile"
-        #   ansible2.limit = "swarm-master-linux"
-        #end
     end
 
     # One Master / Manager Node with Windows Server 2016
@@ -46,12 +40,6 @@ Vagrant.configure("2") do |config|
             masterwindowsvb.memory = 2048
             masterwindowsvb.cpus = 2
         end
-
-        #mw.vm.provision "ansible" do |ansible|
-        #   ansible.playbook = "masterwindows/swarm-master-windows.yml"
-        #   ansible.inventory_path = "masterwindows/hostsfile"
-        #   ansible.limit = "swarm-master-windows"
-        #end
 
         # Forwarding the Windows Server 2016 Guest Port 8080 t0 48080
         # so that we can access it easily from outside the VM
@@ -73,12 +61,6 @@ Vagrant.configure("2") do |config|
             workerwindowsvb.memory = 2048
             workerwindowsvb.cpus = 2
         end
-
-        #ww.vm.provision "ansible" do |ansible|
-        #   ansible.playbook = "workerwindows/swarm-worker-windows.yml"
-        #   ansible.inventory_path = "workerwindows/hostsfile"
-        #   ansible.limit = "swarm-worker-windows"
-        #end
 
         # Forwarding the Windows Server 2016 Guest Port 8080 t0 48080
         # so that we can access it easily from outside the VM
