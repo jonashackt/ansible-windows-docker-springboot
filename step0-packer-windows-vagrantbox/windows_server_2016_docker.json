@@ -14,7 +14,7 @@
       "winrm_timeout": "6h",
       "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
       "post_shutdown_delay": "10s",
-      "guest_os_type": "Windows2012_64",
+      "guest_os_type": "Windows2016_64",
       "guest_additions_mode": "attach",
       "disk_size": 61440,
       "floppy_files": [
