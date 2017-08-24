@@ -371,7 +371,7 @@ As I really got to love Vagrant as a tool to handle my Virtual machines, why not
 Inside the `step0-packer-windows-vagrantbox` directory start the build for another Windows box (that does not provide a provider config, which wouldn´t work within a Vagrant multimachine setup) with this command:
 
 ```
-packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f -var template_url=vagrantfile-windows_2016-multimachine.template -var box_output_name=windows_2016_docker_multimachine2.box windows_server_2016_docker-multimachine.json
+packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f -var template_url=vagrantfile-windows_2016-multimachine.template -var box_output_name=windows_2016_docker_multimachine2.box windows_server_2016_docker.json
 ```
 
 Add new Windows 2016 Vagrant box:
@@ -388,25 +388,65 @@ vagrant up
 Now we´re ready to play. And nevermind, if you want to have a break or your notebook is running hot - just type a `vagrant halt`. And the whole zoo of machines will be stopped for you :)
 
 
-#### Helpful tips
 
-Try to reach a machine, cd into `masterwindows` and:
+##### Ping all
 
-```
-ansible masterwindows -i hostsfile -m win_ping
-```
-
-cd into `workerwindows` and:
+As Ansible is a really nice tool, that let´s you use the same host in multiple groups - and merges the group_vars from all of those according to that one host - it isn´t a good idea to use a structure like that in your inventory file:
 
 ```
-ansible workerwindows -i hostsfile -m win_ping
+[masterwindows]
+127.0.0.1
+
+[masterlinux]
+127.0.0.1
+
+[workerwindows]
+127.0.0.1
 ```
 
-or cd into `masterlinux` and (you´ll maybe need to install sshpass (e.g. via `brew install sshpass`)):
+And try to use different corresponding group_vars entries... Because, you don´t know, which variables will be present!
+
+See https://github.com/ansible/ansible/issues/9065
+
+But what if we were able to change the /etc/hosts on our Host machine with every `vagrant up`? (https://stackoverflow.com/questions/16624905/adding-etc-hosts-entry-to-host-machine-on-vagrant-up) That´s possible with the https://github.com/cogitatio/vagrant-hostsupdater, install it with:
+
+#### Different hostnames
+
+Current workaround: configure ~/hosts
 
 ```
-ansible masterlinux -i hostsfile -m ping
+127.0.0.1 masterlinux01
+127.0.0.1 masterwindows01
+127.0.0.1 workerwindows01
 ```
+
+
+tbd
+```
+vagrant plugin install vagrant-hostsupdater
+```
+
+#### working Ansible SSH config
+
+cd into `masterlinux` and (you´ll maybe need to install sshpass (e.g. via `brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb` (as `brew install sshpass` won´t work, see https://stackoverflow.com/questions/32255660/how-to-install-sshpass-on-mac):
+
+Before (see https://stackoverflow.com/questions/34718079/add-host-to-known-hosts-file-without-prompt/34721229)
+
+```
+export ANSIBLE_HOST_KEY_CHECKING=False
+```
+
+```
+ansible-playbook -i hostsfile swarm.yml
+```
+
+```
+unset ANSIBLE_HOST_KEY_CHECKING
+```
+
+
+
+
 
 
 # Links

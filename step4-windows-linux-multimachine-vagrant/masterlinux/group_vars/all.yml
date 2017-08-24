@@ -1,4 +1,0 @@
-ansible_port: 2222 # not 5986, as we would use for non-virtualized environments
-ansible_connection: ssh
-ansible_user: vagrant
-ansible_password: vagrant

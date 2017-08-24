@@ -1,0 +1,15 @@
+[masterwindows]
+masterwindows01     ansible_port=55986
+
+[masterlinux]
+masterlinux01       ansible_port=2222
+
+[workerwindows]
+workerwindows01     ansible_port=2202
+
+[linux:children]
+masterlinux
+
+[windows:children]
+masterwindows
+workerwindows

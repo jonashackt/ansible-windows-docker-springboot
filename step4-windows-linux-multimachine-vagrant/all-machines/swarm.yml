@@ -1,0 +1,36 @@
+---
+
+
+- hosts: "masterwindows"
+
+  tasks:
+
+  - name: Ping masterwindows
+    win_ping:
+
+  #- name: Initialize Docker Swarm cluster
+  #  win_shell: docker swarm init --advertise-addr=172.16.2.11 --listen-addr 172.16.2.11:2377
+  #  ignore_errors: yes
+
+- hosts: "workerwindows"
+
+  tasks:
+
+  - name: Ping workerwindows
+    win_ping:
+
+  #- name: Initialize Docker Swarm cluster
+  #  win_shell: docker swarm init --advertise-addr=172.16.2.11 --listen-addr 172.16.2.11:2377
+  #  ignore_errors: yes
+
+- hosts: "masterlinux"
+
+  tasks:
+  - name: Ping masterlinux
+    ping:
+
+  #- name: Initialize Docker Swarm cluster
+  #  shell: docker swarm init --advertise-addr=172.16.2.11 --listen-addr 172.16.2.11:2377
+  #  ignore_errors: yes
+
+
