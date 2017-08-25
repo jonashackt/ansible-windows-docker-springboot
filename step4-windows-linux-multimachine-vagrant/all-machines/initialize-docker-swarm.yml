@@ -1,0 +1,19 @@
+---
+
+- hosts: all
+
+  tasks:
+  - name: Checking Ansible connectivity to Windows nodes
+    win_ping:
+    when: inventory_hostname in groups['windows']
+
+  - name: Checking Ansible connectivity to Linux nodes
+    ping:
+    when: inventory_hostname in groups['linux']
+
+  - name: Initialize Docker Swarm cluster on Windows master node
+    win_shell: docker swarm init --advertise-addr=172.16.2.12 --listen-addr 172.16.2.12:2377
+    ignore_errors: yes
+    when: inventory_hostname in groups['masterwindows']
+
+
