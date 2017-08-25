@@ -24,10 +24,13 @@
     ignore_errors: yes
     when: inventory_hostname in groups['masterwindows']
 
-  - name: Saving worker join-token in variable for joining other nodes later
+  - name: Syncing the worker join-token result to the other hosts
     set_fact:
-      worker_jointoken: "{{token_result.stdout.splitlines()[0]}}"
-    when: inventory_hostname in groups['masterwindows']
+      token_result_host_sync: "{{ hostvars['masterwindows01']['token_result'] }}" #"{{token_result.stdout.splitlines()[0]}}"
+
+  - name: Extracting and saving worker join-token in variable for joining other nodes later
+    set_fact:
+      worker_jointoken: "{{token_result_host_sync.stdout_lines}}"
 
   - name: Swarm initialized...
     debug:
