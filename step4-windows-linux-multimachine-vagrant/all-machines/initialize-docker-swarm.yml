@@ -45,3 +45,7 @@
     ignore_errors: yes
     when: inventory_hostname in groups['workerwindows']
 
+  - name: Add Linux worker node to Docker Swarm cluster
+    shell: "docker swarm join --token {{worker_jointoken}} {{masterwindows_ip}}"
+    ignore_errors: yes
+    when: inventory_hostname in groups['workerlinux']
