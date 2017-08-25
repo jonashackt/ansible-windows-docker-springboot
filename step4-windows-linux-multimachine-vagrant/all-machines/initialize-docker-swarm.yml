@@ -13,6 +13,10 @@
     ping:
     when: inventory_hostname in groups['linux']
 
+  - name: Allow connection to Windows Manager nodes Docker Swarm port 2377
+    win_shell: "netsh firewall add portopening TCP 2377 'Port 2377'"
+    when: inventory_hostname in groups['masterwindows']
+
   - name: Initialize Docker Swarm cluster on Windows master node
     win_shell: "docker swarm init --advertise-addr={{masterwindows_ip}} --listen-addr {{masterwindows_ip}}:2377"
     ignore_errors: yes
@@ -26,14 +30,18 @@
 
   - name: Syncing the worker join-token result to the other hosts
     set_fact:
-      token_result_host_sync: "{{ hostvars['masterwindows01']['token_result'] }}" #"{{token_result.stdout.splitlines()[0]}}"
+      token_result_host_sync: "{{ hostvars['masterwindows01']['token_result'] }}"
 
   - name: Extracting and saving worker join-token in variable for joining other nodes later
     set_fact:
-      worker_jointoken: "{{token_result_host_sync.stdout_lines}}"
+      worker_jointoken: "{{token_result_host_sync.stdout.splitlines()[0]}}"
 
   - name: Swarm initialized...
     debug:
       msg: "The worker join-token is: '{{worker_jointoken}}'"
 
+  - name: Add Windows worker node to Docker Swarm cluster
+    win_shell: "docker swarm join --token {{worker_jointoken}} {{masterwindows_ip}}"
+    ignore_errors: yes
+    when: inventory_hostname in groups['workerwindows']
 
