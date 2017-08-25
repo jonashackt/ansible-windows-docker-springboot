@@ -445,6 +445,13 @@ ansible-playbook -i hostsfile prepare-docker-nodes.yml
 unset ANSIBLE_HOST_KEY_CHECKING
 ```
 
+As you may noticed, there´s an extra for Windows Server 2016. Because we want our machines to be accessible from each other, we have to allow the very basic command everybody start´s with: the ping. That one is blocked by the Windows firewall ad a default and we have to open that up with the following [Powershell command](https://technet.microsoft.com/de-de/library/dd734783(v=ws.10).aspx#BKMK_3_add) - obviously wrapped inside a Ansible task:
+
+```
+  - name: Allow Ping requests on Windows nodes (which is by default disabled in Windows Server 2016)
+    win_shell: "netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol=icmpv4:8,any dir=in action=allow"
+    when: inventory_hostname in groups['workerwindows']
+```
 
 
 
