@@ -14,18 +14,9 @@
 - name: Prepare Docker on Windows nodes
   include: "../../step1-prepare-docker-windows/prepare-docker-windows.yml host=windows"
 
+  - name: Allow Ping requests on Windows nodes (which is by default disabled in Windows Server 2016)
+    win_shell: "netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol=icmpv4:8,any dir=in action=allow"
+    when: inventory_hostname in groups['workerwindows']
+
 - name: Prepare Docker on Linux nodes
   include: prepare-docker-linux.yml host=linux
-
-
-
-
-  #- name: Initialize Docker Swarm cluster
-  #  win_shell: docker swarm init --advertise-addr=172.16.2.11 --listen-addr 172.16.2.11:2377
-  #  ignore_errors: yes
-
-  #- name: Initialize Docker Swarm cluster
-  #  shell: docker swarm init --advertise-addr=172.16.2.11 --listen-addr 172.16.2.11:2377
-  #  ignore_errors: yes
-
-
