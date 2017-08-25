@@ -475,6 +475,28 @@ unset ANSIBLE_HOST_KEY_CHECKING
 ansible-playbook -i hostsfile initialize-docker-swarm.yml
 ```
 
+Obtaining the worker join-token from the Windows master node isn´t a big problem with Ansible:
+
+```
+  - name: Obtain worker join-token from Windows master node
+    win_shell: "docker swarm join-token worker -q"
+    register: token_result
+    ignore_errors: yes
+    when: inventory_hostname in groups['masterwindows']
+```
+
+But syncing the join-token to the other hosts is a bit tricky, since variables or facts are just defined per Host in Ansible. But there´s help! We only need to use the doc´ info about [Magic Variables, and How To Access Information About Other Hosts](http://docs.ansible.com/ansible/latest/playbooks_variables.html#magic-variables-and-how-to-access-information-about-other-hosts). First of all we access the return variable `token_result` from the Windows master Host `{{ hostvars['masterwindows01']['token_result'] }}` - remember to use the exact Host name here, the group name won´t be enough. The second step is the extraction of the join-token out of the result variable with the help of the set_fact Module. The following two Ansible tasks demonstrate the solution:
+
+```
+  - name: Syncing the worker join-token result to the other hosts
+    set_fact:
+      token_result_host_sync: "{{ hostvars['masterwindows01']['token_result'] }}" #"{{token_result.stdout.splitlines()[0]}}"
+
+  - name: Extracting and saving worker join-token in variable for joining other nodes later
+    set_fact:
+      worker_jointoken: "{{token_result_host_sync.stdout_lines}}"
+
+```
 
 
 
