@@ -1,22 +1,28 @@
 ---
-- hosts: "windows"
+
+- hosts: all
 
   tasks:
-  - name: Ping masterwindows
+  - name: Checking Ansible connectivity to Windows nodes
     win_ping:
+    when: inventory_hostname in groups['windows']
 
-- name: Prepare Docker on Windows
+  - name: Checking Ansible connectivity to Linux nodes
+    ping:
+    when: inventory_hostname in groups['linux']
+
+- name: Prepare Docker on Windows nodes
   include: "../../step1-prepare-docker-windows/prepare-docker-windows.yml host=windows"
+
+- name: Prepare Docker on Linux nodes
+  include: prepare-docker-linux.yml host=linux
+
+
+
 
   #- name: Initialize Docker Swarm cluster
   #  win_shell: docker swarm init --advertise-addr=172.16.2.11 --listen-addr 172.16.2.11:2377
   #  ignore_errors: yes
-
-- hosts: "linux"
-
-  tasks:
-  - name: Ping masterlinux
-    ping:
 
   #- name: Initialize Docker Swarm cluster
   #  shell: docker swarm init --advertise-addr=172.16.2.11 --listen-addr 172.16.2.11:2377

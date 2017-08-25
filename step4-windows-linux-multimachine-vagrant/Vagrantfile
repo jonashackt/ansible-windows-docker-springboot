@@ -10,18 +10,33 @@ Vagrant.configure("2") do |config|
         # we need to configure a private network, so that our machines are able to talk to one another
         masterlinux.vm.network "private_network", ip: "172.16.2.10"
 
-        masterlinux.vm.provider :virtualbox do |masterlinuxvb|
-            masterlinuxvb.name = "MasterLinuxUbuntu"
-            masterlinuxvb.gui = true
-            masterlinuxvb.memory = 2048
-            masterlinuxvb.cpus = 2
-            masterlinuxvb.customize ["modifyvm", :id, "--ioapic", "on"]
-            masterlinuxvb.customize ["modifyvm", :id, "--vram", "16"]
+        masterlinux.vm.provider :virtualbox do |virtualbox|
+            virtualbox.name = "MasterLinuxUbuntu"
+            virtualbox.gui = true
+            virtualbox.memory = 2048
+            virtualbox.cpus = 2
+            virtualbox.customize ["modifyvm", :id, "--ioapic", "on"]
+            virtualbox.customize ["modifyvm", :id, "--vram", "16"]
         end
+    end
 
-        masterlinux.vm.provision "ansible" do |ansible|
-           ansible.playbook = "prepare-docker-linux.yml"
-           ansible.sudo = true
+    # One Worker Node with Linux
+    config.vm.define "workerlinux" do |workerlinux|
+        workerlinux.vm.box = "ubuntu/trusty64"
+        workerlinux.vm.hostname = "workerlinux01"
+        workerlinux.ssh.insert_key = false
+
+        # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
+        # we need to configure a private network, so that our machines are able to talk to one another
+        workerlinux.vm.network "private_network", ip: "172.16.2.11"
+
+        workerlinux.vm.provider :virtualbox do |virtualbox|
+            virtualbox.name = "WorkerLinuxUbuntu"
+            virtualbox.gui = true
+            virtualbox.memory = 2048
+            virtualbox.cpus = 2
+            virtualbox.customize ["modifyvm", :id, "--ioapic", "on"]
+            virtualbox.customize ["modifyvm", :id, "--vram", "16"]
         end
     end
 
@@ -32,13 +47,13 @@ Vagrant.configure("2") do |config|
 
         # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
         # we need to configure a private network, so that our machines are able to talk to one another
-        masterwindows.vm.network "private_network", ip: "172.16.2.11"
+        masterwindows.vm.network "private_network", ip: "172.16.2.12"
 
-        masterwindows.vm.provider :virtualbox do |masterwindowsvb|
-            masterwindowsvb.name = "MasterWindowsServer2016"
-            masterwindowsvb.gui = true
-            masterwindowsvb.memory = 2048
-            masterwindowsvb.cpus = 2
+        masterwindows.vm.provider :virtualbox do |virtualbox|
+            virtualbox.name = "MasterWindowsServer2016"
+            virtualbox.gui = true
+            virtualbox.memory = 2048
+            virtualbox.cpus = 2
         end
 
         # Forwarding the Windows Server 2016 Guest Port 8080 t0 48080
@@ -53,13 +68,13 @@ Vagrant.configure("2") do |config|
 
         # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
         # we need to configure a private network, so that our machines are able to talk to one another
-        workerwindows.vm.network "private_network", ip: "172.16.2.12"
+        workerwindows.vm.network "private_network", ip: "172.16.2.13"
 
-        workerwindows.vm.provider :virtualbox do |workerwindowsvb|
-            workerwindowsvb.name = "WorkerWindowsServer2016"
-            workerwindowsvb.gui = true
-            workerwindowsvb.memory = 2048
-            workerwindowsvb.cpus = 2
+        workerwindows.vm.provider :virtualbox do |virtualbox|
+            virtualbox.name = "WorkerWindowsServer2016"
+            virtualbox.gui = true
+            virtualbox.memory = 2048
+            virtualbox.cpus = 2
         end
 
         # Forwarding the Windows Server 2016 Guest Port 8080 t0 48080

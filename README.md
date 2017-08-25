@@ -416,6 +416,7 @@ Current workaround: configure ~/hosts
 
 ```
 127.0.0.1 masterlinux01
+127.0.0.1 workerlinux01
 127.0.0.1 masterwindows01
 127.0.0.1 workerwindows01
 ```
@@ -437,7 +438,7 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 ```
 
 ```
-ansible-playbook -i hostsfile swarm.yml
+ansible-playbook -i hostsfile prepare-docker-nodes.yml
 ```
 
 ```
