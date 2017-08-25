@@ -450,7 +450,7 @@ But what if we were able to change the /etc/hosts on our Host machine with every
 vagrant plugin install vagrant-hostsupdater
 ```
 
-#### working Ansible SSH config
+###### working Ansible SSH config
 
 cd into `masterlinux` and (you´ll maybe need to install sshpass (e.g. via `brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb` (as `brew install sshpass` won´t work, see https://stackoverflow.com/questions/32255660/how-to-install-sshpass-on-mac):
 
@@ -468,6 +468,12 @@ ansible-playbook -i hostsfile prepare-docker-nodes.yml
 unset ANSIBLE_HOST_KEY_CHECKING
 ```
 
+
+#### Initializing the Swarm
+
+```
+ansible-playbook -i hostsfile initialize-docker-swarm.yml
+```
 
 
 
