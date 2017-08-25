@@ -6,7 +6,7 @@
     win_ping:
 
 - name: Prepare Docker on Windows
-  include: "../../step1-prepare-docker-windows/prepare-docker-windows.yml"
+  include: "../../step1-prepare-docker-windows/prepare-docker-windows.yml host=windows"
 
   #- name: Initialize Docker Swarm cluster
   #  win_shell: docker swarm init --advertise-addr=172.16.2.11 --listen-addr 172.16.2.11:2377
