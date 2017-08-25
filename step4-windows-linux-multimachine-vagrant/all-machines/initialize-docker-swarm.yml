@@ -24,21 +24,32 @@
 
   - name: Obtain worker join-token from Windows master node
     win_shell: "docker swarm join-token worker -q"
-    register: token_result
+    register: worker_token_result
     ignore_errors: yes
     when: inventory_hostname in groups['masterwindows']
 
-  - name: Syncing the worker join-token result to the other hosts
-    set_fact:
-      token_result_host_sync: "{{ hostvars['masterwindows01']['token_result'] }}"
+  - name: Obtain manager join-token from Windows master node
+    win_shell: "docker swarm join-token manager -q"
+    register: manager_token_result
+    ignore_errors: yes
+    when: inventory_hostname in groups['masterwindows']
 
-  - name: Extracting and saving worker join-token in variable for joining other nodes later
+
+  - name: Syncing the worker and manager join-token results to the other hosts
     set_fact:
-      worker_jointoken: "{{token_result_host_sync.stdout.splitlines()[0]}}"
+      worker_token_result_host_sync: "{{ hostvars['masterwindows01']['worker_token_result'] }}"
+      manager_token_result_host_sync: "{{ hostvars['masterwindows01']['manager_token_result'] }}"
+
+  - name: Extracting and saving worker and manager join-tokens in variables for joining other nodes later
+    set_fact:
+      worker_jointoken: "{{worker_token_result_host_sync.stdout.splitlines()[0]}}"
+      manager_jointoken: "{{manager_token_result_host_sync.stdout.splitlines()[0]}}"
 
   - name: Swarm initialized...
     debug:
-      msg: "The worker join-token is: '{{worker_jointoken}}'"
+      msg:
+        - "The worker join-token is: '{{worker_jointoken}}'"
+        - "The manager join-token is: '{{manager_jointoken}}'"
 
   - name: Add Windows worker node to Docker Swarm cluster
     win_shell: "docker swarm join --token {{worker_jointoken}} {{masterwindows_ip}}"
@@ -49,3 +60,8 @@
     shell: "docker swarm join --token {{worker_jointoken}} {{masterwindows_ip}}"
     ignore_errors: yes
     when: inventory_hostname in groups['workerlinux']
+
+  - name: Add Linux manager node to Docker Swarm cluster
+    shell: "docker swarm join --token {{manager_jointoken}} {{masterwindows_ip}}"
+    ignore_errors: yes
+    when: inventory_hostname in groups['masterlinux']
