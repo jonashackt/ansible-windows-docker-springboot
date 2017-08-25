@@ -389,7 +389,7 @@ Now we´re ready to play. And nevermind, if you want to have a break or your not
 
 
 
-##### Ping all
+#### Network configuration between Vagrant Boxes and the Host
 
 As Ansible is a really nice tool, that let´s you use the same host in multiple groups - and merges the group_vars from all of those according to that one host - it isn´t a good idea to use a structure like that in your inventory file:
 
@@ -408,9 +408,8 @@ And try to use different corresponding group_vars entries... Because, you don´t
 
 See https://github.com/ansible/ansible/issues/9065
 
-But what if we were able to change the /etc/hosts on our Host machine with every `vagrant up`? (https://stackoverflow.com/questions/16624905/adding-etc-hosts-entry-to-host-machine-on-vagrant-up) That´s possible with the https://github.com/cogitatio/vagrant-hostsupdater, install it with:
 
-#### Different hostnames
+###### Different hostnames 
 
 Current workaround: configure ~/hosts
 
@@ -421,8 +420,32 @@ Current workaround: configure ~/hosts
 127.0.0.1 workerwindows01
 ```
 
+###### Host-only Network configuration
+
+As our Vagrant boxes need to talk to each other and also to the Host, the so called [Host-only networking](http://www.virtualbox.org/manual/ch06.html#network_hostonly) should be the way to go here (there´s a really good [overview in this post](https://www.thomas-krenn.com/de/wiki/Netzwerkkonfiguration_in_VirtualBox#Host-only_networking), sorry german only). And as we want to access our boxes with a static IP, we leverage the Vagrant configuration around [Vagrant private networking](https://www.vagrantup.com/docs/networking/private_network.html). All that´s needed here, is to have such a line inside every Vagrant box definition of our multi-machine setup:
+
+```
+masterlinux.vm.network "private_network", ip: "172.16.2.10"
+```
+
+Same for Windows boxes, Vagrant will tell VirtualBox to create a new separate network (mostly `vboxnet1` or similar), put a second virtual network device into every box and assign with the static IP, we configured in our Vagrantfile. That´s pretty much everything, except for Windows Server :) 
+
+
+###### Windows Server firewall blocks Ping
+
+As you may noticed, there´s an extra for Windows Server 2016. Because we want our machines to be accessible from each other, we have to allow the very basic command everybody start´s with: the ping. That one [is blocked by the Windows firewall as a default](https://www.rootusers.com/how-to-enable-ping-in-windows-server-2016-firewall/) and we have to open that up with the following [Powershell command](https://technet.microsoft.com/de-de/library/dd734783(v=ws.10).aspx#BKMK_3_add) - obviously wrapped inside a Ansible task:
+
+```
+  - name: Allow Ping requests on Windows nodes (which is by default disabled in Windows Server 2016)
+    win_shell: "netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol=icmpv4:8,any dir=in action=allow"
+    when: inventory_hostname in groups['workerwindows']
+```
+
 
 tbd
+
+But what if we were able to change the /etc/hosts on our Host machine with every `vagrant up`? (https://stackoverflow.com/questions/16624905/adding-etc-hosts-entry-to-host-machine-on-vagrant-up) That´s possible with the https://github.com/cogitatio/vagrant-hostsupdater, install it with:
+
 ```
 vagrant plugin install vagrant-hostsupdater
 ```
@@ -445,13 +468,7 @@ ansible-playbook -i hostsfile prepare-docker-nodes.yml
 unset ANSIBLE_HOST_KEY_CHECKING
 ```
 
-As you may noticed, there´s an extra for Windows Server 2016. Because we want our machines to be accessible from each other, we have to allow the very basic command everybody start´s with: the ping. That one is blocked by the Windows firewall ad a default and we have to open that up with the following [Powershell command](https://technet.microsoft.com/de-de/library/dd734783(v=ws.10).aspx#BKMK_3_add) - obviously wrapped inside a Ansible task:
 
-```
-  - name: Allow Ping requests on Windows nodes (which is by default disabled in Windows Server 2016)
-    win_shell: "netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol=icmpv4:8,any dir=in action=allow"
-    when: inventory_hostname in groups['workerwindows']
-```
 
 
 
