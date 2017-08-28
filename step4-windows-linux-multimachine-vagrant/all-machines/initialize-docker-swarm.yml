@@ -49,7 +49,7 @@
       worker_jointoken: "{{worker_token_result_host_sync.stdout.splitlines()[0]}}"
       manager_jointoken: "{{manager_token_result_host_sync.stdout.splitlines()[0]}}"
 
-  - name: Swarm initialized...
+  - name: Join-tokens...
     debug:
       msg:
         - "The worker join-token is: '{{worker_jointoken}}'"
@@ -84,3 +84,16 @@
     shell: "docker swarm join --token {{manager_jointoken}} {{masterwindows_ip}}"
     ignore_errors: yes
     when: inventory_hostname in groups['masterlinux']
+
+  - name: Obtain Docker Swarm status
+    win_shell: "docker node ls"
+    register: overview_result
+    ignore_errors: yes
+    when: inventory_hostname == "masterwindows01"
+
+  - name: Swarm initialized...
+    debug:
+      msg:
+        - "The status of the Swarm now is:"
+        - "{{overview_result.stdout_lines}}"
+    when: inventory_hostname == "masterwindows01"
