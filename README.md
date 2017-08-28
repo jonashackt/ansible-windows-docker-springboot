@@ -499,6 +499,9 @@ But syncing the join-token to the other hosts is a bit tricky, since variables o
 ```
 
 
+###### Checking swarm status
+
+Just do a `docker info` on one (or all) of the boxes.
 
 
 
