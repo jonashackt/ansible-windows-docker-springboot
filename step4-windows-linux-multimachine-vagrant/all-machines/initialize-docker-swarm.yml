@@ -85,6 +85,26 @@
     ignore_errors: yes
     when: inventory_hostname in groups['masterlinux']
 
+  - name: Label OS specific nodes for later mixed-OS deployments (masterwindows01 = windows)
+    win_shell: "docker node update --label-add os=windows masterwindows01"
+    ignore_errors: yes
+    when: inventory_hostname == "masterwindows01"
+
+  - name: Label OS specific nodes for later mixed-OS deployments (workerwindows01 = windows)
+    win_shell: "docker node update --label-add os=windows workerwindows01"
+    ignore_errors: yes
+    when: inventory_hostname == "masterwindows01"
+
+  - name: Label OS specific nodes for later mixed-OS deployments (workerlinux01 = linux)
+    win_shell: "docker node update --label-add os=linux workerlinux01"
+    ignore_errors: yes
+    when: inventory_hostname == "masterwindows01"
+
+  - name: Label OS specific nodes for later mixed-OS deployments (masterlinux01 = linux)
+    win_shell: "docker node update --label-add os=linux masterlinux01"
+    ignore_errors: yes
+    when: inventory_hostname == "masterwindows01"
+
   - name: Obtain Docker Swarm status
     win_shell: "docker node ls"
     register: overview_result
