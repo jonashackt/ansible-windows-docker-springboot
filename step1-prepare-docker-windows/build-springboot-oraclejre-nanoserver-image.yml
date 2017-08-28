@@ -19,7 +19,7 @@
     ### As of Ansible 2.2 there´s only win_stat module available (and not win_find) - so we have to use a win_stat.stat attribute like size to check,
     ### if the JRE is already downloaded - because the return values arent defined, if there´s no file, this check should work for us
   - name: Download Server JRE to C:\spring-boot (only if not already done before)
-    win_shell: "wget.exe --no-cookies --no-check-certificate --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \"http://download.oracle.com/otn-pub/java/jdk/8u{{java8_update_version}}-{{java_build_version}}/d54c1d3a095b4ff2b6607d096fa80163/{{server_jre_name}}\" -O {{image_path}}\\{{server_jre_name}}"
+    win_shell: "wget.exe --no-cookies --no-check-certificate --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \"http://download.oracle.com/otn-pub/java/jdk/8u{{java8_update_version}}-{{java_build_version}}/090f390dda5b47b9b721c7dfaa008135/{{server_jre_name}}\" -O {{image_path}}\\{{server_jre_name}}"
     when: server_jre_on_server.stat.size is undefined
 
   - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app.name

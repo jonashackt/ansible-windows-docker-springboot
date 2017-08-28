@@ -21,8 +21,8 @@
     include: build-springboot-oraclejre-nanoserver-image.yml
     vars:
       image_name: springboot-oraclejre-nanoserver
-      java8_update_version: 131
-      java_build_version: b11
+      java8_update_version: 144
+      java_build_version: b01
       server_jre_name: server-jre-8u{{java8_update_version}}-windows-x64.tar.gz
 
   - name: Your Windows Box is now fully ready to run Spring Boot Apps inside Windows Docker Containers
