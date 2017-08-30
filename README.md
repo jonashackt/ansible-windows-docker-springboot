@@ -361,7 +361,7 @@ Everything seems to point to Kubernetes - biggest mediashare, most google search
 Both things mean, that you litterally can´t leverage the benefits of Kubernetes as a Container Orchestration tool with Docker Windows Containers right now. Things might change soon though, if Microsoft releases it´s Version 1709 Windows Server 2016 and Kubernetes 1.8 goes live. But both isn´t now, so we first of all have to go with the competitor Docker Swarm, which should be also a good thing to start - and we´ll later switch to Kubernetes.
 
 
-## Step 4 - A Multi-machine Windows- & Linux- mixed OS Vagrant setup ([step4-windows-linux-multimachine-vagrant](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant))
+## Step 4 - A Multi-machine Windows- & Linux- mixed OS Vagrant setup for Docker Swarm ([step4-windows-linux-multimachine-vagrant-docker-swarm](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant-docker-swarm))
 
 There are basically two options to achieve a completely comprehensible setup: running more than one virtual machine on your local machine or go into the cloud. To decide which way to go, I had to rethink about what I wanted to show with this project. My goal is to show a setup of an Docker Orchestration tool to scale Docker Containers on both Windows and Linux - without messing with the specialities of one of the many cloud providers. Not to mention the financial perspective. So for the first setup, I wanted to go with a few virtual machines that run on my laptop.
 
@@ -450,15 +450,17 @@ But what if we were able to change the /etc/hosts on our Host machine with every
 vagrant plugin install vagrant-hostsupdater
 ```
 
-###### working Ansible SSH config
+###### Prepare Docker engines on all Nodes
 
-cd into `masterlinux` and (you´ll maybe need to install sshpass (e.g. via `brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb` (as `brew install sshpass` won´t work, see https://stackoverflow.com/questions/32255660/how-to-install-sshpass-on-mac):
+> __working Ansible SSH config__: you´ll maybe need to install sshpass (e.g. via `brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb` (as `brew install sshpass` won´t work, see https://stackoverflow.com/questions/32255660/how-to-install-sshpass-on-mac:
 
 Before (see https://stackoverflow.com/questions/34718079/add-host-to-known-hosts-file-without-prompt/34721229)
 
 ```
 export ANSIBLE_HOST_KEY_CHECKING=False
 ```
+
+Now run the following Ansible playbook to prepare your Nodes with a running Docker Engine:
 
 ```
 ansible-playbook -i hostsfile prepare-docker-nodes.yml
@@ -469,7 +471,10 @@ unset ANSIBLE_HOST_KEY_CHECKING
 ```
 
 
-#### Initializing the Swarm
+
+
+
+#### Initializing a Docker Swarm
 
 ```
 ansible-playbook -i hostsfile initialize-docker-swarm.yml
@@ -502,6 +507,31 @@ But syncing the join-token to the other hosts is a bit tricky, since variables o
 ###### Checking swarm status
 
 Just do a `docker info` on one (or all) of the boxes.
+
+Now that we also added Docker labels (like this `docker node update --label-add os=linux masterlinux01`) to each of our nodes so that we can differentiate the OS dependend services later on and also created a Docker Swarm overlay network with `docker network create --driver=overlay mixed_swarm_net`, our Ansible playbook should finally give some output like this:
+
+```
+TASK [Swarm initialized...] *****************************************************************************************************************************
+skipping: [workerwindows01]
+skipping: [masterlinux01]
+ok: [masterwindows01] => {
+    "msg": [
+        "The status of the Swarm now is:", 
+        [
+            "ID                            HOSTNAME            STATUS              AVAILABILITY        MANAGER STATUS", 
+            "ar2mci5utfwov44x42fihgmtf     masterlinux01       Ready               Active              Reachable", 
+            "qdcarj7mzjl37txmsijgrvxt4     workerwindows01     Ready               Active              ", 
+            "sqirk9itzxlytf5blteg9no7w *   masterwindows01     Ready               Active              Leader", 
+            "vz8ruili76n8fslo2vo35go3b     workerlinux01       Ready               Active              "
+        ]
+    ]
+}
+skipping: [workerlinux01]
+```
+
+This means that our Docker Swarm cluster is ready for service deployment!
+
+
 
 
 
