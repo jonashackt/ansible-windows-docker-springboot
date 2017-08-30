@@ -26,8 +26,8 @@ script:
   - ansible-playbook -i hostsfile step1-prepare-docker-windows/prepare-docker-windows.yml --extra-vars "host=ansible-windows-docker-springboot-dev" --syntax-check
   - ansible-playbook -i hostsfile step2-single-spring-boot-app/ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev" --syntax-check
   - ansible-playbook -i hostsfile step3-multiple-spring-boot-apps-docker-compose/ansible-windows-docker-springboot.yml --extra-vars "host=ansible-windows-docker-springboot-dev" --syntax-check
-  - ansible-playbook -i hostsfile step4-windows-linux-multimachine-vagrant/prepare-docker-nodes.yml --syntax-check
-  - ansible-playbook -i hostsfile step4-windows-linux-multimachine-vagrant/initialize-docker-swarm.yml --syntax-check
+  - ansible-playbook -i hostsfile step4-windows-linux-multimachine-vagrant-docker-swarm-setup/prepare-docker-nodes.yml --syntax-check
+  - ansible-playbook -i hostsfile step4-windows-linux-multimachine-vagrant-docker-swarm-setup/initialize-docker-swarm.yml --syntax-check
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/

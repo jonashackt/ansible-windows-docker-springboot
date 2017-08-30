@@ -361,7 +361,7 @@ Everything seems to point to Kubernetes - biggest mediashare, most google search
 Both things mean, that you litterally can´t leverage the benefits of Kubernetes as a Container Orchestration tool with Docker Windows Containers right now. Things might change soon though, if Microsoft releases it´s Version 1709 Windows Server 2016 and Kubernetes 1.8 goes live. But both isn´t now, so we first of all have to go with the competitor Docker Swarm, which should be also a good thing to start - and we´ll later switch to Kubernetes.
 
 
-## Step 4 - A Multi-machine Windows- & Linux- mixed OS Vagrant setup for Docker Swarm ([step4-windows-linux-multimachine-vagrant-docker-swarm](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant-docker-swarm))
+## Step 4 - A Multi-machine Windows- & Linux- mixed OS Vagrant setup for Docker Swarm ([step4-windows-linux-multimachine-vagrant-docker-swarm-setup](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup))
 
 There are basically two options to achieve a completely comprehensible setup: running more than one virtual machine on your local machine or go into the cloud. To decide which way to go, I had to rethink about what I wanted to show with this project. My goal is to show a setup of an Docker Orchestration tool to scale Docker Containers on both Windows and Linux - without messing with the specialities of one of the many cloud providers. Not to mention the financial perspective. So for the first setup, I wanted to go with a few virtual machines that run on my laptop.
 
