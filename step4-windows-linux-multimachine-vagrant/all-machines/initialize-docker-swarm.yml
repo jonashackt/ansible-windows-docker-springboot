@@ -105,6 +105,11 @@
     ignore_errors: yes
     when: inventory_hostname == "masterwindows01"
 
+  - name: Create an overlay network to enable our Swarm services to connect to each other later on
+    win_shell: "docker network create --driver=overlay mixed_swarm_net"
+    ignore_errors: yes
+    when: inventory_hostname == "masterwindows01"
+
   - name: Obtain Docker Swarm status
     win_shell: "docker node ls"
     register: overview_result
