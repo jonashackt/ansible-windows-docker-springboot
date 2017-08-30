@@ -532,6 +532,12 @@ skipping: [workerlinux01]
 This means that our Docker Swarm cluster is ready for service deployment!
 
 
+## Step 5 - Deploy multiple Spring Boot Apps on mixed-OS Docker Windows- & Linux Swarm with Ansible ([step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm))
+
+As Microsoft states in the [Swarm docs](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode), Docker Swarm Services can be easily deployed to the Swarm with the `docker service create` command and afterwards scaled with `docker service scale`. __BUT:__ That approach reminds us of those first days with Docker not using Docker Compose. So it would be really nice to have something like Compose also for our Swarm deployment. And it´s really that simple - [just use Compose for that :)](https://docs.docker.com/compose/swarm/)!
+
+So let´s directly break a architectural rule we build up in the preceding work: Don´t extensively template the docker-compose.yml any more, because this would lead to a rather complex setup process in Ansible. And remember: we´ve only did this, because we wanted to be free in our choice of Container orchestration technology - but now we choose Docker Swarm, we can savely forget this approach.
+
 
 
 

@@ -1,0 +1,54 @@
+#jinja2: newline_sequence:'\r\n'
+version: '3.3'
+
+services:
+
+  zuul-edgeservice:
+    build: ./zuul-edgeservice
+    ports:
+         - "8080:8080"
+    tty:
+      true
+    restart:
+      unless-stopped
+
+  eureka-serviceregistry:
+    build: ./eureka-serviceregistry
+    ports:
+         - "8761:8761"
+    tty:
+      true
+    restart:
+      unless-stopped
+
+  eureka-serviceregistry-second:
+    build: ./eureka-serviceregistry-second
+    ports:
+         - "8761"
+    tty:
+      true
+    restart:
+      unless-stopped
+
+  weatherbackend:
+    build: ./weatherbackend
+    ports:
+         - "8090"
+    tty:
+      true
+    restart:
+      unless-stopped
+
+  weatherservice:
+    build: ./weatherservice
+    ports:
+         - "8095"
+    tty:
+      true
+    restart:
+      unless-stopped
+
+networks:
+ default:
+  external:
+   name: "nat"

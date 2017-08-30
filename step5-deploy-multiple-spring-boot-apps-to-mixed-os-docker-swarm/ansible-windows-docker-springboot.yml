@@ -1,0 +1,46 @@
+---
+- hosts: "{{host}}"
+  vars:
+    base_path: "C:\\springboot"
+    services:
+      - name: zuul-edgeservice
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/zuul-edgeservice/target/zuul-edgeservice-0.0.1-SNAPSHOT.jar"
+        port: 8080
+        map_to_same_port_on_host: true
+        service_registry_name: eureka-serviceregistry
+
+      - name: eureka-serviceregistry
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
+        port: 8761
+        map_to_same_port_on_host: true
+        service_registry_name: eureka-serviceregistry-second
+
+      - name: eureka-serviceregistry-second
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
+        port: 8761
+        service_registry_name: eureka-serviceregistry
+
+      - name: weatherbackend
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+        port: 8090
+        service_registry_name: eureka-serviceregistry-second
+
+      - name: weatherservice
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherservice/target/weatherservice-0.0.1-SNAPSHOT.jar"
+        port: 8095
+        service_registry_name: eureka-serviceregistry
+
+  tasks:
+  - name: Create base directory C:\springboot, if not there
+    win_file: path={{base_path}} state=directory
+
+  - name: Preparing the Spring Boot App´s Files for later docker-compose run
+    include: spring-boot-app-prepare.yml
+    with_items: "{{ vars.services }}"
+
+  - name: Run all Services with Docker Compose
+    include: docker-compose-run-all-services.yml
+
+  - name: Do healthchecks for all services
+    include: spring-boot-app-health-check.yml
+    with_items: "{{ vars.services }}"
