@@ -19,3 +19,6 @@
 
 - name: Prepare Docker on Linux nodes
   include: prepare-docker-linux.yml host=linux
+
+- name: Allow local http Docker registry
+  include: allow-http-docker-registry.yml

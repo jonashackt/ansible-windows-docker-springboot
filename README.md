@@ -470,6 +470,23 @@ ansible-playbook -i hostsfile prepare-docker-nodes.yml
 unset ANSIBLE_HOST_KEY_CHECKING
 ```
 
+###### Allowing http based local Docker Registries
+
+But as the [limitations section](https://docs.docker.com/compose/swarm/#limitations) states, we can´t follow our old approach to build our Docker images on the Docker host anymore - because that way we were forced to build those images on all the Swarm´s nodes again and again, which leads to heavy overhead. We should therefore build the Applications Docker image only once and push it into a local Docker registry. But before that, we´ll need such a local registry. This topic is also covered in the [Docker docs](https://docs.docker.com/registry/deploying/#run-the-registry-as-a-service).
+
+The easiest start here is to use a [plain http registry](https://docs.docker.com/registry/insecure/#deploy-a-plain-http-registry). It´s no problem to run this setup in isolated environments, such as your on-premise servers. Just be sure to update to https with TLS certificates, if you´re going into the cloud or if you want to provide your registry to other users outside this Swarm. 
+
+So let´s go. First of all, we need to allow our Docker Engines on all our hosts to interact with an http-only Docker Registry. Therefore we create a `daemon.json` file with the following entry on all of our nodes:
+
+```
+{
+  "insecure-registries" : ["172.16.2.12:5000"]
+}
+```
+
+The file has to reside in `/etc/docker/daemon.json` on Linux and on `C:\ProgramData\docker\config\daemon.json` on Windows.
+
+
 
 
 
@@ -503,6 +520,10 @@ But syncing the join-token to the other hosts is a bit tricky, since variables o
 
 ```
 
+###### Providing a Docker Registry
+
+As state already in the previous section...
+
 
 ###### Checking swarm status
 
@@ -534,9 +555,14 @@ This means that our Docker Swarm cluster is ready for service deployment!
 
 ## Step 5 - Deploy multiple Spring Boot Apps on mixed-OS Docker Windows- & Linux Swarm with Ansible ([step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm))
 
-As Microsoft states in the [Swarm docs](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode), Docker Swarm Services can be easily deployed to the Swarm with the `docker service create` command and afterwards scaled with `docker service scale`. __BUT:__ That approach reminds us of those first days with Docker not using Docker Compose. So it would be really nice to have something like Compose also for our Swarm deployment. And it´s really that simple - [just use Compose for that :)](https://docs.docker.com/compose/swarm/)!
+As Microsoft states in the [Swarm docs](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode), Docker Swarm Services can be easily deployed to the Swarm with the `docker service create` command and afterwards scaled with `docker service scale`. __BUT:__ That approach reminds us of those first days with Docker not using Docker Compose. So it would be really nice to have something like Compose also for our Swarm deployment. And it´s really that simple - [just use Compose for that :)](https://docs.docker.com/compose/swarm/):
+
+> "Docker Compose and Docker Swarm aim to have full integration, meaning you can point a Compose app at a Swarm cluster and have it all just work as if you were using a single Docker host."
 
 So let´s directly break a architectural rule we build up in the preceding work: Don´t extensively template the docker-compose.yml any more, because this would lead to a rather complex setup process in Ansible. And remember: we´ve only did this, because we wanted to be free in our choice of Container orchestration technology - but now we choose Docker Swarm, we can savely forget this approach.
+
+Back to the concrete docker-compose.yml file. Let´s use the [newest 3.3 version](https://docs.docker.com/compose/compose-file/compose-versioning/#version-33) here, so that we can leverage the most out of Swarm´s functionality, which is broadened with each Compose (file) version.
+
 
 
 

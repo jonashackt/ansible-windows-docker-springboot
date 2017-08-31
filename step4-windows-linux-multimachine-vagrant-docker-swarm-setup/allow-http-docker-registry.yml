@@ -1,0 +1,29 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Template daemon.json to /etc/docker/daemon.json on Linux nodes for later Registry access
+    template:
+      src: "templates/daemon.j2"
+      dest: "/etc/docker/daemon.json"
+    become: yes
+    when: inventory_hostname in groups['linux']
+
+  - name: Template daemon.json to C:\ProgramData\docker\config\daemon.json on Windows nodes for later Registry access
+    win_template:
+      src: "templates/daemon.j2"
+      dest: "C:\\ProgramData\\docker\\config\\daemon.json"
+    when: inventory_hostname in groups['windows']
+
+  - name: Restart Docker service on Linux nodes, so that Registry access configuration is available
+    service:
+      name: docker
+      state: restarted
+    become: yes
+    when: inventory_hostname in groups['linux']
+
+  - name: Restart Docker service on Windows nodes, so that Registry access configuration is available
+    win_service:
+      name: docker
+      state: restarted
+    when: inventory_hostname in groups['windows']
