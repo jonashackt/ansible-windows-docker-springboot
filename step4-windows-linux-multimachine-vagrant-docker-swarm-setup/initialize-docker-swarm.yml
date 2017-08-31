@@ -114,6 +114,16 @@
     ignore_errors: yes
     when: inventory_hostname == "masterwindows01"
 
+  - name: Specify to run Docker Registry on Linux Manager node
+    shell: "docker node update --label-add registry=true masterlinux01"
+    ignore_errors: yes
+    when: inventory_hostname == "masterlinux01"
+
+  - name: Run Docker Registry on Linux Manager node as Docker Swarm service
+    shell: "docker service create --name swarm-registry --label registry=true -v /mnt/registry:/var/lib/registry -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 -p 5000:5000 --replicas 1 registry:2"
+    ignore_errors: yes
+    when: inventory_hostname == "masterlinux01"
+
   - name: Obtain Docker Swarm status
     win_shell: "docker node ls"
     register: overview_result
