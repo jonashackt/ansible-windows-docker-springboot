@@ -27,6 +27,10 @@
     ignore_errors: yes
     when: inventory_hostname == "masterwindows01"
 
+  - name: Pause a few seconds after new Swarm cluster initialization to prevent later errors on obtaining tokens to early
+    pause:
+      seconds: 5
+
   - name: Obtain worker join-token from Windows master node
     win_shell: "docker swarm join-token worker -q"
     register: worker_token_result
