@@ -11,7 +11,7 @@
   - name: Install Docker on Windows (always the newest version) and pull needed base images
     include: install-docker.yml
 
-  - name: Install docker-compose (also always the newest version)
+  - name: Install Docker Compose (also always the newest version)
     include: install-docker-compose.yml
 
   - name: Run a Microsoft Docker Windows Testcontainer
