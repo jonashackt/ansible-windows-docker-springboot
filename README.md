@@ -371,12 +371,12 @@ As I really got to love Vagrant as a tool to handle my Virtual machines, why not
 Inside the `step0-packer-windows-vagrantbox` directory start the build for another Windows box (that does not provide a provider config, which wouldn´t work within a Vagrant multimachine setup) with this command:
 
 ```
-packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f -var template_url=vagrantfile-windows_2016-multimachine.template -var box_output_name=windows_2016_docker_multimachine2.box windows_server_2016_docker.json
+packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f -var template_url=vagrantfile-windows_2016-multimachine.template -var box_output_prefix=windows_2016_docker_multimachine windows_server_2016_docker.json
 ```
 
 Add new Windows 2016 Vagrant box:
 ```
-vagrant box add --name windows_2016_multimachine windows_2016_docker_multimachine.box
+vagrant box add --name windows_2016_multimachine windows_2016_docker_multimachine_virtualbox.box
 ```
 
 Now switch over to `step4-windows-linux-multimachine-vagrant` directory and do a:

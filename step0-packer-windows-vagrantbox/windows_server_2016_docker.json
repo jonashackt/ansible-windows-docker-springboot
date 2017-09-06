@@ -48,7 +48,7 @@
     {
       "type": "vagrant",
       "keep_input_artifact": false,
-      "output": "{{user `box_output_name`}}",
+      "output": "{{user `box_output_prefix`}}_{{.Provider}}.box",
       "vagrantfile_template": "{{user `template_url`}}"
     }
   ],
@@ -57,6 +57,6 @@
     "iso_checksum_type": "md5",
     "iso_checksum": "70721288BBCDFE3239D8F8C0FAE55F1F",
     "template_url": "vagrantfile-windows_2016.template",
-    "box_output_name": "windows_2016_docker_{{.Provider}}.box"
+    "box_output_prefix": "windows_2016_docker"
   }
 }
