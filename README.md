@@ -522,7 +522,7 @@ But syncing the join-token to the other hosts is a bit tricky, since variables o
 
 ###### Providing a Docker Registry
 
-As state already in the previous section, we configured every Docker Engine on every Swarm node to enable http only Docker Registry access. Now let´s start our Docker Swarm Registry Service [as mentioned in the docs](https://docs.docker.com/registry/deploying/#run-the-registry-as-a-service):
+As state already in the previous section, we configured every Docker Engine on every Swarm node to enable http only Docker Registry access. Now let´s start our Docker Swarm Registry Service [as mentioned in the docs](https://docs.docker.com/registry/deploying/#run-the-registry-as-a-service). BUT: Currently the docs are wrong - [we´ve got it fixed already here](https://github.com/docker/docker.github.io/pull/4465): 
 
 ```
   - name: Specify to run Docker Registry on Linux Manager node
@@ -531,7 +531,7 @@ As state already in the previous section, we configured every Docker Engine on e
     when: inventory_hostname == "masterlinux01"
 
   - name: Run Docker Registry on Linux Manager node as Docker Swarm service
-    shell: "docker service create --name swarm-registry --label registry=true -v /mnt/registry:/var/lib/registry -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 -p 5000:5000 --replicas 1 registry:2"
+    shell: "docker service create --name swarm-registry --label registry=true --mount src=/mnt/registry,dst=/var/lib/registry -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 -p 5000:5000 --replicas 1 registry:2"
     ignore_errors: yes
     when: inventory_hostname == "masterlinux01"
 
