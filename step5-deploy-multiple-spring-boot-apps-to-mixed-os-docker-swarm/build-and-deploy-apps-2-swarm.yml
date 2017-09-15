@@ -2,6 +2,7 @@
 - hosts: all
   vars:
     registry_host: 172.16.2.10:5000
+    swarm_network_name: mixed_swarm_net
     base_path_windows: "C:\\springboot"
     base_path_linux: "/tmp/springboot"
     services:
@@ -62,8 +63,9 @@
     with_items: "{{ vars.services }}"
     when: inventory_hostname == "masterwindows01" and item.deploy_target == 'windows'
 
-#  - name: Run all Services with Docker Compose
-#    include: docker-compose-run-all-services.yml
+  - name: Deploy the Stack to the Swarm on Windows Manager node
+    include: deploy-services-swarm.yml
+    when: inventory_hostname == "masterwindows01"
 
 #  - name: Do healthchecks for all services
 #    include: spring-boot-app-health-check.yml

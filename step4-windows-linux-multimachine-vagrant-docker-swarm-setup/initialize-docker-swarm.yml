@@ -3,6 +3,7 @@
 - hosts: all
   vars:
     masterwindows_ip: 172.16.2.12
+    swarm_network_name: mixed_swarm_net
 
   tasks:
   - name: Checking Ansible connectivity to Windows nodes
@@ -110,7 +111,7 @@
     when: inventory_hostname == "masterwindows01"
 
   - name: Create an overlay network to enable our Swarm services to connect to each other later on
-    win_shell: "docker network create --driver=overlay mixed_swarm_net"
+    win_shell: "docker network create --driver=overlay {{swarm_network_name}}"
     ignore_errors: yes
     when: inventory_hostname == "masterwindows01"
 

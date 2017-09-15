@@ -1,0 +1,20 @@
+#jinja2: newline_sequence:'\r\n'
+version: '3.3'
+
+services:
+
+{% for service in vars.services %}
+  {{ service.name }}:
+    image: {{registry_host}}/{{ service.name }}
+{% if service.map_to_same_port_on_host is defined %}
+    ports:
+         - "{{ service.port }}:{{ service.port }}"
+{% else %}
+    ports:
+         - "{{ service.port }}"
+{% endif %}
+    tty:
+      true
+    restart:
+      unless-stopped
+{% endfor %}

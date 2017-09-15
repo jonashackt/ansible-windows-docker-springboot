@@ -1,0 +1,16 @@
+---
+  - name: Template docker-compose-swarm.yml to directory C:\spring-boot
+    win_template:
+      src: "templates/docker-compose-swarm.j2"
+      dest: "{{base_path_windows}}\\docker-compose-swarm.yml"
+
+  # As we later need to know our container's names for healthchecking but also want to be able to scale out, we're not able to use
+  # containername feature https://docs.docker.com/compose/compose-file/#containername
+  # But there's help! With docker-compose --project-name a CustomContainerNameBeginning (https://github.com/docker/compose/issues/3722)
+  # we'll know exactly the names of our containers, which are springboot_service.name_1 - like springboot_weatherservice_1
+  - name: Deploy the Stack to the Swarm on Windows Manager node
+    win_shell: docker stack deploy --compose-file docker-compose-swarm.yml stackservice
+    args:
+      chdir: "{{base_path_windows}}"
+    register: first_compose_up_run_result
+    ignore_errors: yes
