@@ -1,32 +1,40 @@
 ---
 - hosts: all
   vars:
+    registry_host: 172.16.2.10:5000
     base_path_windows: "C:\\springboot"
     base_path_linux: "/tmp/springboot"
     services:
       - name: zuul-edgeservice
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/zuul-edgeservice/target/zuul-edgeservice-0.0.1-SNAPSHOT.jar"
         port: 8080
+        map_to_same_port_on_host: true
+        service_registry_name: eureka-serviceregistry
         deploy_target: windows
 
       - name: eureka-serviceregistry
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
         port: 8761
+        map_to_same_port_on_host: true
+        service_registry_name: eureka-serviceregistry-second
         deploy_target: windows
 
       - name: eureka-serviceregistry-second
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
         port: 8761
+        service_registry_name: eureka-serviceregistry
         deploy_target: linux
 
       - name: weatherbackend
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
         port: 8090
+        service_registry_name: eureka-serviceregistry-second
         deploy_target: linux
 
       - name: weatherservice
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherservice/target/weatherservice-0.0.1-SNAPSHOT.jar"
         port: 8095
+        service_registry_name: eureka-serviceregistry
         deploy_target: windows
 
   tasks:

@@ -5,6 +5,7 @@
         name: "{{ item.name }}"
         port: "{{ item.port }}"
         jar: "{{ item.path_to_jar }}"
+        registry_name: "{{ item.service_registry_name }}"
 
   - name: Preparing the following Spring Boot App´s Files for docker-compose run
     debug:
@@ -25,3 +26,16 @@
     copy:
       src: "{{spring_boot_app.jar}}"
       dest: "{{base_path_linux}}/{{spring_boot_app.name}}/{{spring_boot_app.name}}.jar"
+
+  - name: Remove existing App´s Docker Container image
+    shell: "docker rmi {{registry_host}}/{{spring_boot_app.name}}:latest --force"
+    ignore_errors: yes
+
+  - name: Build the Service´ Docker image
+    shell: "docker build . --tag {{registry_host}}/{{spring_boot_app.name}}:latest"
+    args:
+      chdir: "{{base_path_linux}}/{{spring_boot_app.name}}"
+
+  - name: Push the Docker Container image to the Swarm Registry
+    shell: "docker push {{registry_host}}/{{spring_boot_app.name}}:latest"
+
