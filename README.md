@@ -530,12 +530,22 @@ As state already in the previous section, we configured every Docker Engine on e
     ignore_errors: yes
     when: inventory_hostname == "masterlinux01"
 
+  - name: Create directory for later volume bind-mount into the Docker Registry service on Linux Manager node, if it doesn´t exist
+    file:
+      path: /mnt/registry
+      state: directory
+      mode: 0755
+    when: inventory_hostname == "masterlinux01
+
+
   - name: Run Docker Registry on Linux Manager node as Docker Swarm service
-    shell: "docker service create --name swarm-registry --label registry=true --mount src=/mnt/registry,dst=/var/lib/registry -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 -p 5000:5000 --replicas 1 registry:2"
+    shell: "docker service create --name swarm-registry --label registry=true --mount type=bind,src=/mnt/registry,dst=/var/lib/registry -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 -p 5000:5000 --replicas 1 registry:2"
     ignore_errors: yes
     when: inventory_hostname == "masterlinux01"
 
 ```
+
+As the [docs do propose a bind-mount](https://docs.docker.com/registry/deploying/#run-the-registry-as-a-service), we have to add `type=bind` into our `--mount` configuration parameter. AND: We have to create the directory `/mnt/registry` beforehand, as the [docs about "Give a service access to volumes or bind mounts" are stating](https://docs.docker.com/engine/swarm/services/#give-a-service-access-to-volumes-or-bind-mounts). But it seems, that not all the docs are up-to-date here, see https://github.com/docker/docker.github.io/compare/master...jonashackt:patch-2.
 
 
 ###### Checking swarm status
@@ -568,7 +578,9 @@ This means that our Docker Swarm cluster is ready for service deployment!
 
 ## Step 5 - Deploy multiple Spring Boot Apps on mixed-OS Docker Windows- & Linux Swarm with Ansible ([step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm))
 
-As Microsoft states in the [Swarm docs](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode), Docker Swarm Services can be easily deployed to the Swarm with the `docker service create` command and afterwards scaled with `docker service scale`. __BUT:__ That approach reminds us of those first days with Docker not using Docker Compose. So it would be really nice to have something like Compose also for our Swarm deployment. And it´s really that simple - [just use Compose for that :)](https://docs.docker.com/compose/swarm/):
+As Microsoft states in the [Swarm docs](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode), Docker Swarm Services can be easily deployed to the Swarm with the `docker service create` command and afterwards scaled with `docker service scale`. There´s a huge amount on configuration parameters you can use [with docker service create](https://docs.docker.com/engine/swarm/services/).
+
+__BUT:__ That approach reminds us of those first days with Docker not using Docker Compose. So it would be really nice to have something like Compose also for our Swarm deployment. And it´s really that simple - [just use Compose with Docker Stack Deploy for that :)](https://docs.docker.com/engine/swarm/stack-deploy/):
 
 > "Docker Compose and Docker Swarm aim to have full integration, meaning you can point a Compose app at a Swarm cluster and have it all just work as if you were using a single Docker host."
 
@@ -607,6 +619,19 @@ Docker Swarm Windows Docs: https://docs.microsoft.com/en-us/virtualization/windo
 Windows Server 2016 Overlay Networking Support (Windows & Linux mixed mode): https://blogs.technet.microsoft.com/virtualization/2017/04/18/ws2016-overlay-network-driver/
 
 Windows & Linux mixed Video: https://www.youtube.com/watch?v=ZfMV5JmkWCY
+
+https://docs.docker.com/engine/swarm/
+
+https://docs.docker.com/engine/swarm/key-concepts/
+
+https://docs.docker.com/engine/swarm/services/
+
+docker service create CLI reference: https://docs.docker.com/engine/reference/commandline/service_create/
+
+
+https://docs.docker.com/engine/swarm/stack-deploy/
+
+https://codefresh.io/blog/deploy-docker-compose-v3-swarm-mode-cluster/
 
 #### Kubernetes
 
