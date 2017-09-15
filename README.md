@@ -545,7 +545,7 @@ As state already in the previous section, we configured every Docker Engine on e
 
 ```
 
-As the [docs do propose a bind-mount](https://docs.docker.com/registry/deploying/#run-the-registry-as-a-service), we have to add `type=bind` into our `--mount` configuration parameter. AND: We have to create the directory `/mnt/registry` beforehand, as the [docs about "Give a service access to volumes or bind mounts" are stating](https://docs.docker.com/engine/swarm/services/#give-a-service-access-to-volumes-or-bind-mounts). But it seems, that not all the docs are up-to-date here, see https://github.com/docker/docker.github.io/compare/master...jonashackt:patch-2.
+As the [docs do propose a bind-mount](https://docs.docker.com/registry/deploying/#run-the-registry-as-a-service), we have to add `type=bind` into our `--mount` configuration parameter. AND: We have to create the directory `/mnt/registry` beforehand, as the [docs about "Give a service access to volumes or bind mounts" are stating](https://docs.docker.com/engine/swarm/services/#give-a-service-access-to-volumes-or-bind-mounts). But it seems, that not all the docs are up-to-date here, see https://github.com/docker/docker.github.io/pull/4641.
 
 
 ###### Checking swarm status
@@ -587,6 +587,15 @@ __BUT:__ That approach reminds us of those first days with Docker not using Dock
 So let´s directly break a architectural rule we build up in the preceding work: Don´t extensively template the docker-compose.yml any more, because this would lead to a rather complex setup process in Ansible. And remember: we´ve only did this, because we wanted to be free in our choice of Container orchestration technology - but now we choose Docker Swarm, we can savely forget this approach.
 
 Back to the concrete docker-compose.yml file. Let´s use the [newest 3.3 version](https://docs.docker.com/compose/compose-file/compose-versioning/#version-33) here, so that we can leverage the most out of Swarm´s functionality, which is broadened with each Compose (file) version.
+
+
+#### Pre-Deploy preparations: Build Docker images of all Spring Boot apps and push them to Docker Swarm registry
+
+cd into [step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm) and run:
+
+```
+ansible-playbook -i hostsfile build-and-deploy-apps-2-swarm.yml
+```
 
 
 

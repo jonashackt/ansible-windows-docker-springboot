@@ -7,6 +7,9 @@ services:
     build: ./zuul-edgeservice
     ports:
          - "8080:8080"
+    environment:
+        - SPRINGBOOT_APP_NAME=zuul-edgeservice
+        - REGISTRY_HOST=eureka-serviceregistry
     tty:
       true
     restart:
@@ -16,6 +19,9 @@ services:
     build: ./eureka-serviceregistry
     ports:
          - "8761:8761"
+    environment:
+        - SPRINGBOOT_APP_NAME=eureka-serviceregistry
+        - REGISTRY_HOST=eureka-serviceregistry-second
     tty:
       true
     restart:
@@ -25,6 +31,9 @@ services:
     build: ./eureka-serviceregistry-second
     ports:
          - "8761"
+    environment:
+        - SPRINGBOOT_APP_NAME=eureka-serviceregistry-second
+        - REGISTRY_HOST=eureka-serviceregistry
     tty:
       true
     restart:
@@ -34,6 +43,9 @@ services:
     build: ./weatherbackend
     ports:
          - "8090"
+    environment:
+        - SPRINGBOOT_APP_NAME=weatherbackend
+        - REGISTRY_HOST=eureka-serviceregistry-second
     tty:
       true
     restart:
@@ -43,6 +55,9 @@ services:
     build: ./weatherservice
     ports:
          - "8095"
+    environment:
+        - SPRINGBOOT_APP_NAME=weatherservice
+        - REGISTRY_HOST=eureka-serviceregistry
     tty:
       true
     restart:

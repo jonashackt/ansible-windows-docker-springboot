@@ -1,0 +1,27 @@
+---
+  - name: Defining needed variables
+    set_fact:
+      spring_boot_app:
+        name: "{{ item.name }}"
+        port: "{{ item.port }}"
+        jar: "{{ item.path_to_jar }}"
+
+  - name: Preparing the following Spring Boot App´s Files for docker-compose run
+    debug:
+      msg: "Processing '{{spring_boot_app.name}}' with port '{{ spring_boot_app.port }}'"
+
+  - name: Create directory /tmp/springboot/spring_boot_app.name, if not there
+    file:
+      path: "{{base_path_linux}}/{{spring_boot_app.name}}"
+      state: directory
+      mode: 0755
+
+  - name: Template and copy Spring Boot app´s Dockerfile to directory /tmp/springboot/spring_boot_app.name
+    template:
+      src: "templates/Dockerfile-SpringBoot-Linux.j2"
+      dest: "{{base_path_linux}}/{{spring_boot_app.name}}/Dockerfile"
+
+  - name: Copy Spring Boot app´s jar-File to directory /tmp/springboot/spring_boot_app.name
+    copy:
+      src: "{{spring_boot_app.jar}}"
+      dest: "{{base_path_linux}}/{{spring_boot_app.name}}/{{spring_boot_app.name}}.jar"

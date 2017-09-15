@@ -5,21 +5,22 @@
         name: "{{ item.name }}"
         port: "{{ item.port }}"
         jar: "{{ item.path_to_jar }}"
-        registry_name: "{{ item.service_registry_name }}"
 
   - name: Preparing the following Spring Boot App´s Files for docker-compose run
     debug:
       msg: "Processing '{{spring_boot_app.name}}' with port '{{ spring_boot_app.port }}'"
 
   - name: Create directory C:\springboot\spring_boot_app.name, if not there
-    win_file: path={{base_path}}\\{{spring_boot_app.name}} state=directory
+    win_file:
+      path: "{{base_path_windows}}\\{{spring_boot_app.name}}"
+      state: directory
 
   - name: Template and copy Spring Boot app´s Dockerfile to directory C:\springboot\spring_boot_app.name
     win_template:
-      src: "templates/Dockerfile-SpringBoot-App.j2"
-      dest: "{{base_path}}\\{{spring_boot_app.name}}\\Dockerfile"
+      src: "templates/Dockerfile-SpringBoot-Windows.j2"
+      dest: "{{base_path_windows}}\\{{spring_boot_app.name}}\\Dockerfile"
 
   - name: Copy Spring Boot app´s jar-File to directory C:\springboot\spring_boot_app.name
     win_copy:
       src: "{{spring_boot_app.jar}}"
-      dest: "{{base_path}}\\{{spring_boot_app.name}}\\{{spring_boot_app.name}}.jar"
+      dest: "{{base_path_windows}}\\{{spring_boot_app.name}}\\{{spring_boot_app.name}}.jar"

@@ -1,4 +1,0 @@
-# http://docs.ansible.com/ansible/intro_windows.html#windows-how-does-it-work
-
-ansible_user: vagrant
-ansible_password: vagrant

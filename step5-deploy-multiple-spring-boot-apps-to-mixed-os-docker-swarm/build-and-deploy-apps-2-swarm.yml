@@ -1,0 +1,62 @@
+---
+- hosts: all
+  vars:
+    base_path_windows: "C:\\springboot"
+    base_path_linux: "/tmp/springboot"
+    services:
+      - name: zuul-edgeservice
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/zuul-edgeservice/target/zuul-edgeservice-0.0.1-SNAPSHOT.jar"
+        port: 8080
+        deploy_target: windows
+
+      - name: eureka-serviceregistry
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
+        port: 8761
+        deploy_target: windows
+
+      - name: eureka-serviceregistry-second
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
+        port: 8761
+        deploy_target: linux
+
+      - name: weatherbackend
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+        port: 8090
+        deploy_target: linux
+
+      - name: weatherservice
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherservice/target/weatherservice-0.0.1-SNAPSHOT.jar"
+        port: 8095
+        deploy_target: windows
+
+  tasks:
+
+  - name: Create Docker build directory /tmp/springboot on Linux manager node, if not there
+    file:
+      path: "{{base_path_linux}}"
+      state: directory
+      mode: 0755
+    when: inventory_hostname == "masterlinux01"
+
+  - name: Create Docker build directory C:\springboot on Windows manager node, if not there
+    win_file:
+      path: "{{base_path_windows}}"
+      state: directory
+    when: inventory_hostname == "masterwindows01"
+
+  - name: Build Linux Apps Docker images on Linux manager node and push to Docker Swarm registry
+    include: prepare-docker-images-linux.yml
+    with_items: "{{ vars.services }}"
+    when: inventory_hostname == "masterlinux01" and item.deploy_target == 'linux'
+
+  - name: Build Windows Apps Docker images on Windows manager node and push to Docker Swarm registry
+    include: prepare-docker-images-windows.yml
+    with_items: "{{ vars.services }}"
+    when: inventory_hostname == "masterwindows01" and item.deploy_target == 'windows'
+
+#  - name: Run all Services with Docker Compose
+#    include: docker-compose-run-all-services.yml
+
+#  - name: Do healthchecks for all services
+#    include: spring-boot-app-health-check.yml
+#    with_items: "{{ vars.services }}"

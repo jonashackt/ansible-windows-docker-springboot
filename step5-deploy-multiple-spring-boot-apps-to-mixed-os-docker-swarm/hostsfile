@@ -1,5 +1,19 @@
-[ansible-windows-docker-springboot-dev]
-127.0.0.1
+[masterwindows]
+masterwindows01     ansible_port=55986
 
-[ansible-windows-docker-springboot-qa]
-127.0.0.1
+[masterlinux]
+masterlinux01       ansible_port=2222
+
+[workerwindows]
+workerwindows01     ansible_port=2203
+
+[workerlinux]
+workerlinux01       ansible_port=2200
+
+[linux:children]
+masterlinux
+workerlinux
+
+[windows:children]
+masterwindows
+workerwindows
