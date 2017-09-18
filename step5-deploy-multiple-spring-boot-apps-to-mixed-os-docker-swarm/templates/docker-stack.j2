@@ -1,0 +1,42 @@
+#jinja2: newline_sequence:'\r\n'
+version: '3.3'
+
+services:
+
+{% for service in vars.services %}
+  {{ service.name }}:
+    image: {{registry_host}}/{{ service.name }}
+{% if service.map_to_same_port_on_host is defined %}
+    ports:
+         - "{{ service.port }}:{{ service.port }}"
+{% else %}
+    ports:
+         - "{{ service.port }}"
+{% endif %}
+    tty:
+      true
+    restart:
+      unless-stopped
+    deploy:
+      placement:
+{% if service.deploy_target == 'windows' %}
+        constraints: [node.labels.os==windows]
+{% else %}
+        constraints: [node.labels.os==linux]
+{% endif %}
+
+{% endfor %}
+  portainer:
+    image: portainer/portainer
+    ports:
+        - 9000:9000
+    deploy:
+      placement:
+        constraints:
+            - node.role==manager
+            - node.labels.os==linux
+    volumes:
+        - type: bind
+          source: //var/run/docker.sock
+          target: /var/run/docker.sock
+    command: --host=unix:///var/run/docker.sock

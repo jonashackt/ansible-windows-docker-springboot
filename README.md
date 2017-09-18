@@ -597,7 +597,40 @@ cd into [step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm](https:
 ansible-playbook -i hostsfile build-and-deploy-apps-2-swarm.yml
 ```
 
+From https://docs.docker.com/get-started/part5/#introduction:
+> "A stack is a group of interrelated services that share dependencies, and can be orchestrated and scaled together. A single stack is capable of defining and coordinating the functionality of an entire application."
 
+
+#### Visualize the Swarm
+
+Docker´s own Swarm visualizer doesn´t look that neat, so I read about a comparison with Portainer: https://stackshare.io/stackups/docker-swarm-visualizer-vs-portainer Seems to be way more prettier! And it say´s in it´s GitHub readme: "can be deployed as Linux container or a Windows native container". So let´s integrate it into our setup: 
+
+https://github.com/portainer/portainer & https://portainer.readthedocs.io/en/latest/deployment.html
+
+Simply adding the Portainer service to our docker-stack.yml:
+
+```
+  portainer:
+    image: portainer/portainer
+    ports:
+        - 9000:9000
+    deploy:
+      placement:
+        constraints:
+            - node.role==manager
+            - node.labels.os==linux
+    volumes:
+        - type: bind
+          source: //var/run/docker.sock
+          target: /var/run/docker.sock
+    command: --host=unix:///var/run/docker.sock
+```
+
+This will deploy a Portainer instance onto our Linux Manager nodes (masterlinux01, cause we only have one Linux Manager node) and connect it directly to the Swarm.
+
+But there´s one thing, that could lead to frustration: Use a current Browser to access Portainer UI inside your Windows Boxes! It doesn´t work inside the pre-installed IE! Just head to http://172.16.2.10:9000:
+
+![portainer-container-visualizer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/portainer-container-visualizer.png)
 
 
 
