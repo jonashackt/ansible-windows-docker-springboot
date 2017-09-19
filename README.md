@@ -573,10 +573,9 @@ We therefore integrated Portainer into the initialization process of our Swarm:
 
 This will deploy a Portainer instance onto our Linux Manager nodes (masterlinux01, cause we only have one Linux Manager node) and connect it directly to the Swarm.
 
-But there´s one thing, that could lead to frustration: Use a current Browser to access Portainer UI inside your Windows Boxes! It doesn´t work inside the pre-installed IE! Just head to http://172.16.2.10:9000:
+But there´s one thing, that could lead to frustration: Use a current Browser to access Portainer UI inside your Windows Boxes! It doesn´t work inside the pre-installed IE! Just head to http://172.16.2.10:9000.
 
-![portainer-container-visualizer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/portainer-container-visualizer.png)
-
+![first-docker-swarm-services-running-portainer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-docker-swarm-services-running-portainer.png)
 
 
 ###### Checking swarm status
@@ -633,7 +632,9 @@ From https://docs.docker.com/get-started/part5/#introduction:
 
 Think of a Stack as like what Compose is for Docker - grouping multiple Docker Swarm services together with the help of a docker-stack.yml (which looks like a docker-compose.yml file and uses nearly the same syntax (Stack has 'deploy' over Compose)).
 
+We should see our applications in Portainer now:
 
+![portainer-container-visualizer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/portainer-container-visualizer.png)
 
 
 # Links

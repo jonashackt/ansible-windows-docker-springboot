@@ -1,0 +1,26 @@
+---
+- name: Obtain Docker Swarm status
+  win_shell: "docker node ls"
+  register: overview_result
+  ignore_errors: yes
+  when: inventory_hostname == "masterwindows01"
+
+- name: Swarm initialized...
+  debug:
+    msg:
+      - "The status of the Swarm now is:"
+      - "{{overview_result.stdout_lines}}"
+  when: inventory_hostname == "masterwindows01"
+
+- name: Obtain currently running Docker Swarm services
+  win_shell: "docker service ls"
+  register: services_result
+  ignore_errors: yes
+  when: inventory_hostname == "masterwindows01"
+
+- name: Swarm initialized...
+  debug:
+    msg:
+      - "The following Docker Swarm services are currently running (you may also check out Portainer Swarm visualizer at http://localhost:49000/ on your Vagrant host):"
+      - "{{services_result.stdout_lines}}"
+  when: inventory_hostname == "masterwindows01"
