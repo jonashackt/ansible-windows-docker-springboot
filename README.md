@@ -5,8 +5,9 @@ ansible-windows-docker-springboot
 
 ## Example project showing how to provision, deploy and run Spring Boot apps inside Docker Windows Containers on Windows Host using Packer, Powershell, Vagrant & Ansible
 
-This is a follow-up to the repository [ansible-windows-springboot](https://github.com/jonashackt/ansible-windows-springboot) and the blog post [Running Spring Boot Apps on Windows with Ansible (codecentric.de)](https://blog.codecentric.de/en/2017/01/ansible-windows-spring-boot/). There are two corresponding follow up blog posts available:
+This is a follow-up to the repository [ansible-windows-springboot](https://github.com/jonashackt/ansible-windows-springboot) and the blog post [Running Spring Boot Apps on Windows with Ansible (codecentric.de)](https://blog.codecentric.de/en/2017/01/ansible-windows-spring-boot/). There are some corresponding follow up blog posts available:
 
+* [Docker-Windows-Container mit Ansible managen (1/2)](https://www.heise.de/developer/artikel/Docker-Windows-Container-mit-Ansible-managen-1-2-3824736.html) on [heise developer](https://www.heise.de/developer/) (german only)
 * [Running Spring Boot Apps on Docker Windows Containers with Ansible: A Complete Guide incl Packer, Vagrant & Powershell](https://blog.codecentric.de/en/2017/04/ansible-docker-windows-containers-spring-boot/)
 * [Scaling Spring Boot Apps on Docker Windows Containers with Ansible: A Complete Guide incl Spring Cloud Netflix and Docker Compose](https://blog.codecentric.de/en/2017/05/ansible-docker-windows-containers-scaling-spring-cloud-netflix-docker-compose/)
 
@@ -548,6 +549,36 @@ As state already in the previous section, we configured every Docker Engine on e
 As the [docs do propose a bind-mount](https://docs.docker.com/registry/deploying/#run-the-registry-as-a-service), we have to add `type=bind` into our `--mount` configuration parameter. AND: We have to create the directory `/mnt/registry` beforehand, as the [docs about "Give a service access to volumes or bind mounts" are stating](https://docs.docker.com/engine/swarm/services/#give-a-service-access-to-volumes-or-bind-mounts). But it seems, that not all the docs are up-to-date here, see https://github.com/docker/docker.github.io/pull/4641.
 
 
+###### Visualize the Swarm
+
+Docker´s own Swarm visualizer doesn´t look that neat, so I read about a comparison with Portainer: https://stackshare.io/stackups/docker-swarm-visualizer-vs-portainer Seems to be way more prettier! And it say´s in it´s GitHub readme: "can be deployed as Linux container or a Windows native container". So let´s integrate it into our setup: 
+
+https://github.com/portainer/portainer & https://portainer.readthedocs.io/en/latest/deployment.html
+
+We therefore integrated Portainer into the initialization process of our Swarm:
+
+```
+- name: Create directory for later volume mount into Portainer service on Linux Manager node, if it doesn´t exist
+  file:
+    path: /mnt/portainer
+    state: directory
+    mode: 0755
+  when: inventory_hostname in groups['linux']
+
+- name: Run Portainer Docker and Docker Swarm Visualizer on Linux Manager node as Swarm service
+  shell: "docker service create --name portainer --publish 9000:9000 --constraint 'node.role == manager' --constraint 'node.labels.os==linux' --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src=/mnt/portainer,dst=/data portainer/portainer -H unix:///var/run/docker.sock"
+  ignore_errors: yes
+  when: inventory_hostname == "masterlinux01"
+```
+
+This will deploy a Portainer instance onto our Linux Manager nodes (masterlinux01, cause we only have one Linux Manager node) and connect it directly to the Swarm.
+
+But there´s one thing, that could lead to frustration: Use a current Browser to access Portainer UI inside your Windows Boxes! It doesn´t work inside the pre-installed IE! Just head to http://172.16.2.10:9000:
+
+![portainer-container-visualizer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/portainer-container-visualizer.png)
+
+
+
 ###### Checking swarm status
 
 Just do a `docker info` on one (or all) of the boxes.
@@ -600,37 +631,8 @@ ansible-playbook -i hostsfile build-and-deploy-apps-2-swarm.yml
 From https://docs.docker.com/get-started/part5/#introduction:
 > "A stack is a group of interrelated services that share dependencies, and can be orchestrated and scaled together. A single stack is capable of defining and coordinating the functionality of an entire application."
 
+Think of a Stack as like what Compose is for Docker - grouping multiple Docker Swarm services together with the help of a docker-stack.yml (which looks like a docker-compose.yml file and uses nearly the same syntax (Stack has 'deploy' over Compose)).
 
-#### Visualize the Swarm
-
-Docker´s own Swarm visualizer doesn´t look that neat, so I read about a comparison with Portainer: https://stackshare.io/stackups/docker-swarm-visualizer-vs-portainer Seems to be way more prettier! And it say´s in it´s GitHub readme: "can be deployed as Linux container or a Windows native container". So let´s integrate it into our setup: 
-
-https://github.com/portainer/portainer & https://portainer.readthedocs.io/en/latest/deployment.html
-
-Simply adding the Portainer service to our docker-stack.yml:
-
-```
-  portainer:
-    image: portainer/portainer
-    ports:
-        - 9000:9000
-    deploy:
-      placement:
-        constraints:
-            - node.role==manager
-            - node.labels.os==linux
-    volumes:
-        - type: bind
-          source: //var/run/docker.sock
-          target: /var/run/docker.sock
-    command: --host=unix:///var/run/docker.sock
-```
-
-This will deploy a Portainer instance onto our Linux Manager nodes (masterlinux01, cause we only have one Linux Manager node) and connect it directly to the Swarm.
-
-But there´s one thing, that could lead to frustration: Use a current Browser to access Portainer UI inside your Windows Boxes! It doesn´t work inside the pre-installed IE! Just head to http://172.16.2.10:9000:
-
-![portainer-container-visualizer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/portainer-container-visualizer.png)
 
 
 

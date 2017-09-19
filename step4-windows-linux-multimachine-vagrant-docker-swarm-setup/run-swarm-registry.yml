@@ -1,0 +1,18 @@
+---
+- name: Specify to run Docker Registry on Linux Manager node
+  shell: "docker node update --label-add registry=true masterlinux01"
+  ignore_errors: yes
+  when: inventory_hostname == "masterlinux01"
+
+- name: Create directory for later volume mount into the Docker Registry service on Linux Manager node, if it doesn´t exist
+  file:
+    path: /mnt/registry
+    state: directory
+    mode: 0755
+  when: inventory_hostname in groups['linux']
+  sudo: yes
+
+- name: Run Docker Registry on Linux Manager node as Swarm service
+  shell: "docker service create --name swarm-registry --constraint 'node.labels.registry==true' --mount type=bind,src=/mnt/registry,dst=/var/lib/registry -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 -p 5000:5000 --replicas 1 registry:2"
+  ignore_errors: yes
+  when: inventory_hostname == "masterlinux01"

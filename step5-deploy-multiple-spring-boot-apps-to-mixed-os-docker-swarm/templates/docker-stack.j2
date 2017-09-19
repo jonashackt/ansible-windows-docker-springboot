@@ -26,17 +26,3 @@ services:
 {% endif %}
 
 {% endfor %}
-  portainer:
-    image: portainer/portainer
-    ports:
-        - 9000:9000
-    deploy:
-      placement:
-        constraints:
-            - node.role==manager
-            - node.labels.os==linux
-    volumes:
-        - type: bind
-          source: //var/run/docker.sock
-          target: /var/run/docker.sock
-    command: --host=unix:///var/run/docker.sock

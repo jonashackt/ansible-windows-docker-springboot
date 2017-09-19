@@ -1,0 +1,5 @@
+---
+- name: Create an overlay network to enable our Swarm services to connect to each other later on
+  win_shell: "docker network create --driver=overlay {{swarm_network_name}}"
+  ignore_errors: yes
+  when: inventory_hostname == "masterwindows01"
