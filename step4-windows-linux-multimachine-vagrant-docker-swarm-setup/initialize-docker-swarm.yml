@@ -13,6 +13,9 @@
     ping:
     when: inventory_hostname in groups['linux']
 
+  - name: Open Ports in firewalls needed for Docker Swarm
+    include: prepare-firewalls-for-swarm.yml
+
   - name: Initialize Swarm and join all Swarm nodes
     include: initialize-swarm-and-join-all-nodes.yml
 

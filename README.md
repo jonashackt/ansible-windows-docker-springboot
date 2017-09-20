@@ -432,7 +432,7 @@ masterlinux.vm.network "private_network", ip: "172.16.2.10"
 Same for Windows boxes, Vagrant will tell VirtualBox to create a new separate network (mostly `vboxnet1` or similar), put a second virtual network device into every box and assign with the static IP, we configured in our Vagrantfile. That´s pretty much everything, except for Windows Server :) 
 
 
-###### Windows Server firewall blocks Ping
+###### Windows Server firewall blocks Ping c later needed routing mesh network traffic
 
 As you may noticed, there´s an extra for Windows Server 2016. Because we want our machines to be accessible from each other, we have to allow the very basic command everybody start´s with: the ping. That one [is blocked by the Windows firewall as a default](https://www.rootusers.com/how-to-enable-ping-in-windows-server-2016-firewall/) and we have to open that up with the following [Powershell command](https://technet.microsoft.com/de-de/library/dd734783(v=ws.10).aspx#BKMK_3_add) - obviously wrapped inside a Ansible task:
 
@@ -442,6 +442,7 @@ As you may noticed, there´s an extra for Windows Server 2016. Because we want o
     when: inventory_hostname in groups['workerwindows']
 ```
 
+Additionally, and this part is mentioned pretty much at the end of the docker docs if you want to fire up a Swarm, the later established routing network needs access to several ports, [as the docs state](https://docs.docker.com/engine/swarm/ingress/). __AND__ "you need to have the following ports open between the swarm nodes before you enable swarm mode". So we need to do that __before__ even initializing our Swarm!
 
 tbd
 
@@ -680,6 +681,16 @@ With all this information, you could check out your first Docker Swarm deployed 
 
 As Windows doesn´t support localhost loopback, we have to add one more step, to access an App which is deployed into a Windows native Docker Container: We need to know the Container´s IP:
 
+
+__BUT:__ We´re not in Docker Engine´s standard mode anymore, we´re in Swarm mode. So the Ports aren´t mapped to the Host we define, but to the Docker Swarm as a hole. How does this work? This is done through Docker Swarm Routing Mesh:
+
+> "When you publish a service port, the swarm routing mesh makes the service accessible at the target port on every node regardless if there is a task for the service running on the node."
+
+https://docs.docker.com/engine/swarm/ingress/
+
+![ingress-routing-mesh](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/ingress-routing-mesh.png)
+
+Note: this is only possible with Windows Server 2016, if you opened the needed ports before initializing the Swarm (this is already done in [step4-windows-linux-multimachine-vagrant-docker-swarm-setup](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup) for you ;) ).
 
 
 

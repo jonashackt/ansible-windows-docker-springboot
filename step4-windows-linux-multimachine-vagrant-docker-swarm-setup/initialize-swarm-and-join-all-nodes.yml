@@ -1,8 +1,4 @@
 ---
-- name: Allow connection to Windows Manager nodes Docker Swarm port 2377
-  win_shell: "netsh firewall add portopening TCP 2377 'Port 2377'"
-  when: inventory_hostname in groups['masterwindows']
-
 - name: Leave Swarm on Windows master node, if there was a cluster before
   win_shell: "docker swarm leave --force"
   ignore_errors: yes
