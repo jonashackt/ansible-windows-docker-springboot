@@ -636,6 +636,55 @@ We should see our applications in Portainer now:
 
 ![portainer-container-visualizer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/portainer-container-visualizer.png)
 
+#### Accessing Spring Boot applications deployed in the Swarm
+
+Fore more indepth information how Docker Swarm works, have a look at https://docs.docker.com/engine/swarm/how-swarm-mode-works/services/
+
+![how-swarm-services-work](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/how-swarm-services-work.png)
+
+To get to know, where your App is accessible in the Swarm, there are some commands you can use. On a manager node do a
+
+```
+docker service ls
+```
+
+to see all the deployed Docker Swarm services. It should output something like:
+
+![docker-service-ls](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-service-ls.png)
+
+Now pick one of your Services to inspect and do a
+
+```
+docker service ps clearsky_weatherbackend
+```
+
+This should show us, on which node the Swarm manager is running the Docker Swarm task including our App´s container:
+
+![docker-service-ps-app](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-service-ps-app.png)
+
+It´s `workerlinux01` in this example.
+
+If you´re unsure, which Port is mapped to the Docker node workerlinux01, you could run a:
+
+```
+docker service inspect --pretty clearsky_weatherbackend
+```
+
+This should give you more insights into this app, including the mapped Port 30001:
+
+![docker-service-inspect-app](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-service-inspect-app.png)
+
+With all this information, you could check out your first Docker Swarm deployed App. Just log into `workerlinux01` and call your App, e.g. with a `curl http://localhost:30001/swagger-ui.html` - as the [weatherbackend](https://github.com/jonashackt/cxf-spring-cloud-netflix-docker) is usind [Springfox](https://github.com/springfox/springfox) together with Swagger to show all of it´s REST endpoints:
+
+![curl-linux-container](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-service-inspect-app.png)
+
+As Windows doesn´t support localhost loopback, we have to add one more step, to access an App which is deployed into a Windows native Docker Container: We need to know the Container´s IP:
+
+
+
+
+
+
 
 # Links
 
