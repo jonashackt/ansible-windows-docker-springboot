@@ -5,7 +5,7 @@
       dest: "{{base_path_windows}}\\docker-stack.yml"
 
   - name: Deploy the Stack to the Swarm on Windows Manager node
-    win_shell: docker stack deploy --compose-file docker-stack.yml stackservice
+    win_shell: docker stack deploy --compose-file docker-stack.yml {{ application_stack_name }}
     args:
       chdir: "{{base_path_windows}}"
     register: first_compose_up_run_result

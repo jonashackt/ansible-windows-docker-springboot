@@ -1,6 +1,7 @@
 ---
 - hosts: all
   vars:
+    application_stack_name: clearsky
     registry_host: 172.16.2.10:5000
     swarm_network_name: mixed_swarm_net
     base_path_windows: "C:\\springboot"
