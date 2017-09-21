@@ -635,7 +635,7 @@ Think of a Stack as like what Compose is for Docker - grouping multiple Docker S
 
 We should see our applications in Portainer now:
 
-![portainer-container-visualizer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/portainer-container-visualizer.png)
+![portainer-swarm-visualizer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/portainer-swarm-visualizer.png)
 
 #### Accessing Spring Boot applications deployed in the Swarm
 
@@ -759,4 +759,8 @@ minikube howto: http://www.sqlservercentral.com/blogs/the-database-avenger/2017/
 https://groups.google.com/forum/#!forum/kubernetes-sig-windows
 
 http://blog.kubernetes.io/2017/08/kompose-helps-developers-move-docker.html?m=1
+
+http://blog.kubernetes.io/2017/09/windows-networking-at-parity-with-linux.html
+
+
 
