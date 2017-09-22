@@ -1,5 +1,5 @@
 ---
-- name: Allow connection to Windows Manager nodes Docker Swarm port 2377
+- name: Allow connection to TCP port 2377 for cluster management communications
   win_shell: "netsh firewall add portopening TCP 2377 'Port 2377'"
   when: inventory_hostname in groups['masterwindows']
 
@@ -8,6 +8,6 @@
   win_shell: "netsh firewall add portopening TCP 7946 'Port 7946'"
   when: inventory_hostname in groups['windows']
 
-- name: Open ports for later Docker Swarm Container ingress network on UDP port 4789
+- name: Open ports for later Docker Swarm overlay network traffic on UDP port 4789
   win_shell: "netsh firewall add portopening UDP 4789 'Port 4789'"
   when: inventory_hostname in groups['windows']

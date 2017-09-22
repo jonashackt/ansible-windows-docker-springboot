@@ -5,6 +5,9 @@ Vagrant.configure("2") do |config|
         masterlinux.vm.box = "ubuntu/trusty64"
         masterlinux.vm.hostname = "masterlinux01"
         masterlinux.ssh.insert_key = false
+        # Forwarding the port for Ansible explicitely to not run into Vagrants 'Port Collisions and Correction'
+        # see https://www.vagrantup.com/docs/networking/forwarded_ports.html, which would lead to problems with Ansible later
+        masterlinux.vm.network "forwarded_port", guest: 22, host: 2222, host_ip: "127.0.0.1", id: "ssh"
 
         # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
         # we need to configure a private network, so that our machines are able to talk to one another
@@ -29,6 +32,9 @@ Vagrant.configure("2") do |config|
         workerlinux.vm.box = "ubuntu/trusty64"
         workerlinux.vm.hostname = "workerlinux01"
         workerlinux.ssh.insert_key = false
+        # Forwarding the port for Ansible explicitely to not run into Vagrants 'Port Collisions and Correction'
+        # see https://www.vagrantup.com/docs/networking/forwarded_ports.html, which would lead to problems with Ansible later
+        workerlinux.vm.network "forwarded_port", guest: 22, host: 2232, host_ip: "127.0.0.1", id: "ssh"
 
         # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
         # we need to configure a private network, so that our machines are able to talk to one another
@@ -48,6 +54,9 @@ Vagrant.configure("2") do |config|
     config.vm.define "masterwindows" do |masterwindows|
         masterwindows.vm.box = "windows_2016_multimachine"
         masterwindows.vm.hostname = "masterwindows01"
+        # Forwarding the port for Ansible explicitely to not run into Vagrants 'Port Collisions and Correction'
+        # see https://www.vagrantup.com/docs/networking/forwarded_ports.html, which would lead to problems with Ansible later
+        masterwindows.vm.network "forwarded_port", guest: 5986, host: 55986, host_ip: "127.0.0.1", id: "winrm-ssl"
 
         # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
         # we need to configure a private network, so that our machines are able to talk to one another
@@ -69,6 +78,9 @@ Vagrant.configure("2") do |config|
     config.vm.define "workerwindows" do |workerwindows|
         workerwindows.vm.box = "windows_2016_multimachine"
         workerwindows.vm.hostname = "workerwindows01"
+        # Forwarding the port for Ansible explicitely to not run into Vagrants 'Port Collisions and Correction'
+        # see https://www.vagrantup.com/docs/networking/forwarded_ports.html, which would lead to problems with Ansible later
+        workerwindows.vm.network "forwarded_port", guest: 5986, host: 55996, host_ip: "127.0.0.1", id: "winrm-ssl"
 
         # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
         # we need to configure a private network, so that our machines are able to talk to one another
