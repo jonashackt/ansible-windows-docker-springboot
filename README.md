@@ -380,13 +380,64 @@ Add new Windows 2016 Vagrant box:
 vagrant box add --name windows_2016_multimachine windows_2016_docker_multimachine_virtualbox.box
 ```
 
-Now switch over to `step4-windows-linux-multimachine-vagrant` directory and do a:
+Now switch over to `step4-windows-linux-multimachine-vagrant` directory. Here´s the Vagrantfile defining our local Cloud infrastructure. It defines 4 machines to show the many possible solutions in a hybrid Docker Swarm containing Windows and Linux boxes: Manager nodes both as Windows and Linux machines and Worker nodes, also both as Windows and Linux machines:
+
+* masterlinux01
+* workerlinux01
+* masterwindows01
+* workerwindows01
+
+
+PICTURE!
+
+Within a Vagrant multimachine setup, you define your separate machines with the `config.vm.define` keyword. Inside those define blocks we simply configure our individual machine. Let´s have a look onto the `workerlinux`:
 
 ```
-vagrant up
+    # One Worker Node with Linux
+    config.vm.define "workerlinux" do |workerlinux|
+        workerlinux.vm.box = "ubuntu/trusty64"
+        workerlinux.vm.hostname = "workerlinux01"
+        workerlinux.ssh.insert_key = false
+        # Forwarding the port for Ansible explicitely to not run into Vagrants 'Port Collisions and Correction'
+        # see https://www.vagrantup.com/docs/networking/forwarded_ports.html, which would lead to problems with Ansible later
+        workerlinux.vm.network "forwarded_port", guest: 22, host: 2232, host_ip: "127.0.0.1", id: "ssh"
+
+        # As to https://www.vagrantup.com/docs/multi-machine/ & https://www.vagrantup.com/docs/networking/private_network.html
+        # we need to configure a private network, so that our machines are able to talk to one another
+        workerlinux.vm.network "private_network", ip: "172.16.2.11"
+
+        workerlinux.vm.provider :virtualbox do |virtualbox|
+            virtualbox.name = "WorkerLinuxUbuntu"
+            virtualbox.gui = true
+            virtualbox.memory = 2048
+            virtualbox.cpus = 2
+            virtualbox.customize ["modifyvm", :id, "--ioapic", "on"]
+            virtualbox.customize ["modifyvm", :id, "--vram", "16"]
+        end
+    end
+...
 ```
 
-Now we´re ready to play. And nevermind, if you want to have a break or your notebook is running hot - just type a `vagrant halt`. And the whole zoo of machines will be stopped for you :)
+The first configuration statements are usual ones like configuring the Vagrant box to use or the VM´s hostname. But the fowarded port configuration is made explicit, because we need to rely on the exact port later in our Ansible scripts. And this wouldn´t be possible with Vagrants default [Port Correction feature](https://www.vagrantup.com/docs/networking/forwarded_ports.html). Because you couldn´t use a port on your host machine more then once, Vagrant would automatically set it to a random value - and we weren´t able to access our boxes later with Ansible.
+
+To define and override the SSH port of a preconfigured Vagrant box, we need to know the `id` which is used to define it in the base box. On Linux boxes this is `ssh` - and on Windows this is `winrm-ssl`.
+
+
+###### Host-only Network configuration
+
+The next tricky part is the network configuration between the Vagrant boxes. As they need to talk to each other and also to the Host, the so called [Host-only networking](http://www.virtualbox.org/manual/ch06.html#network_hostonly) should be the way to go here (there´s a really good [overview in this post](https://www.thomas-krenn.com/de/wiki/Netzwerkkonfiguration_in_VirtualBox#Host-only_networking), sorry german only). This is easily established using [Vagrants Private Networks configuration](https://www.vagrantup.com/docs/networking/private_network.html).
+
+And as we want to access our boxes with a static IP, we leverage the Vagrant configuration around [Vagrant private networking](https://www.vagrantup.com/docs/networking/private_network.html). All that´s needed here, is to have such a line inside every Vagrant box definition of our multi-machine setup:
+
+```
+masterlinux.vm.network "private_network", ip: "172.16.2.10"
+```
+
+Same for Windows boxes, Vagrant will tell VirtualBox to create a new separate network (mostly `vboxnet1` or similar), put a second virtual network device into every box and assign with the static IP, we configured in our Vagrantfile. That´s pretty much everything, except for Windows Server :) 
+
+
+
+
 
 
 
@@ -421,18 +472,22 @@ Current workaround: configure ~/hosts
 127.0.0.1 workerwindows01
 ```
 
-###### Host-only Network configuration
-
-As our Vagrant boxes need to talk to each other and also to the Host, the so called [Host-only networking](http://www.virtualbox.org/manual/ch06.html#network_hostonly) should be the way to go here (there´s a really good [overview in this post](https://www.thomas-krenn.com/de/wiki/Netzwerkkonfiguration_in_VirtualBox#Host-only_networking), sorry german only). And as we want to access our boxes with a static IP, we leverage the Vagrant configuration around [Vagrant private networking](https://www.vagrantup.com/docs/networking/private_network.html). All that´s needed here, is to have such a line inside every Vagrant box definition of our multi-machine setup:
+do a:
 
 ```
-masterlinux.vm.network "private_network", ip: "172.16.2.10"
+vagrant up
 ```
 
-Same for Windows boxes, Vagrant will tell VirtualBox to create a new separate network (mostly `vboxnet1` or similar), put a second virtual network device into every box and assign with the static IP, we configured in our Vagrantfile. That´s pretty much everything, except for Windows Server :) 
+Now we´re ready to play. And nevermind, if you want to have a break or your notebook is running hot - just type a `vagrant halt`. And the whole zoo of machines will be stopped for you :)
 
 
-###### Windows Server firewall blocks Ping c later needed routing mesh network traffic
+
+
+
+
+
+
+###### Windows Server firewall blocks Ping & later needed Container network traffic
 
 As you may noticed, there´s an extra for Windows Server 2016. Because we want our machines to be accessible from each other, we have to allow the very basic command everybody start´s with: the ping. That one [is blocked by the Windows firewall as a default](https://www.rootusers.com/how-to-enable-ping-in-windows-server-2016-firewall/) and we have to open that up with the following [Powershell command](https://technet.microsoft.com/de-de/library/dd734783(v=ws.10).aspx#BKMK_3_add) - obviously wrapped inside a Ansible task:
 
@@ -631,7 +686,14 @@ ansible-playbook -i hostsfile build-and-deploy-apps-2-swarm.yml
 From https://docs.docker.com/get-started/part5/#introduction:
 > "A stack is a group of interrelated services that share dependencies, and can be orchestrated and scaled together. A single stack is capable of defining and coordinating the functionality of an entire application."
 
-Think of a Stack as like what Compose is for Docker - grouping multiple Docker Swarm services together with the help of a docker-stack.yml (which looks like a docker-compose.yml file and uses nearly the same syntax (Stack has 'deploy' over Compose)).
+Think of a Stack as like what Compose is for Docker - grouping multiple Docker Swarm services together with the help of a docker-stack.yml (which looks like a docker-compose.yml file and uses nearly the same syntax (Stack has 'deploy' over Compose)). An example `docker-stack.yml` looks like:
+
+```
+tbadded
+```
+
+Don´t try to search for "Docker Stack command reference", just head over to the Docker Compose docs and you should find, what you need: https://docs.docker.com/compose/compose-file/#deploy Because Docker Swarm makes use of Docker Compose files, the Swarm capabilities of Stack are only just a section (`deploy`) in the Compose docs.
+
 
 We should see our applications in Portainer now:
 
@@ -732,7 +794,6 @@ https://docs.docker.com/engine/swarm/key-concepts/
 https://docs.docker.com/engine/swarm/services/
 
 docker service create CLI reference: https://docs.docker.com/engine/reference/commandline/service_create/
-
 
 https://docs.docker.com/engine/swarm/stack-deploy/
 

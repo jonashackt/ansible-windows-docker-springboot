@@ -2,7 +2,6 @@
 - hosts: all
   vars:
     masterwindows_ip: 172.16.2.12
-    swarm_network_name: mixed_swarm_net
 
   tasks:
   - name: Checking Ansible connectivity to Windows nodes
