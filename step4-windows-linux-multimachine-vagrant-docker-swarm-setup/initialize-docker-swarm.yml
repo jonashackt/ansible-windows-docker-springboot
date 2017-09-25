@@ -22,9 +22,6 @@
   - name: Label underlying operation system to each node
     include: label-os-specific-nodes.yml
 
-  - name: Create Swarms overlay network
-    include: create-overlay-network.yml
-
   - name: Run Docker Swarm local Registry
     include: run-swarm-registry.yml
 
