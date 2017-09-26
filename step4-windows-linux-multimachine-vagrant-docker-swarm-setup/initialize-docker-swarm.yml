@@ -21,11 +21,11 @@
   - name: Label underlying operation system to each node
     include: label-os-specific-nodes.yml
 
-  - name: Run Docker Swarm local Registry
-    include: run-swarm-registry.yml
-
   - name: Run Portainer as Docker and Docker Swarm Visualizer
     include: run-portainer.yml
+
+  - name: Run Docker Swarm local Registry
+    include: run-swarm-registry.yml
 
   - name: Display the current Docker Swarm status
     include: display-swarm-status.yml
