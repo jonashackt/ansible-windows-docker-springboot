@@ -348,6 +348,11 @@ If Service discovery doen´t work reliable: http://stackoverflow.com/questions/4
 
 Example steps showing how to provision and run Spring Boot Apps with Docker Swarm &amp; Docker in mixed mode on Linux AND Windows (Docker Windows Containers!)
 
+This is a follow-up to the blog post [Scaling Spring Boot Apps on Docker Windows Containers with Ansible: A Complete Guide incl Spring Cloud Netflix and Docker Compose](https://blog.codecentric.de/en/2017/05/ansible-docker-windows-containers-scaling-spring-cloud-netflix-docker-compose/)). There are some corresponding follow up blog posts available:
+
+* [Taming the Hybrid Swarm: Initializing a Mixed OS Docker Swarm Cluster Running Windows & Linux Native Containers with Vagrant & Ansible](https://blog.codecentric.de/en/2017/09/taming-hybrid-swarm-init-mixed-os-docker-swarm-vagrant-ansible/)
+
+
 ## Why more?
 
 We went quite fare with that setup - and broke up most boundaries inside our heads, what´s possible with Windows. But there´s one step left: leaving the one machine our services are running on and do a step further to go for a multi-machine setup, incl. blue-green-deployments/no-time-out-deployments and kind of "bring-my-hole-app-UP" (regardles, on which server it is running)
@@ -463,6 +468,16 @@ See https://github.com/ansible/ansible/issues/9065
 
 ###### Different hostnames 
 
+
+tbd
+
+But what if we were able to change the /etc/hosts on our Host machine with every `vagrant up`? (https://stackoverflow.com/questions/16624905/adding-etc-hosts-entry-to-host-machine-on-vagrant-up) That´s possible with the https://github.com/cogitatio/vagrant-hostsupdater, install it with:
+
+```
+vagrant plugin install vagrant-hostmanager
+```
+
+
 Current workaround: configure ~/hosts
 
 ```
@@ -499,13 +514,7 @@ As you may noticed, there´s an extra for Windows Server 2016. Because we want o
 
 Additionally, and this part is mentioned pretty much at the end of the docker docs if you want to fire up a Swarm, the later established routing network needs access to several ports, [as the docs state](https://docs.docker.com/engine/swarm/ingress/). __AND__ "you need to have the following ports open between the swarm nodes before you enable swarm mode". So we need to do that __before__ even initializing our Swarm!
 
-tbd
 
-But what if we were able to change the /etc/hosts on our Host machine with every `vagrant up`? (https://stackoverflow.com/questions/16624905/adding-etc-hosts-entry-to-host-machine-on-vagrant-up) That´s possible with the https://github.com/cogitatio/vagrant-hostsupdater, install it with:
-
-```
-vagrant plugin install vagrant-hostsupdater
-```
 
 ###### Prepare Docker engines on all Nodes
 
@@ -662,6 +671,8 @@ skipping: [workerlinux01]
 This means that our Docker Swarm cluster is ready for service deployment!
 
 
+
+
 ## Step 5 - Deploy multiple Spring Boot Apps on mixed-OS Docker Windows- & Linux Swarm with Ansible ([step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm))
 
 As Microsoft states in the [Swarm docs](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode), Docker Swarm Services can be easily deployed to the Swarm with the `docker service create` command and afterwards scaled with `docker service scale`. There´s a huge amount on configuration parameters you can use [with docker service create](https://docs.docker.com/engine/swarm/services/).
@@ -669,8 +680,6 @@ As Microsoft states in the [Swarm docs](https://docs.microsoft.com/en-us/virtual
 __BUT:__ That approach reminds us of those first days with Docker not using Docker Compose. So it would be really nice to have something like Compose also for our Swarm deployment. And it´s really that simple - [just use Compose with Docker Stack Deploy for that :)](https://docs.docker.com/engine/swarm/stack-deploy/):
 
 > "Docker Compose and Docker Swarm aim to have full integration, meaning you can point a Compose app at a Swarm cluster and have it all just work as if you were using a single Docker host."
-
-So let´s directly break a architectural rule we build up in the preceding work: Don´t extensively template the docker-compose.yml any more, because this would lead to a rather complex setup process in Ansible. And remember: we´ve only did this, because we wanted to be free in our choice of Container orchestration technology - but now we choose Docker Swarm, we can savely forget this approach.
 
 Back to the concrete docker-compose.yml file. Let´s use the [newest 3.3 version](https://docs.docker.com/compose/compose-file/compose-versioning/#version-33) here, so that we can leverage the most out of Swarm´s functionality, which is broadened with each Compose (file) version.
 
@@ -755,6 +764,29 @@ https://docs.docker.com/engine/swarm/ingress/
 Note: this is only possible with Windows Server 2016, if you opened the needed ports before initializing the Swarm (this is already done in [step4-windows-linux-multimachine-vagrant-docker-swarm-setup](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup) for you ;) ).
 
 
+#### Routing mesh support
+
+Docker network routing mesh support in Windows Server 2016 1709: https://blog.docker.com/2017/09/docker-windows-server-1709/ & https://blogs.technet.microsoft.com/virtualization/2017/09/26/dockers-ingress-routing-mesh-available-with-windows-server-version-1709/
+
+__BUT:__ See my comment there:
+
+> Hi Kallie, to use the new features in production at the customer, we need to have access to the new 1709 build of Windows Server 2016. As this post here https://blogs.technet.microsoft.com/windowsserver/2017/10/17/windows-server-version-1709-available-for-download/ states, the 1709 build will only be available in the so called “Semi-annual channel”, which is only available for customers if they have the “Software Assurance” package (as this post states https://cloudblogs.microsoft.com/hybridcloud/2017/06/15/delivering-continuous-innovation-with-windows-server/).
+
+> To provide a recommendation for the customer, that is based on a proven and fully automated “infrastructure as code” example, I successfully build a GitHub repo (https://github.com/jonashackt/ansible-windows-docker-springboot) with EVERY needed step, beginning with the download of a evaluation copy of Windows Server 2016 from here https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016, going over to a setup with VirtualBox/Vagrant (https://www.vagrantup.com/), Provisioning with Ansible and (https://www.ansible.com/) and finally running and scaling Spring Boot apps Dockerized on the Windows Server.
+
+> Now the next step is Docker orchestration with Swarm (and later Kubernetes). But with the current version of https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016, the mentioned Docker network routing mesh support isn´t available for us. Is there any chance to update this version in the evalcenter? I know there´s the Insiderprogram, but I doesn´t really help my to have a fully trustable setup where I can prove for everybody, that everything will work.
+
+__TLDR:__
+
+--> only available in Windows Server 2016 1709: https://blogs.technet.microsoft.com/windowsserver/2017/10/17/windows-server-version-1709-available-for-download/
+
+--> only available in the "Semi-annual channel", which is according to https://cloudblogs.microsoft.com/hybridcloud/2017/06/15/delivering-continuous-innovation-with-windows-server/ only available with the "Software Assurance" package you have to buy separately to the Server licence
+
+--> only alternative: Windows Insider program: https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewserver
+
+--> but this isn´t a good start with customers!
+
+
 
 
 
@@ -799,6 +831,13 @@ https://docs.docker.com/engine/swarm/stack-deploy/
 
 https://codefresh.io/blog/deploy-docker-compose-v3-swarm-mode-cluster/
 
+Docker network routing mesh support in Windows Server 2016 1709: https://blog.docker.com/2017/09/docker-windows-server-1709/ & https://blogs.technet.microsoft.com/virtualization/2017/09/26/dockers-ingress-routing-mesh-available-with-windows-server-version-1709/
+
+https://blogs.technet.microsoft.com/windowsserver/2017/10/17/windows-server-version-1709-available-for-download/
+
+https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewserver
+
+
 #### Kubernetes
 
 Docker Windows Containers & Kubernetes: https://blogs.technet.microsoft.com/networking/2017/04/04/windows-networking-for-kubernetes/
@@ -823,5 +862,13 @@ http://blog.kubernetes.io/2017/08/kompose-helps-developers-move-docker.html?m=1
 
 http://blog.kubernetes.io/2017/09/windows-networking-at-parity-with-linux.html
 
+
+#### Spring Application Deployment
+
+Spring Cloud kubernetes https://github.com/spring-cloud-incubator/spring-cloud-kubernetes
+
+Shutdown hooks https://www.gesellix.net/post/zero-downtime-deployment-with-docker-stack-and-spring-boot/
+
+Deployment example with Spring Cloud http://pscode.rs/spring-cloud-with-spring-config-and-eureka-in-high-availability-using-docker-swarm/
 
 
