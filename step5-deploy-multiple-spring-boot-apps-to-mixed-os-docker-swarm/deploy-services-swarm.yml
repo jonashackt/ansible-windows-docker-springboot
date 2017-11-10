@@ -4,9 +4,18 @@
       src: "templates/docker-stack.j2"
       dest: "{{base_path_windows}}\\docker-stack.yml"
 
+  - name: Remove old Stack from the Swarm, if there
+    win_shell: docker stack rm {{ application_stack_name }}
+    args:
+      chdir: "{{base_path_windows}}"
+    ignore_errors: yes
+
+  - name: Pause a few seconds after old Stack removement
+    pause:
+      seconds: 2
+
   - name: Deploy the Stack to the Swarm on Windows Manager node
     win_shell: docker stack deploy --compose-file docker-stack.yml {{ application_stack_name }}
     args:
       chdir: "{{base_path_windows}}"
-    register: first_compose_up_run_result
     ignore_errors: yes

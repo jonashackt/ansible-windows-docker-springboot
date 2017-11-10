@@ -8,16 +8,22 @@ services:
     image: {{registry_host}}/{{ service.name }}
 {% if service.map_to_same_port_on_host is defined %}
     ports:
-         - "{{ service.port }}:{{ service.port }}"
+      - target: {{ service.port }}
+        published: {{ service.port }}
+        protocol: tcp
+        mode: host
 {% else %}
     ports:
-         - "{{ service.port }}"
+      - target: {{ service.port }}
+        protocol: tcp
+        mode: host
 {% endif %}
     tty:
       true
     restart:
       unless-stopped
     deploy:
+      endpoint_mode: dnsrr
       placement:
 {% if service.deploy_target == 'windows' %}
         constraints: [node.labels.os==windows]

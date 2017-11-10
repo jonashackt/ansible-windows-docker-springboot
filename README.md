@@ -708,6 +708,8 @@ We should see our applications in Portainer now:
 
 ![portainer-swarm-visualizer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/portainer-swarm-visualizer.png)
 
+
+
 #### Accessing Spring Boot applications deployed in the Swarm
 
 Fore more indepth information how Docker Swarm works, have a look at https://docs.docker.com/engine/swarm/how-swarm-mode-works/services/
@@ -748,7 +750,7 @@ This should give you more insights into this app, including the mapped Port 3000
 
 With all this information, you could check out your first Docker Swarm deployed App. Just log into `workerlinux01` and call your App, e.g. with a `curl http://localhost:30001/swagger-ui.html` - as the [weatherbackend](https://github.com/jonashackt/cxf-spring-cloud-netflix-docker) is usind [Springfox](https://github.com/springfox/springfox) together with Swagger to show all of it´s REST endpoints:
 
-![curl-linux-container](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-service-inspect-app.png)
+![curl-linux-container](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/curl-linux-container.png)
 
 As Windows doesn´t support localhost loopback, we have to add one more step, to access an App which is deployed into a Windows native Docker Container: We need to know the Container´s IP:
 
@@ -764,7 +766,7 @@ https://docs.docker.com/engine/swarm/ingress/
 Note: this is only possible with Windows Server 2016, if you opened the needed ports before initializing the Swarm (this is already done in [step4-windows-linux-multimachine-vagrant-docker-swarm-setup](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup) for you ;) ).
 
 
-#### Routing mesh support
+#### Routing mesh NOT supported today
 
 Docker network routing mesh support in Windows Server 2016 1709: https://blog.docker.com/2017/09/docker-windows-server-1709/ & https://blogs.technet.microsoft.com/virtualization/2017/09/26/dockers-ingress-routing-mesh-available-with-windows-server-version-1709/
 
@@ -788,6 +790,33 @@ __TLDR:__
 
 
 
+#### Workaround: Docker Swarm publish-port mode
+
+As https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode#publish-ports-for-service-endpoints states, there´s an alternative to routing mesh: Docker Swarm´s publish-port mode. With a Docker Stack deploy, this looks like the following in the docker-stack.yml:
+
+```
+...
+    deploy:
+      ...
+      endpoint_mode: dnsrr
+```
+
+But together with setting the `endpoint_mode` to DNS round-robin (DNSRR) as [described in the docs](https://docs.docker.com/compose/compose-file/#endpoint_mode), we also need to alter the [exported Ports settings](https://docs.docker.com/compose/compose-file/#ports). We need to set it to `mode: host`, which is only possible with [the long syntax](https://docs.docker.com/compose/compose-file/#long-syntax-2) in the Docker Stack / Compose file format:
+
+```
+    ports:
+      - target: {{ service.port }}
+        published: {{ service.port }}
+        protocol: tcp
+        mode: host
+```
+
+Otherwise the Docker engine will tell us the following error:
+
+```
+Error response from daemon: rpc error: code = 3 desc = EndpointSpec: port published with ingress mode can't be used with dnsrr mode
+```
+
 
 
 
@@ -795,7 +824,7 @@ __TLDR:__
 
 #### General comparison of Docker Container Orchestrators
 
-mindshare: https://platform9.com/blog/kubernetes-docker-swarm-compared/
+
 
 marketshare: https://blog.netsil.com/kubernetes-vs-docker-swarm-vs-dc-os-may-2017-orchestrator-shootout-fdc59c28ec16
 
