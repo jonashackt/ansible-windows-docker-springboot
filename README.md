@@ -817,6 +817,62 @@ Otherwise the Docker engine will tell us the following error:
 Error response from daemon: rpc error: code = 3 desc = EndpointSpec: port published with ingress mode can't be used with dnsrr mode
 ```
 
+#### Accessing Services in publish-port mode with Traefik
+
+As [Traefik is a good choice for Docker](https://blog.codecentric.de/en/2017/09/traefik-modern-reverse-proxy/) deployments and it also supports Docker Swarm & Kubernetes, we could give it a shot in our hybrid Docker Swarm Cluster. There´s a good [user guide for Traefik and Swarm around](https://docs.traefik.io/user-guide/swarm-mode/) and we´ll try to deploy Traefik as a Docker Swarm Service first. Therefor we add a traefik Docker Swarm Service to our Stack (or the template docker-stack.j2):
+
+```
+...
+
+  traefik:
+    image: traefik
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+    tty:
+      true
+    restart:
+      unless-stopped
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints: [node.labels.os==linux]
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.docker=true"
+        - "traefik.docker.swarmmode=true"
+        - "traefik.docker.domain=traefik"
+        - "traefik.docker.watch=true"
+        - "traefik.web=true"
+
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+
+    networks:
+     - {{swarm_network_name }}
+
+networks:
+  {{ swarm_network_name }}:
+```
+
+This will take care of the networkcreation, which is better then 2 seperate docker-stack.ymls with one for the apps and one for Traefik - because this will lead to an Docker Stack deploy network removal error like this:
+
+```
+fatal: [masterwindows01]: FAILED! => {"changed": true, "cmd": "docker stack rm clearsky", "delta": "0:00:01.006847", "end": "2017-11-13 08:06:56.286584", "failed": true, "msg": "non-zero return code", "rc": 1, "start": "2017-11-13 08:06:55.279736", "stderr": "Removing service clearsky_weatherbackend\nRemoving service clearsky_eureka-serviceregistry\nRemoving service clearsky_weatherservice\nRemoving service clearsky_eureka-serviceregistry-second\nRemoving network clearsky_mixed_swarm_net\nFailed to remove network c9np7umv1vnk7whxthlc7r28u: Error response from daemon: rpc error: code = 9 desc = network c9np7umv1vnk7whxthlc7r28u is in use by service iu5x4d1oh1brpd3p6spxd50kgFailed to remove some resources from stack: clearsky", "stderr_lines": ["Removing service clearsky_weatherbackend", "Removing service clearsky_eureka-serviceregistry", "Removing service clearsky_weatherservice", "Removing service clearsky_eureka-serviceregistry-second", "Removing network clearsky_mixed_swarm_net", "Failed to remove network c9np7umv1vnk7whxthlc7r28u: Error response from daemon: rpc error: code = 9 desc = network c9np7umv1vnk7whxthlc7r28u is in use by service iu5x4d1oh1brpd3p6spxd50kgFailed to remove some resources from stack: clearsky"], "stdout": "", "stdout_lines": []}
+```
+
+
+#### Give your Apps access to Traefik
+
+[Docker Stack deploy for Apps provided by Traefik](https://github.com/containous/traefik/issues/994#issuecomment-269095109)
 
 
 

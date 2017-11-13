@@ -30,5 +30,48 @@ services:
 {% else %}
         constraints: [node.labels.os==linux]
 {% endif %}
+      labels:
+        - "traefik.backend={{ service.name }}"
+        - "traefik.frontend.rule=Host:{{ service.name }}.server.test"
+    networks:
+     - {{swarm_network_name }}
 
 {% endfor %}
+
+  traefik:
+    image: traefik
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+    tty:
+      true
+    restart:
+      unless-stopped
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints: [node.labels.os==linux]
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.docker=true"
+        - "traefik.docker.swarmmode=true"
+        - "traefik.docker.domain=traefik"
+        - "traefik.docker.watch=true"
+        - "traefik.web=true"
+
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+
+    networks:
+     - {{swarm_network_name }}
+
+networks:
+  {{ swarm_network_name }}:
