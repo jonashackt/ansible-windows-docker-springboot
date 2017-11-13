@@ -25,6 +25,9 @@ Vagrant.configure("2") do |config|
         # Forwarding Manager Linux Guest Port 9000 to 49000 on Host
         # so that we can access Portainer container visualizer easily from Host´s browser
         masterlinux.vm.network "forwarded_port", guest: 9000, host: 49000, host_ip: "127.0.0.1", id: "portainer"
+
+        # Forwarding the Guest Port 8080 to 48080 so that we can access it easily from outside the VM
+        masterlinux.vm.network "forwarded_port", guest: 8080, host: 48080, host_ip: "127.0.0.1", id: "traefik"
     end
 
     # One Worker Node with Linux
@@ -48,6 +51,9 @@ Vagrant.configure("2") do |config|
             virtualbox.customize ["modifyvm", :id, "--ioapic", "on"]
             virtualbox.customize ["modifyvm", :id, "--vram", "16"]
         end
+
+        # Forwarding the Guest Port 8080 to 48080 so that we can access it easily from outside the VM
+        workerlinux.vm.network "forwarded_port", guest: 8080, host: 48081, host_ip: "127.0.0.1", id: "traefik"
     end
 
     # One Master / Manager Node with Windows Server 2016
@@ -69,9 +75,8 @@ Vagrant.configure("2") do |config|
             virtualbox.cpus = 2
         end
 
-        # Forwarding the Windows Server 2016 Guest Port 8080 t0 48080
-        # so that we can access it easily from outside the VM
-        # config.vm.network "forwarded_port", guest: 8080, host: 48080, host_ip: "127.0.0.1", id: "edgeservice"
+        # Forwarding the Guest Port 8080 to 48080 so that we can access it easily from outside the VM
+        masterwindows.vm.network "forwarded_port", guest: 8080, host: 48082, host_ip: "127.0.0.1", id: "traefik"
     end
 
     # One Worker Node with Windows Server 2016
@@ -93,9 +98,8 @@ Vagrant.configure("2") do |config|
             virtualbox.cpus = 2
         end
 
-        # Forwarding the Windows Server 2016 Guest Port 8080 t0 48080
-        # so that we can access it easily from outside the VM
-        # config.vm.network "forwarded_port", guest: 8080, host: 48080, host_ip: "127.0.0.1", id: "edgeservice"
+        # Forwarding the Guest Port 8080 to 48080 so that we can access it easily from outside the VM
+        workerwindows.vm.network "forwarded_port", guest: 8080, host: 48083, host_ip: "127.0.0.1", id: "traefik"
     end
 
 end
