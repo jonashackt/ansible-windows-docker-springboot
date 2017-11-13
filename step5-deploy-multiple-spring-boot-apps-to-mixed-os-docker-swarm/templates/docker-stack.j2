@@ -31,6 +31,7 @@ services:
         constraints: [node.labels.os==linux]
 {% endif %}
       labels:
+        - "traefik.port=80"
         - "traefik.backend={{ service.name }}"
         - "traefik.frontend.rule=Host:{{ service.name }}.{{ docker_domain }}"
     networks:

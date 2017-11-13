@@ -841,16 +841,17 @@ As [Traefik is a good choice for Docker](https://blog.codecentric.de/en/2017/09/
       unless-stopped
     deploy:
       endpoint_mode: dnsrr
+      replicas: 1
       placement:
         constraints: [node.labels.os==linux]
         constraints: [node.role == manager]
-      labels:
-        - "traefik.docker=true"
-        - "traefik.docker.swarmmode=true"
-        - "traefik.docker.domain=traefik"
-        - "traefik.docker.watch=true"
-        - "traefik.web=true"
-
+    command:
+      - --docker
+      - --docker.swarmmode
+      - --docker.domain={{ docker_domain }}
+      - --docker.watch
+      - --web
+      - --logLevel=INFO
     volumes:
       - type: bind
         source: /var/run/docker.sock
@@ -863,7 +864,7 @@ networks:
   {{ swarm_network_name }}:
 ```
 
-This will take care of the networkcreation, which is better then 2 seperate docker-stack.ymls with one for the apps and one for Traefik - because this will lead to an Docker Stack deploy network removal error like this:
+The last network definition will take care of the networkcreation, which is better then 2 seperate docker-stack.ymls with one for the apps and one for Traefik - because this will lead to an Docker Stack deploy network removal error like this:
 
 ```
 fatal: [masterwindows01]: FAILED! => {"changed": true, "cmd": "docker stack rm clearsky", "delta": "0:00:01.006847", "end": "2017-11-13 08:06:56.286584", "failed": true, "msg": "non-zero return code", "rc": 1, "start": "2017-11-13 08:06:55.279736", "stderr": "Removing service clearsky_weatherbackend\nRemoving service clearsky_eureka-serviceregistry\nRemoving service clearsky_weatherservice\nRemoving service clearsky_eureka-serviceregistry-second\nRemoving network clearsky_mixed_swarm_net\nFailed to remove network c9np7umv1vnk7whxthlc7r28u: Error response from daemon: rpc error: code = 9 desc = network c9np7umv1vnk7whxthlc7r28u is in use by service iu5x4d1oh1brpd3p6spxd50kgFailed to remove some resources from stack: clearsky", "stderr_lines": ["Removing service clearsky_weatherbackend", "Removing service clearsky_eureka-serviceregistry", "Removing service clearsky_weatherservice", "Removing service clearsky_eureka-serviceregistry-second", "Removing network clearsky_mixed_swarm_net", "Failed to remove network c9np7umv1vnk7whxthlc7r28u: Error response from daemon: rpc error: code = 9 desc = network c9np7umv1vnk7whxthlc7r28u is in use by service iu5x4d1oh1brpd3p6spxd50kgFailed to remove some resources from stack: clearsky"], "stdout": "", "stdout_lines": []}
@@ -873,6 +874,11 @@ fatal: [masterwindows01]: FAILED! => {"changed": true, "cmd": "docker stack rm c
 #### Give your Apps access to Traefik
 
 [Docker Stack deploy for Apps provided by Traefik](https://github.com/containous/traefik/issues/994#issuecomment-269095109)
+
+If you now access http://localhost:48080/ (no worries, the [Vagrantfile](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup/Vagrantfile) has the correct port forwardings prepared), you should see the Traefik dashboard with all the Services deployed:
+
+
+![first-successful-traefik-service-deployment-incl-registered-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-successful-traefik-service-deployment-incl-registered-apps.png)
 
 
 
