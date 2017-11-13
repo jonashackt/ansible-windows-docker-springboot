@@ -32,7 +32,7 @@ services:
 {% endif %}
       labels:
         - "traefik.backend={{ service.name }}"
-        - "traefik.frontend.rule=Host:{{ service.name }}.server.test"
+        - "traefik.frontend.rule=Host:{{ service.name }}.{{ docker_domain }}"
     networks:
      - {{swarm_network_name }}
 
@@ -55,16 +55,17 @@ services:
       unless-stopped
     deploy:
       endpoint_mode: dnsrr
+      replicas: 1
       placement:
         constraints: [node.labels.os==linux]
         constraints: [node.role == manager]
-      labels:
-        - "traefik.docker=true"
-        - "traefik.docker.swarmmode=true"
-        - "traefik.docker.domain=traefik"
-        - "traefik.docker.watch=true"
-        - "traefik.web=true"
-
+    command:
+      - --docker
+      - --docker.swarmmode
+      - --docker.domain={{ docker_domain }}
+      - --docker.watch
+      - --web
+      - --logLevel=INFO
     volumes:
       - type: bind
         source: /var/run/docker.sock
