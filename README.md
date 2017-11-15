@@ -875,11 +875,72 @@ fatal: [masterwindows01]: FAILED! => {"changed": true, "cmd": "docker stack rm c
 
 [Docker Stack deploy for Apps provided by Traefik](https://github.com/containous/traefik/issues/994#issuecomment-269095109)
 
-If you now access http://localhost:48080/ (no worries, the [Vagrantfile](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup/Vagrantfile) has the correct port forwardings prepared), you should see the Traefik dashboard with all the Services deployed:
-
+If you now access http://localhost:48080/, you should see the Traefik dashboard with all the Services deployed:
 
 ![first-successful-traefik-service-deployment-incl-registered-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-successful-traefik-service-deployment-incl-registered-apps.png)
 
+Therefore the [Vagrantfile](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup/Vagrantfile) has some more port forwardings prepared:
+
+```
+        # Forwarding the Guest to Host ports, so that we can access it easily from outside the VM
+        workerlinux.vm.network "forwarded_port", guest: 8080, host: 48081, host_ip: "127.0.0.1", id: "traefik_dashboard"
+        workerlinux.vm.network "forwarded_port", guest: 80, host: 40081, host_ip: "127.0.0.1", id: "traefik"
+```
+
+The Apps are templated over the docker-stack.yml:
+
+```
+{% for service in vars.services %}
+  {{ service.name }}:
+    image: {{registry_host}}/{{ service.name }}
+{% if service.map_to_same_port_on_host is defined %}
+    ports:
+      - target: {{ service.port }}
+        published: {{ service.port }}
+        protocol: tcp
+        mode: host
+{% else %}
+    ports:
+      - target: {{ service.port }}
+        protocol: tcp
+        mode: host
+{% endif %}
+    tty:
+      true
+    restart:
+      unless-stopped
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+{% if service.deploy_target == 'windows' %}
+        constraints: [node.labels.os==windows]
+{% else %}
+        constraints: [node.labels.os==linux]
+{% endif %}
+      labels:
+        - "traefik.port={{ service.port }}"
+        - "traefik.backend={{ service.name }}"
+# Use Traefik healthcheck        "traefik.backend.healthcheck.path": "/healthcheck",
+        - "traefik.frontend.rule=Host:{{ service.name }}.{{ docker_domain }}"
+    networks:
+     - {{swarm_network_name }}
+```
+
+Note that the `traefik.port=YourAppPort` must be the same port, that your Spring Boot application uses (via `server.port=YourAppPort`) and your Container exposes. Then Traefik will automatically route a Request through to the App over the configured first published Port:
+
+```
+   ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+```
+
+Finally the first curls are working:
+
+```
+curl -H Host:eureka-serviceregistry.sky.test http://localhost:40080 -v
+```
 
 
 # Links

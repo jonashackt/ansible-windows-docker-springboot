@@ -31,8 +31,9 @@ services:
         constraints: [node.labels.os==linux]
 {% endif %}
       labels:
-        - "traefik.port=80"
+        - "traefik.port={{ service.port }}"
         - "traefik.backend={{ service.name }}"
+# Use Traefik healthcheck        "traefik.backend.healthcheck.path": "/healthcheck",
         - "traefik.frontend.rule=Host:{{ service.name }}.{{ docker_domain }}"
     networks:
      - {{swarm_network_name }}
@@ -45,17 +46,17 @@ services:
       - target: 80
         published: 80
         protocol: tcp
-        mode: host
+#        mode: host
       - target: 8080
         published: 8080
         protocol: tcp
-        mode: host
+#        mode: host
     tty:
       true
     restart:
       unless-stopped
     deploy:
-      endpoint_mode: dnsrr
+#      endpoint_mode: dnsrr
       replicas: 1
       placement:
         constraints: [node.labels.os==linux]
