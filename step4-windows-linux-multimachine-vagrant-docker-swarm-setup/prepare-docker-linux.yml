@@ -67,7 +67,7 @@
 
   - name: Add docker apt repo
     apt_repository:
-      repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_lsb.codename}} stable"
+      repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_lsb.codename}} edge"
       update_cache: yes
     sudo: yes
 
