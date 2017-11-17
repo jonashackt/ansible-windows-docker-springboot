@@ -13,6 +13,6 @@
   become: true
 
 - name: Run Docker Registry on Linux Manager node as Swarm service
-  shell: "docker service create --name swarm-registry --constraint 'node.labels.registry==true' --mount type=bind,src=/mnt/registry,dst=/var/lib/registry -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 -p 5000:5000 --replicas 1 registry:2"
+  shell: "docker service create --detach --name swarm-registry --constraint 'node.labels.registry==true' --mount type=bind,src=/mnt/registry,dst=/var/lib/registry -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 -p 5000:5000 --replicas 1 registry:2"
   ignore_errors: yes
   when: inventory_hostname == "masterlinux01"
