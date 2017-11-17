@@ -5,7 +5,7 @@
     state: directory
     mode: 0755
   when: inventory_hostname in groups['linux']
-  sudo: yes
+  become: true
 
 - name: Run Portainer Docker and Docker Swarm Visualizer on Linux Manager node as Swarm service
   shell: "docker service create --name portainer --publish 9000:9000 --constraint 'node.role == manager' --constraint 'node.labels.os==linux' --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=bind,src=/mnt/portainer,dst=/data portainer/portainer:latest -H unix:///var/run/docker.sock"

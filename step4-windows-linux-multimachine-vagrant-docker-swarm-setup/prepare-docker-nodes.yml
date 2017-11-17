@@ -15,10 +15,10 @@
     when: inventory_hostname in groups['windows']
 
 - name: Prepare Docker on Windows nodes
-  include: "../step1-prepare-docker-windows/prepare-docker-windows.yml host=windows"
+  import_playbook: "../step1-prepare-docker-windows/prepare-docker-windows.yml host=windows"
 
 - name: Prepare Docker on Linux nodes
-  include: prepare-docker-linux.yml host=linux
+  import_playbook: prepare-docker-linux.yml host=linux
 
 - name: Allow local http Docker registry
-  include: allow-http-docker-registry.yml
+  import_playbook: allow-http-docker-registry.yml

@@ -57,20 +57,20 @@
       state: directory
     when: inventory_hostname == "masterwindows01"
 
-#  - name: Build Linux Apps Docker images on Linux manager node and push to Docker Swarm registry
-#    include: prepare-docker-images-linux.yml
-#    with_items: "{{ vars.services }}"
-#    when: inventory_hostname == "masterlinux01" and item.deploy_target == 'linux'
+  - name: Build Linux Apps Docker images on Linux manager node and push to Docker Swarm registry
+    include_tasks: prepare-docker-images-linux.yml
+    with_items: "{{ vars.services }}"
+    when: inventory_hostname == "masterlinux01" and item.deploy_target == 'linux'
 
-#  - name: Build Windows Apps Docker images on Windows manager node and push to Docker Swarm registry
-#    include: prepare-docker-images-windows.yml
-#    with_items: "{{ vars.services }}"
-#    when: inventory_hostname == "masterwindows01" and item.deploy_target == 'windows'
+  - name: Build Windows Apps Docker images on Windows manager node and push to Docker Swarm registry
+    include_tasks: prepare-docker-images-windows.yml
+    with_items: "{{ vars.services }}"
+    when: inventory_hostname == "masterwindows01" and item.deploy_target == 'windows'
 
   - name: Deploy the Stack to the Swarm on Linux Manager node
-    include: deploy-services-swarm.yml
+    include_tasks: deploy-services-swarm.yml
     when: inventory_hostname == "masterwindows01"
 
 #  - name: Do healthchecks for all services
-#    include: spring-boot-app-health-check.yml
+#    include_tasks: spring-boot-app-health-check.yml
 #    with_items: "{{ vars.services }}"
