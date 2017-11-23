@@ -324,6 +324,8 @@ Newest Insider builds: https://insider.windows.com/ or here https://www.microsof
 
 ##### Good resources
 
+https://docs.ansible.com/ansible/devel/plugins/connection.html
+
 https://blog.docker.com/2016/09/build-your-first-docker-windows-server-container/
 
 [Walktrough Windows Docker Containers](https://github.com/artisticcheese/artisticcheesecontainer/wiki)
@@ -942,6 +944,8 @@ Finally the first curls are working:
 curl -H Host:eureka-serviceregistry.sky.test http://localhost:40080 -v
 ```
 
+![first-successful-app-call-through-traefik](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-successful-app-call-through-traefik.png)
+
 
 # Links
 
@@ -969,6 +973,8 @@ Docker Swarm Windows Docs: https://docs.microsoft.com/en-us/virtualization/windo
 
 Windows Server 2016 Overlay Networking Support (Windows & Linux mixed mode): https://blogs.technet.microsoft.com/virtualization/2017/04/18/ws2016-overlay-network-driver/
 
+https://blogs.technet.microsoft.com/virtualization/2017/02/09/overlay-network-driver-with-support-for-docker-swarm-mode-now-available-to-windows-insiders-on-windows-10/
+
 Windows & Linux mixed Video: https://www.youtube.com/watch?v=ZfMV5JmkWCY
 
 https://docs.docker.com/engine/swarm/
@@ -988,6 +994,9 @@ Docker network routing mesh support in Windows Server 2016 1709: https://blog.do
 https://blogs.technet.microsoft.com/windowsserver/2017/10/17/windows-server-version-1709-available-for-download/
 
 https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewserver
+
+Autoscaler for Docker Swarm: https://github.com/gianarb/orbiter
+
 
 
 #### Kubernetes
@@ -1023,4 +1032,30 @@ Shutdown hooks https://www.gesellix.net/post/zero-downtime-deployment-with-docke
 
 Deployment example with Spring Cloud http://pscode.rs/spring-cloud-with-spring-config-and-eureka-in-high-availability-using-docker-swarm/
 
+Windows JDK Docker images: https://hub.docker.com/_/openjdk/
+
+
+#### Traefik
+
+https://docs.traefik.io/configuration/backends/docker/
+
+https://docs.traefik.io/user-guide/swarm-mode/
+
+Windows without working routing mesh: need publish-port mode (dnsrr) at it´s services, then Traefik has a problem: https://github.com/containous/traefik/issues/833
+
+https://github.com/moby/moby/issues/25016
+
+https://github.com/containous/traefik/issues/913
+
+https://stackoverflow.com/questions/45822412/docker-swarm-windows-worker-with-traefik-returns-gateway-timeout
+
+
+
+
+
+# Zero downtime deployment
+
+https://docs.docker.com/engine/swarm/swarm-tutorial/rolling-update/
+
+https://www.gesellix.net/post/zero-downtime-deployment-with-docker-stack-and-spring-boot/
 

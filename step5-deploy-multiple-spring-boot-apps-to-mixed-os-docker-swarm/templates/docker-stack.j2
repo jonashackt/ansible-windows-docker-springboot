@@ -32,6 +32,9 @@ services:
 {% endif %}
       labels:
         - "traefik.port={{ service.port }}"
+        - "traefik.backend.loadbalancer.method=drr"
+       # - "traefik.backend.loadbalancer.swarm=false"
+       # - "traefik.docker.network={{ application_stack_name }}_{{ swarm_network_name }}"
         - "traefik.backend={{ service.name }}"
 # Use Traefik healthcheck        "traefik.backend.healthcheck.path": "/healthcheck",
         - "traefik.frontend.rule=Host:{{ service.name }}.{{ docker_domain }}"
@@ -46,17 +49,17 @@ services:
       - target: 80
         published: 80
         protocol: tcp
-#        mode: host
+        mode: host
       - target: 8080
         published: 8080
         protocol: tcp
-#        mode: host
+        mode: host
     tty:
       true
     restart:
       unless-stopped
     deploy:
-#      endpoint_mode: dnsrr
+      endpoint_mode: dnsrr
       replicas: 1
       placement:
         constraints: [node.labels.os==linux]
@@ -67,7 +70,7 @@ services:
       - --docker.domain={{ docker_domain }}
       - --docker.watch
       - --web
-      - --logLevel=INFO
+      - --logLevel=DEBUG
     volumes:
       - type: bind
         source: /var/run/docker.sock
