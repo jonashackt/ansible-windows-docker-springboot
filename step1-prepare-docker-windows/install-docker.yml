@@ -32,6 +32,11 @@
 
   - name: Pull the small Windows Docker Base Image microsoft/nanoserver from hub.docker.com
     win_shell: docker pull microsoft/nanoserver  
+    when: windows_version == "pre-1709"
+
+  - name: Pull the small Windows Docker Base Image microsoft/nanoserver with tag 1709 from hub.docker.com
+    win_shell: docker pull microsoft/nanoserver:1709
+    when: windows_version == "1709"
 
 #  - name: Get the second (but 10GB big) Windows Docker Base Image microsoft/windowsservercore from hub.docker.com (you may grab a coffee now...)
 #    win_shell: docker pull microsoft/windowsservercore

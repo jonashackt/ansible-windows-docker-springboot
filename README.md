@@ -784,12 +784,21 @@ __TLDR:__
 
 --> only available in Windows Server 2016 1709: https://blogs.technet.microsoft.com/windowsserver/2017/10/17/windows-server-version-1709-available-for-download/
 
---> only available in the "Semi-annual channel", which is according to https://cloudblogs.microsoft.com/hybridcloud/2017/06/15/delivering-continuous-innovation-with-windows-server/ only available with the "Software Assurance" package you have to buy separately to the Server licence
+--> only available in the "Semi-annual channel", which is according to https://cloudblogs.microsoft.com/hybridcloud/2017/06/15/delivering-continuous-innovation-with-windows-server/ only available with the "Software Assurance" package you have to buy separately to the Server licence 
 
 --> only alternative: Windows Insider program: https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewserver
 
 --> but this isn´t a good start with customers!
 
+#### Test Packer build
+
+```
+packer build -var iso_url=en_windows_server_version_1709_x64_dvd_100090904.iso -var iso_checksum=7c73ce30c3975652262f794fc35127b5 -var template_url=vagrantfile-windows_1709-multimachine.template -var box_output_prefix=windows_1709_docker_multimachine windows_server_2016_docker.json
+```
+
+```
+vagrant box add --name windows_1709_docker_multimachine windows_1709_docker_multimachine_virtualbox.box
+```
 
 
 #### Workaround: Docker Swarm publish-port mode

@@ -1,7 +1,13 @@
 ---
-  - name: Run a Microsoft test docker container
+  - name: Run a Microsoft test docker container (Windows Server 2016)
     win_shell: "docker run --name dotnetbot-container microsoft/dotnet-samples:dotnetapp-nanoserver"
     register: docker_test_run
+    when: windows_version == "pre-1709"
+
+  - name: Run a Microsoft test docker container (Windows Server 2016 Version 1709)
+    win_shell: "docker run --name dotnetbot-container microsoft/dotnet-samples:dotnetapp-nanoserver-1709"
+    register: docker_test_run
+    when: windows_version == "1709"
 
   - name: Docker is ready on your Box and waiting for your Containers :)
     debug:

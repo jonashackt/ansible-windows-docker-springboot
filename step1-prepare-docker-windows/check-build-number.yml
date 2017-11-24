@@ -1,13 +1,24 @@
 ---
-  - name: Get Windows Build Number
+  - name: Get Windows version, because the Docker Containers differ between them
     win_file_version:
       path: C:\Windows\System32\hal.dll
     register: hal_dll_version_return
 
+  - name: Windows is 1709 (Fall Creators Update)
+    set_fact:
+      windows_version: "1709"
+    when: hal_dll_version_return.win_file_version.file_build_part == "16299"
+
+  - name: Windows is pre 1709
+    set_fact:
+      windows_version: "pre-1709"
+    when: hal_dll_version_return.win_file_version.file_build_part == "14393"
+
   - name: Fail, if Windows Build number doesn´t support Windows Docker Containers correctly
     fail:
       msg: "Windows Build Number {{hal_dll_version_return.win_file_version.product_version}} doesn´t support Windows Docker Container correctly ({{hal_dll_version_return.win_file_version.file_private_part}} is to small)"
-    when: hal_dll_version_return.win_file_version.file_private_part|int < 206
+    when: (windows_version == "pre-1709") and
+          (windows_version.win_file_version.file_private_part|int < 206)
 
   - name: Congratulations
     debug:

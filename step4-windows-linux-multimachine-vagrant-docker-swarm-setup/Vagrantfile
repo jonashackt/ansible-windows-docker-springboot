@@ -57,7 +57,7 @@ Vagrant.configure("2") do |config|
 
     # One Master / Manager Node with Windows Server 2016
     config.vm.define "masterwindows" do |masterwindows|
-        masterwindows.vm.box = "windows_2016_multimachine"
+        masterwindows.vm.box = "windows_1709_docker_multimachine"
         masterwindows.vm.hostname = "masterwindows01"
         # Forwarding the port for Ansible explicitely to not run into Vagrants 'Port Collisions and Correction'
         # see https://www.vagrantup.com/docs/networking/forwarded_ports.html, which would lead to problems with Ansible later
@@ -80,7 +80,7 @@ Vagrant.configure("2") do |config|
 
     # One Worker Node with Windows Server 2016
     config.vm.define "workerwindows" do |workerwindows|
-        workerwindows.vm.box = "windows_2016_multimachine"
+        workerwindows.vm.box = "windows_1709_docker_multimachine"
         workerwindows.vm.hostname = "workerwindows01"
         # Forwarding the port for Ansible explicitely to not run into Vagrants 'Port Collisions and Correction'
         # see https://www.vagrantup.com/docs/networking/forwarded_ports.html, which would lead to problems with Ansible later
