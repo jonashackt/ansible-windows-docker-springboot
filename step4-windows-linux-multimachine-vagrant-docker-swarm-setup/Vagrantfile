@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
             virtualbox.memory = 2048
             virtualbox.cpus = 2
             virtualbox.customize ["modifyvm", :id, "--ioapic", "on"]
-            virtualbox.customize ["modifyvm", :id, "--vram", "16"]
+            virtualbox.customize ["modifyvm", :id, "--vram", "32"]
         end
 
         # Forwarding the Guest to Host ports, so that we can access it easily from outside the VM
@@ -47,7 +47,7 @@ Vagrant.configure("2") do |config|
             virtualbox.memory = 2048
             virtualbox.cpus = 2
             virtualbox.customize ["modifyvm", :id, "--ioapic", "on"]
-            virtualbox.customize ["modifyvm", :id, "--vram", "16"]
+            virtualbox.customize ["modifyvm", :id, "--vram", "32"]
         end
 
         # Forwarding the Guest to Host ports, so that we can access it easily from outside the VM
