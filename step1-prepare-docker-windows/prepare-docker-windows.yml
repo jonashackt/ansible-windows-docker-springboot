@@ -5,6 +5,11 @@
   - name: Check the minimum Windows build number
     include_tasks: check-build-number.yml
 
+  # task is not fully ready, we also want to switch to win_updates with Ansible 2.5, where this module should work finally
+  - name: Install latest Windows Updates
+    include_tasks: install-windows-updates.yml
+    tags: winupdate
+
   - name: Install Windows Containers and Hyper-V Windows Features (if not already present)
     include_tasks: install-windows-container-features.yml
 
