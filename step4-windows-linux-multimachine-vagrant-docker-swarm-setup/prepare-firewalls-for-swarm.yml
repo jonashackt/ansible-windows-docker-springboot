@@ -1,13 +1,34 @@
 ---
 - name: Allow connection to TCP port 2377 for cluster management communications
-  win_shell: "netsh firewall add portopening TCP 2377 'Port 2377'"
+  win_firewall_rule:
+    name: Port 2377
+    localport: 2377
+    action: allow
+    direction: in
+    protocol: tcp
+    state: present
+    enabled: yes
   when: inventory_hostname in groups['masterwindows']
 
   # Container networking needs more open ports later, see https://docs.docker.com/engine/swarm/ingress/
 - name: Open ports for later Docker Swarm Container network discovery on TCP and UDP port 7946
-  win_shell: "netsh firewall add portopening TCP 7946 'Port 7946'"
+  win_firewall_rule:
+    name: Port 7946
+    localport: 7946
+    action: allow
+    direction: in
+    protocol: tcp
+    state: present
+    enabled: yes
   when: inventory_hostname in groups['windows']
 
-- name: Open ports for later Docker Swarm overlay network traffic on UDP port 4789
-  win_shell: "netsh firewall add portopening UDP 4789 'Port 4789'"
+- name: Open ports for later Docker Swarm Container network discovery on TCP and UDP port 7946
+  win_firewall_rule:
+    name: Port 4789
+    localport: 4789
+    action: allow
+    direction: in
+    protocol: udp
+    state: present
+    enabled: yes
   when: inventory_hostname in groups['windows']
