@@ -4,6 +4,7 @@
   tasks:
   - name: Check the minimum Windows build number
     include_tasks: check-build-number.yml
+    tags: baseimage
 
   # task is not fully ready, we also want to switch to win_updates with Ansible 2.5, where this module should work finally
   - name: Install latest Windows Updates
@@ -29,6 +30,7 @@
       java8_update_version: 152
       java_build_version: b16
       server_jre_name: server-jre-8u{{java8_update_version}}-windows-x64.tar.gz
+    tags: baseimage
 
   - name: Your Windows Box is now fully ready to run Spring Boot Apps inside Windows Docker Containers
     debug:

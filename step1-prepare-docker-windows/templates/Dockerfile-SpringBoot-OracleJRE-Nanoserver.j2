@@ -1,6 +1,7 @@
 #jinja2: newline_sequence:'\r\n'
 {% if windows_version == '1709' %}
-FROM microsoft/nanoserver:1709
+# We need to use the powershell image from 1709 on, because standard nanoserver has no Powershell installed...
+FROM microsoft/powershell:6.0.0-rc-nanoserver-1709
 {% else %}
 FROM microsoft/nanoserver:latest
 {% endif %}
