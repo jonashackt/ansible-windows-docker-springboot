@@ -768,7 +768,7 @@ https://docs.docker.com/engine/swarm/ingress/
 Note: this is only possible with Windows Server 2016, if you opened the needed ports before initializing the Swarm (this is already done in [step4-windows-linux-multimachine-vagrant-docker-swarm-setup](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup) for you ;) ).
 
 
-#### Routing mesh NOT supported today
+#### Routing mesh problems on Windows
 
 Docker network routing mesh support in Windows Server 2016 1709: https://blog.docker.com/2017/09/docker-windows-server-1709/ & https://blogs.technet.microsoft.com/virtualization/2017/09/26/dockers-ingress-routing-mesh-available-with-windows-server-version-1709/
 
@@ -799,6 +799,33 @@ packer build -var iso_url=en_windows_server_version_1709_x64_dvd_100090904.iso -
 ```
 vagrant box add --name windows_1709_docker_multimachine windows_1709_docker_multimachine_virtualbox.box
 ```
+
+
+Be sure to have the latest updates installed! For me, it only worked after the November 2017 culmulative update package, with [KB4048955](https://support.microsoft.com/en-us/help/4048955/windows-10-update-kb4048955) inside. Otherwise ingress networking mode (`deploy: endpoint_mode: vip`) __DOESN´T WORK!__
+
+To see, if a Docker Swarm service with ingress networking mode is able to run, fire up a test service:
+
+__TODO__: use a service, that doesn´t need the other following steps
+
+```
+docker service create --name weathertest --publish 9099:9099 --endpoint-mode vip 172.16.2.10:5000/weatherbockend
+``` 
+
+There´s another difference to the Standard Windows Server 2016 LTS Docker images: The nanoserver and windowsservercore Images are much smaller! BUT: The nanoserver now misses the Powershell! Well, that´s kind of weird - but it´s kind of like in the Linux world, where you don´t have a bash installed per se, but only sh... But there´s help. Microsoft provides a nanoserver with Powershell on top right on Dockerhub: https://hub.docker.com/r/microsoft/powershell/ To pull the correct nanoserver with Powershell, just use:
+
+```
+docker pull microsoft/powershell:nanoserver
+```
+
+But as we use the latest `nanoserver:1709 image, we also have to use the suitable 1709er image for powershell: `microsoft/powershell:6.0.0-rc-nanoserver-1709` - kind of weird again that its only __rc__ right now, but hey. :)
+
+Now you also have to keep in mind, that you have to use `pwsh` instead of `powershell` to enter the Powershell inside a Container:
+
+```
+docker exec -it ContainerID pwsh
+```
+
+
 
 
 #### Workaround: Docker Swarm publish-port mode
@@ -1062,7 +1089,7 @@ https://stackoverflow.com/questions/45822412/docker-swarm-windows-worker-with-tr
 
 
 
-# Zero downtime deployment
+### Zero downtime deployment
 
 https://docs.docker.com/engine/swarm/swarm-tutorial/rolling-update/
 
