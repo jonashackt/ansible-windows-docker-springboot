@@ -859,6 +859,27 @@ So we need to open every port of every application on every host! Therefor we us
     when: inventory_hostname in groups['windows']
 ```
 
+As we also added a port forwarding configuration for every app in our [Vagrantfile](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup/Vagrantfile):
+
+```
+        # Open App ports for access from outside the VM
+        masterlinux.vm.network "forwarded_port", guest: 8761, host: 8761, host_ip: "127.0.0.1", id: "eureka"
+        masterlinux.vm.network "forwarded_port", guest: 8090, host: 8090, host_ip: "127.0.0.1", id: "weatherbackend"
+        masterlinux.vm.network "forwarded_port", guest: 8091, host: 8091, host_ip: "127.0.0.1", id: "weatherbockend"
+        masterlinux.vm.network "forwarded_port", guest: 8095, host: 8095, host_ip: "127.0.0.1", id: "weatherservice"
+```
+
+, we should now be able to access every app from our Vagrant/VirtualBox host:
+
+![all-apps-available-via-routing-mesh](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/all-apps-available-via-routing-mesh.png).
+
+
+
+
+
+
+
+
 
 
 
