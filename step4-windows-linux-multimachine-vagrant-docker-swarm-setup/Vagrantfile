@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
         masterlinux.vm.provider :virtualbox do |virtualbox|
             virtualbox.name = "MasterLinuxUbuntu"
             virtualbox.gui = true
-            virtualbox.memory = 1024
+            virtualbox.memory = 2048
             virtualbox.cpus = 2
             virtualbox.customize ["modifyvm", :id, "--ioapic", "on"]
             virtualbox.customize ["modifyvm", :id, "--vram", "32"]
@@ -50,7 +50,7 @@ Vagrant.configure("2") do |config|
         workerlinux.vm.provider :virtualbox do |virtualbox|
             virtualbox.name = "WorkerLinuxUbuntu"
             virtualbox.gui = true
-            virtualbox.memory = 1024
+            virtualbox.memory = 2048
             virtualbox.cpus = 2
             virtualbox.customize ["modifyvm", :id, "--ioapic", "on"]
             virtualbox.customize ["modifyvm", :id, "--vram", "32"]
