@@ -15,12 +15,12 @@
     #    service_registry_name: eureka-serviceregistry
     #    deploy_target: windows
 
-#      - name: eureka-serviceregistry
-#        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
-#        port: 8761
-#        map_to_same_port_on_host: true
-#        service_registry_name: eureka-serviceregistry-second
-#        deploy_target: windows
+      - name: eureka-serviceregistry
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
+        port: 8761
+        map_to_same_port_on_host: true
+        service_registry_name: eureka-serviceregistry-second
+        deploy_target: linux
 
 #      - name: eureka-serviceregistry-second
 #        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
@@ -28,12 +28,12 @@
 #        service_registry_name: eureka-serviceregistry
 #        deploy_target: linux
 
-#      - name: weatherbackend
-#        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
-#        port: 8090
-#        map_to_same_port_on_host: true
-#        service_registry_name: eureka-serviceregistry-second
-#        deploy_target: linux
+      - name: weatherbackend
+        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+        port: 8090
+        map_to_same_port_on_host: true
+        service_registry_name: eureka-serviceregistry-second
+        deploy_target: linux
 
       - name: weatherbockend
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
@@ -76,15 +76,9 @@
     when: inventory_hostname == "masterwindows01" and item.deploy_target == 'windows'
     tags: buildapps
 
-  - name: Open all published ports of every app on every Linux nodes for later access from outside the Swarm
-    include_tasks: prepare-firewall-app-access-linux.yml
+  - name: Open all published ports of every app on every node for later access from outside the Swarm
+    include_tasks: prepare-firewall-app-access.yml
     with_items: "{{ vars.services }}"
-    when: inventory_hostname in groups['linux']
-
-  - name: Open all published ports of every app on every Windows nodes for later access from outside the Swarm
-    include_tasks: prepare-firewall-app-access-windows.yml
-    with_items: "{{ vars.services }}"
-    when: inventory_hostname in groups['windows']
 
   - name: Deploy the Stack to the Swarm on Windows Manager node
     include_tasks: deploy-services-swarm.yml

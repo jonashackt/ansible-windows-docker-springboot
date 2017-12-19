@@ -1,0 +1,24 @@
+---
+  - name: Preparing to open...
+    debug:
+      msg: "'{{ item.name }}' with port '{{ item.port }}'"
+
+  - name: Open the apps published port on Linux node for later access from outside the Swarm
+    ufw:
+      rule: allow
+      port: "{{ item.port }}"
+      proto: tcp
+      comment: "{{ item.name }}'s port {{ item.port }}"
+    become: true
+    when: inventory_hostname in groups['linux']
+
+  - name: Open the apps published port on Windows node for later access from outside the Swarm
+    win_firewall_rule:
+      name: "{{ item.name }}'s port {{ item.port }}"
+      localport: "{{ item.port }}"
+      action: allow
+      direction: in
+      protocol: tcp
+      state: present
+      enabled: yes
+    when: inventory_hostname in groups['windows']

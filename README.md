@@ -831,7 +831,33 @@ From https://docs.docker.com/engine/swarm/ingress/:
 
 > "You must also open the published port between the swarm nodes and any external resources, such as an external load balancer, that require access to the port."
 
-So we need to open every port of every application on every host!
+So we need to open every port of every application on every host! Therefor we use __prepare-firewall-app-access.yml__, that opens all needed ports in our hybrid swarm:
+
+```
+  - name: Preparing to open...
+    debug:
+      msg: "'{{ item.name }}' with port '{{ item.port }}'"
+
+  - name: Open the apps published port on Linux node for later access from outside the Swarm
+    ufw:
+      rule: allow
+      port: "{{ item.port }}"
+      proto: tcp
+      comment: "{{ item.name }}'s port {{ item.port }}"
+    become: true
+    when: inventory_hostname in groups['linux']
+
+  - name: Open the apps published port on Windows node for later access from outside the Swarm
+    win_firewall_rule:
+      name: "{{ item.name }}'s port {{ item.port }}"
+      localport: "{{ item.port }}"
+      action: allow
+      direction: in
+      protocol: tcp
+      state: present
+      enabled: yes
+    when: inventory_hostname in groups['windows']
+```
 
 
 
