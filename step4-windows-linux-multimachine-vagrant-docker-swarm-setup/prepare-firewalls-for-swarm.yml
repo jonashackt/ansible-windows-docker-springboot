@@ -1,4 +1,14 @@
 ---
+- name: Allow Ping requests on Windows nodes (which is by default disabled in Windows Server 2016)
+  win_firewall_rule:
+    name: Allow incoming ping requests
+    action: allow
+    direction: in
+    protocol: "icmpv4:8"
+    state: present
+    enabled: yes
+  when: inventory_hostname in groups['windows']
+
 - name: Allow connection to TCP port 2377 for cluster management communications
   win_firewall_rule:
     name: Port 2377

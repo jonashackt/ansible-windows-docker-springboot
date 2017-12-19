@@ -10,10 +10,6 @@
     ping:
     when: inventory_hostname in groups['linux']
 
-  - name: Allow Ping requests on Windows nodes (which is by default disabled in Windows Server 2016)
-    win_shell: "netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol=icmpv4:8,any dir=in action=allow"
-    when: inventory_hostname in groups['windows']
-
 - name: Prepare Docker on Windows nodes
   import_playbook: "../step1-prepare-docker-windows/prepare-docker-windows.yml host=windows"
 
