@@ -3,3 +3,7 @@ ansible_connection: winrm
 
 # The following is necessary for Python 2.7.9+ when using default WinRM self-signed certificates:
 ansible_winrm_server_cert_validation: ignore
+
+# to avoid time out errors like 'Read timed out. (read timeout=30)', we raise the timeout generally
+# see https://github.com/ansible/ansible-modules-core/issues/5368
+ansible_winrm_read_timeout_sec: 40
