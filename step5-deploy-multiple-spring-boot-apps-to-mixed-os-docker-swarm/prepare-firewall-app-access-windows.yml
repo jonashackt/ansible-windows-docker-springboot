@@ -1,0 +1,16 @@
+---
+  - name: Defining needed variables
+    set_fact:
+      spring_boot_app:
+        name: "{{ item.name }}"
+        port: "{{ item.port }}"
+
+  - name: Open the apps published port on Windows node for later access from outside the Swarm
+    win_firewall_rule:
+      name: "{{spring_boot_app.name}}'s port {{ spring_boot_app.port }}"
+      localport: "{{ spring_boot_app.port }}"
+      action: allow
+      direction: in
+      protocol: tcp
+      state: present
+      enabled: yes

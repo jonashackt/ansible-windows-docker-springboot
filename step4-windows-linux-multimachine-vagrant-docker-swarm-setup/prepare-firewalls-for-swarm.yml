@@ -22,7 +22,7 @@
     enabled: yes
   when: inventory_hostname in groups['windows']
 
-- name: Open ports for later Docker Swarm Container network discovery on TCP and UDP port 7946
+- name: Open ports for later Docker Swarm Container network discovery on UDP port 4789
   win_firewall_rule:
     name: Port 4789
     localport: 4789
@@ -32,3 +32,14 @@
     state: present
     enabled: yes
   when: inventory_hostname in groups['windows']
+
+  # temporarily disabling the complete firewall to prevent issues
+- name: Disable firewall for Domain, Public and Private profiles
+  win_firewall:
+    state: disabled
+    profiles:
+    - Domain
+    - Private
+    - Public
+  when: inventory_hostname in groups['windows']
+  tags: disable_firewall

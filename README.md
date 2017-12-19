@@ -827,6 +827,15 @@ docker exec -it ContainerID pwsh
 
 
 
+From https://docs.docker.com/engine/swarm/ingress/:
+
+> "You must also open the published port between the swarm nodes and any external resources, such as an external load balancer, that require access to the port."
+
+So we need to open every port of every application on every host!
+
+
+
+
 
 #### Workaround: Docker Swarm publish-port mode
 

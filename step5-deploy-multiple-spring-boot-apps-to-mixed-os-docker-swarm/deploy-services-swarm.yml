@@ -12,7 +12,7 @@
 
   - name: Pause a few seconds after old Stack removement
     pause:
-      seconds: 2
+      seconds: 4
 
   - name: Deploy the Stack to the Swarm on Windows Manager node
     win_shell: docker stack deploy --compose-file docker-stack.yml {{ application_stack_name }}

@@ -1,0 +1,15 @@
+---
+  - name: Defining needed variables
+    set_fact:
+      spring_boot_app:
+        name: "{{ item.name }}"
+        port: "{{ item.port }}"
+
+  - name: Open the apps published port on Linux node for later access from outside the Swarm
+    ufw:
+      rule: allow
+      port: "{{ spring_boot_app.port }}"
+      proto: tcp
+      comment: "{{spring_boot_app.name}}'s port {{ spring_boot_app.port }}"
+    become: true
+

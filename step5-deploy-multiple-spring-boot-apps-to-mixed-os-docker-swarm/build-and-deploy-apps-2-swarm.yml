@@ -15,29 +15,29 @@
     #    service_registry_name: eureka-serviceregistry
     #    deploy_target: windows
 
-      - name: eureka-serviceregistry
-        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
-        port: 8761
-        map_to_same_port_on_host: true
-        service_registry_name: eureka-serviceregistry-second
-        deploy_target: windows
+#      - name: eureka-serviceregistry
+#        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
+#        port: 8761
+#        map_to_same_port_on_host: true
+#        service_registry_name: eureka-serviceregistry-second
+#        deploy_target: windows
 
-      - name: eureka-serviceregistry-second
-        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
-        port: 8761
-        service_registry_name: eureka-serviceregistry
-        deploy_target: linux
+#      - name: eureka-serviceregistry-second
+#        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
+#        port: 8761
+#        service_registry_name: eureka-serviceregistry
+#        deploy_target: linux
 
-      - name: weatherbackend
-        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
-        port: 8090
-        map_to_same_port_on_host: true
-        service_registry_name: eureka-serviceregistry-second
-        deploy_target: linux
+#      - name: weatherbackend
+#        path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
+#        port: 8090
+#        map_to_same_port_on_host: true
+#        service_registry_name: eureka-serviceregistry-second
+#        deploy_target: linux
 
       - name: weatherbockend
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
-        port: 8090
+        port: 8091
         map_to_same_port_on_host: true
         service_registry_name: eureka-serviceregistry-second
         deploy_target: windows
@@ -64,15 +64,27 @@
       state: directory
     when: inventory_hostname == "masterwindows01"
 
-#  - name: Build Linux Apps Docker images on Linux manager node and push to Docker Swarm registry
-#    include_tasks: prepare-docker-images-linux.yml
-#    with_items: "{{ vars.services }}"
-#    when: inventory_hostname == "masterlinux01" and item.deploy_target == 'linux'
+  - name: Build Linux Apps Docker images on Linux manager node and push to Docker Swarm registry
+    include_tasks: prepare-docker-images-linux.yml
+    with_items: "{{ vars.services }}"
+    when: inventory_hostname == "masterlinux01" and item.deploy_target == 'linux'
+    tags: buildapps
 
-#  - name: Build Windows Apps Docker images on Windows manager node and push to Docker Swarm registry
-#    include_tasks: prepare-docker-images-windows.yml
-#    with_items: "{{ vars.services }}"
-#    when: inventory_hostname == "masterwindows01" and item.deploy_target == 'windows'
+  - name: Build Windows Apps Docker images on Windows manager node and push to Docker Swarm registry
+    include_tasks: prepare-docker-images-windows.yml
+    with_items: "{{ vars.services }}"
+    when: inventory_hostname == "masterwindows01" and item.deploy_target == 'windows'
+    tags: buildapps
+
+  - name: Open all published ports of every app on every Linux nodes for later access from outside the Swarm
+    include_tasks: prepare-firewall-app-access-linux.yml
+    with_items: "{{ vars.services }}"
+    when: inventory_hostname in groups['linux']
+
+  - name: Open all published ports of every app on every Windows nodes for later access from outside the Swarm
+    include_tasks: prepare-firewall-app-access-windows.yml
+    with_items: "{{ vars.services }}"
+    when: inventory_hostname in groups['windows']
 
   - name: Deploy the Stack to the Swarm on Windows Manager node
     include_tasks: deploy-services-swarm.yml
