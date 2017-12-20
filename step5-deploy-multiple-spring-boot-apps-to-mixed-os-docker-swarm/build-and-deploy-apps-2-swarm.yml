@@ -18,34 +18,24 @@
       - name: eureka-serviceregistry
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
         port: 8761
-        map_to_same_port_on_host: true
-        service_registry_name: eureka-serviceregistry-second
+        service_registry_name: eureka-serviceregistry
         deploy_target: linux
-
-#      - name: eureka-serviceregistry-second
-#        path_to_jar: "../../cxf-spring-cloud-netflix-docker/eureka-serviceregistry/target/eureka-serviceregistry-0.0.1-SNAPSHOT.jar"
-#        port: 8761
-#        service_registry_name: eureka-serviceregistry
-#        deploy_target: linux
 
       - name: weatherbackend
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
         port: 8090
-        map_to_same_port_on_host: true
-        service_registry_name: eureka-serviceregistry-second
+        service_registry_name: eureka-serviceregistry
         deploy_target: linux
 
       - name: weatherbockend
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherbackend/target/weatherbackend-0.0.1-SNAPSHOT.jar"
         port: 8091
-        map_to_same_port_on_host: true
-        service_registry_name: eureka-serviceregistry-second
+        service_registry_name: eureka-serviceregistry
         deploy_target: windows
 
       - name: weatherservice
         path_to_jar: "../../cxf-spring-cloud-netflix-docker/weatherservice/target/weatherservice-0.0.1-SNAPSHOT.jar"
         port: 8095
-        map_to_same_port_on_host: true
         service_registry_name: eureka-serviceregistry
         deploy_target: windows
 
