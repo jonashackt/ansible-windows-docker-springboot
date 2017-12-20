@@ -900,7 +900,13 @@ And __IT WORKS!!!__:
 
 ![first-successful-call-to-both-windows-and-linux-containers-through-traefik](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-successful-call-to-both-windows-and-linux-containers-through-traefik.png).
 
+Also all the example apps ([cxf-spring-cloud-netflix-docker](https://github.com/jonashackt/cxf-spring-cloud-netflix-docker)) will call themselfes if you call the weatherservice with SoapUI for example:
 
+![first-full-call-through-traefik-mixed-os-apps-incl-eureka-feign-soapui-client](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-full-call-through-traefik-mixed-os-apps-incl-eureka-feign-soapui-client.png)
+
+The really use Eureka & Feign to call each other:
+
+![docker-swarm-services-registered-eureka](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-swarm-services-registered-eureka.png)
 
 
 
