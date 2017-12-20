@@ -887,13 +887,18 @@ docker network inspect --verbose clearsky_mixed_swarm_net
 
 https://github.com/docker/for-win/issues/1366
 
+--> Let´s try another Baseimage and switch to https://hub.docker.com/r/microsoft/windowsservercore/ with `microsoft/windowsservercore:1709`
 
-Final test via Traefik:
+
+Test via Traefik:
 
 ```
 curl -H Host:weatherbackend.sky.test http://localhost:40080 -v
 ```
 
+And __IT WORKS!!!__:
+
+![first-successful-call-to-both-windows-and-linux-containers-through-traefik](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-successful-call-to-both-windows-and-linux-containers-through-traefik.png).
 
 
 
