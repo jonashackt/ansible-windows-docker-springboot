@@ -808,7 +808,7 @@ To see, if a Docker Swarm service with ingress networking mode is able to run, f
 __TODO__: use a service, that doesn´t need the other following steps
 
 ```
-docker service create --name weathertest --publish 9099:9099 --endpoint-mode vip 172.16.2.10:5000/weatherbockend
+docker service create --name weathertest --network swarmtest --publish 9099:9099 --endpoint-mode vip 172.16.2.10:5000/weatherbockend
 ``` 
 
 There´s another difference to the Standard Windows Server 2016 LTS Docker images: The nanoserver and windowsservercore Images are much smaller! BUT: The nanoserver now misses the Powershell! Well, that´s kind of weird - but it´s kind of like in the Linux world, where you don´t have a bash installed per se, but only sh... But there´s help. Microsoft provides a nanoserver with Powershell on top right on Dockerhub: https://hub.docker.com/r/microsoft/powershell/ To pull the correct nanoserver with Powershell, just use:
@@ -873,6 +873,26 @@ As we also added a port forwarding configuration for every app in our [Vagrantfi
 
 ![all-apps-available-via-routing-mesh](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/all-apps-available-via-routing-mesh.png).
 
+Now we should check, if the containers are able to reach themselfes. So for example we could try to reach a Windows Container from within the scope of an Linux Container from `masterlinux01`:
+
+```
+docker exec -it e71 ping weatherservice
+```
+
+Let´s have a look onto all containers and services in the network. Therefore you __MUST__ use the full network name, the id isn´t giving you the full output of everything in the Cluster! (as https://github.com/moby/moby/pull/31710 states, you need `--verbose` to see all data from all nodes!)
+
+```
+docker network inspect --verbose clearsky_mixed_swarm_net
+```
+
+https://github.com/docker/for-win/issues/1366
+
+
+Final test via Traefik:
+
+```
+curl -H Host:weatherbackend.sky.test http://localhost:40080 -v
+```
 
 
 
@@ -1059,6 +1079,10 @@ Windows Server Pre-Release (Insider): https://www.microsoft.com/en-us/software-d
 
 Current state discription: https://blogs.windows.com/windowsexperience/2017/07/13/announcing-windows-server-insider-preview-build-16237/#tx4mFJzTSMIjl2gX.97 --> coming version 1709 of Windows Server 2016 will have better Kubernetes support with no more manual tinkering with routing tables (better HNS)
 
+--> LinuxKit in Hyper-V for Side-by-Side Windows and Linux deployments: https://dockercon.docker.com/watch/U7Bxp66uKmemZssjCTyXkm
+
+
+
 #### Docker Swarm
 
 Docker Swarm Windows Docs: https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode
@@ -1091,11 +1115,17 @@ Autoscaler for Docker Swarm: https://github.com/gianarb/orbiter
 
 
 
+
+
+
 #### Kubernetes
 
 Docker Windows Containers & Kubernetes: https://blogs.technet.microsoft.com/networking/2017/04/04/windows-networking-for-kubernetes/
 
 Kubernetes Networking on Windows: https://www.youtube.com/watch?v=P-D8x2DndIA&t=6s&list=PL69nYSiGNLP2OH9InCcNkWNu2bl-gmIU4&index=1
+
+https://docs.microsoft.com/en-us/virtualization/windowscontainers/kubernetes/getting-started-kubernetes-windows
+
 
 http://www.serverwatch.com/server-news/why-kubernetes-sucks-and-how-to-fix-it.html
 

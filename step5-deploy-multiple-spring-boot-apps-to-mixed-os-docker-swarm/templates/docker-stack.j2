@@ -6,24 +6,18 @@ services:
 {% for service in vars.services %}
   {{ service.name }}:
     image: {{registry_host}}/{{ service.name }}
-{% if service.map_to_same_port_on_host is defined %}
     ports:
       - target: {{ service.port }}
         published: {{ service.port }}
         protocol: tcp
 #        mode: host
-{% else %}
-    ports:
-      - target: {{ service.port }}
-        protocol: tcp
-#        mode: host
-{% endif %}
     tty:
       true
     restart:
       unless-stopped
     deploy:
       endpoint_mode: vip
+      replicas: 2
       placement:
 {% if service.deploy_target == 'windows' %}
         constraints: [node.labels.os==windows]
