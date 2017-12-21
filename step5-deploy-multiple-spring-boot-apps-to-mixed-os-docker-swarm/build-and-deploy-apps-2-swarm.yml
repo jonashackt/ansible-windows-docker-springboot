@@ -4,7 +4,7 @@
     application_stack_name: clearsky
     registry_host: 172.16.2.10:5000
     swarm_network_name: mixed_swarm_net
-    docker_domain: sky.test
+    docker_domain: masterlinux01.test
     base_path_windows: "C:\\springboot"
     base_path_linux: "/tmp/springboot"
     services:
@@ -47,12 +47,14 @@
       state: directory
       mode: 0755
     when: inventory_hostname == "masterlinux01"
+    tags: buildapps
 
   - name: Create Docker build directory C:\springboot on Windows manager node, if not there
     win_file:
       path: "{{base_path_windows}}"
       state: directory
     when: inventory_hostname == "masterwindows01"
+    tags: buildapps
 
   - name: Build Linux Apps Docker images on Linux manager node and push to Docker Swarm registry
     include_tasks: prepare-docker-images-linux.yml
@@ -69,6 +71,7 @@
   - name: Open all published ports of every app on every node for later access from outside the Swarm
     include_tasks: prepare-firewall-app-access.yml
     with_items: "{{ vars.services }}"
+    tags: buildapps
 
   - name: Deploy the Stack to the Swarm on Windows Manager node
     include_tasks: deploy-services-swarm.yml

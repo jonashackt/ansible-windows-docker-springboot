@@ -911,6 +911,103 @@ The really use Eureka & Feign to call each other:
 
 
 
+## DNS to avoid the Host specification of the HTTP-header
+
+Let´s try [vagrant-dns Plugin](https://github.com/BerlinVagrant/vagrant-dns)
+
+```
+vagrant plugin install vagrant-dns
+```
+
+Now configure TLD for `masterlinux01` in the Vagrant multi-machine setup:
+
+```
+masterlinux.vm.hostname = "masterlinux01"
+
+masterlinux.dns.tld = "test"
+```
+
+Now register the vagrant-dns server as a resolver:
+
+```
+vagrant dns --install
+```
+
+Now check with `scutil --dns`, if the resolver is part of your DNS configuration:
+
+```
+...
+
+resolver #9
+  domain   : test
+  nameserver[0] : 127.0.0.1
+  port     : 5300
+  flags    : Request A records, Request AAAA records
+  reach    : 0x00030002 (Reachable,Local Address,Directly Reachable Address)
+
+...
+```
+
+This looks good! Now try, if you´re able to reach our Vagrant Boxes using our defined domain by typing e.g. `dscacheutil -q host -a name foo.masterwindows01.test`:
+
+```
+$:step4-windows-linux-multimachine-vagrant-docker-swarm-setup jonashecht$ dscacheutil -q host -a name foo.masterwindows01.test
+name: foo.masterwindows01.test
+ip_address: 172.16.2.12
+
+$:step4-windows-linux-multimachine-vagrant-docker-swarm-setup jonashecht$ dscacheutil -q host -a name foo.masterlinux01.test
+name: foo.masterlinux01.test
+ip_address: 172.16.2.10
+
+$:step4-windows-linux-multimachine-vagrant-docker-swarm-setup jonashecht$ dscacheutil -q host -a name bar.workerlinux01.test
+name: bar.workerlinux01.test
+ip_address: 172.16.2.11
+
+$:step4-windows-linux-multimachine-vagrant-docker-swarm-setup jonashecht$ dscacheutil -q host -a name foobar.workerwindows01.test
+name: foobar.workerwindows01.test
+ip_address: 172.16.2.13
+```
+
+
+But as the [vagrant-dns Plugin](https://github.com/BerlinVagrant/vagrant-dns) doesn´t support propagating the host´s DNS resolver to the Vagrant Boxes, we soon are running into problems - because Traefik couldn´t route any request anymore. But luckily we have [VirtualBox as a virtualization provider for Vagrant](https://www.vagrantup.com/docs/virtualbox/common-issues.html), which supports the propagation of the host´s DNS resolver to the guest machines. All we have to do, is to use [this suggestion on serverfault](https://serverfault.com/a/506206/326340):, which will 'Using the host's resolver as a DNS proxy in NAT mode':
+
+```
+# Forward DNS resolver from host (vagrant dns) to box
+virtualbox.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+```
+
+After we configured that, we can do our well-known `vagrant up`.
+
+
+Now we should be able to do this:
+
+```
+curl weatherbockend.masterlinux01.test:80 -v
+```
+
+We´re using port `80` here, because `masterlinux01.test` directly resolves to `172.16.2.10` - which is the named box :) And as Traefik is waiting for requests on port `80`, this should work.
+
+Or go to your Browser and simply try out all possible urls! Here are a few:
+
+```
+http://weatherbockend.masterlinux01.test/swagger-ui.html
+http://weatherbockend.masterlinux01.test/weather/general/outlook
+http://weatherservice.masterlinux01.test/soap
+http://weatherbockend.masterlinux01.test/swagger-ui.html
+```
+
+
+
+## Fixing 'mount -t vboxsf ... No such device' errors because of old VirtualBox additions in VagrantBoxes
+
+```
+vagrant plugin install vagrant-vbguest
+```
+
+
+
+
+
 
 
 

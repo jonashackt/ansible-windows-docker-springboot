@@ -4,6 +4,10 @@ Vagrant.configure("2") do |config|
     config.vm.define "masterlinux" do |masterlinux|
         masterlinux.vm.box = "ubuntu/trusty64"
         masterlinux.vm.hostname = "masterlinux01"
+
+        # Register domain test for later routing prettiness with Traefik
+        masterlinux.dns.tld = "test"
+
         masterlinux.ssh.insert_key = false
         # Forwarding the port for Ansible explicitely to not run into Vagrants 'Port Collisions and Correction'
         # see https://www.vagrantup.com/docs/networking/forwarded_ports.html, which would lead to problems with Ansible later
@@ -20,6 +24,8 @@ Vagrant.configure("2") do |config|
             virtualbox.cpus = 2
             virtualbox.customize ["modifyvm", :id, "--ioapic", "on"]
             virtualbox.customize ["modifyvm", :id, "--vram", "32"]
+            # Forward DNS resolver from host (vagrant dns) to box
+            virtualbox.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         end
 
         # Forwarding the Guest to Host ports, so that we can access it easily from outside the VM
@@ -54,6 +60,8 @@ Vagrant.configure("2") do |config|
             virtualbox.cpus = 2
             virtualbox.customize ["modifyvm", :id, "--ioapic", "on"]
             virtualbox.customize ["modifyvm", :id, "--vram", "32"]
+            # Forward DNS resolver from host (vagrant dns) to box
+            virtualbox.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         end
 
         # Forwarding the Guest to Host ports, so that we can access it easily from outside the VM
@@ -78,6 +86,8 @@ Vagrant.configure("2") do |config|
             virtualbox.gui = true
             virtualbox.memory = 2048
             virtualbox.cpus = 2
+            # Forward DNS resolver from host (vagrant dns) to box
+            virtualbox.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         end
         # Forwarding the Guest to Host ports, so that we can access it easily from outside the VM
         masterwindows.vm.network "forwarded_port", guest: 8080, host: 48082, host_ip: "127.0.0.1", id: "traefik_dashboard"
@@ -107,6 +117,8 @@ Vagrant.configure("2") do |config|
             virtualbox.gui = true
             virtualbox.memory = 2048
             virtualbox.cpus = 2
+            # Forward DNS resolver from host (vagrant dns) to box
+            virtualbox.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         end
 
         # Forwarding the Guest to Host ports, so that we can access it easily from outside the VM
