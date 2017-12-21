@@ -10,9 +10,21 @@
       chdir: "{{base_path_windows}}"
     ignore_errors: yes
 
+  - name: Delete old Swarm overlay network
+    win_shell: "docker network rm {{swarm_network_name}}"
+    ignore_errors: yes
+
   - name: Pause a few seconds after old Stack removement
     pause:
-      seconds: 8
+      seconds: 2
+
+  - name: Create an overlay network to enable our Swarm services to connect to each other later on
+    win_shell: "docker network create --driver=overlay {{swarm_network_name}}"
+    ignore_errors: yes
+
+  - name: Give the Swarm a few seconds to add all peers to the new network
+    pause:
+      seconds: 4
 
   - name: Deploy the Stack to the Swarm on Windows Manager node
     win_shell: docker stack deploy --compose-file docker-stack.yml {{ application_stack_name }}

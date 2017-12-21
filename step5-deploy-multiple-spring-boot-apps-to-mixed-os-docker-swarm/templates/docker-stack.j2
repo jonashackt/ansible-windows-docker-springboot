@@ -25,12 +25,10 @@ services:
 {% endif %}
       labels:
         - "traefik.port={{ service.port }}"
-        - "traefik.docker.network={{ application_stack_name }}_{{ swarm_network_name }}"
+        - "traefik.docker.network={{ swarm_network_name }}"
         - "traefik.backend={{ service.name }}"
 # Use Traefik healthcheck        "traefik.backend.healthcheck.path": "/healthcheck",
         - "traefik.frontend.rule=Host:{{ service.name }}.{{ docker_domain }}"
-    networks:
-     - {{swarm_network_name }}
 
 {% endfor %}
 
@@ -63,8 +61,8 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
-    networks:
-     - {{swarm_network_name }}
 
 networks:
-  {{ swarm_network_name }}:
+  default:
+    external:
+      name: {{ swarm_network_name }}
