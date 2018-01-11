@@ -1,17 +1,23 @@
 ---
   - name: Run a Microsoft test docker container (Windows Server 2016)
     win_shell: "docker run --name dotnetbot-container microsoft/dotnet-samples:dotnetapp-nanoserver"
-    register: docker_test_run
+    register: docker_test_run_2016
     when: windows_version == "pre-1709"
 
   - name: Run a Microsoft test docker container (Windows Server 2016 Version 1709)
     win_shell: "docker run --name dotnetbot-container microsoft/dotnet-samples:dotnetapp-nanoserver-1709"
-    register: docker_test_run
+    register: docker_test_run_1709
     when: windows_version == "1709"
+
+  - name: Docker is ready on your 2016 Box and waiting for your Containers :)
+    debug:
+      msg: "{{ docker_test_run_2016.stdout_lines }} "
+    when: windows_version == "pre-1709"
 
   - name: Docker is ready on your Box and waiting for your Containers :)
     debug:
-      msg: "{{ docker_test_run.stdout_lines }} "
+      msg: "{{ docker_test_run_1709.stdout_lines }} "
+    when: windows_version == "1709"
 
   - name: Remove the Microsoft test docker container
     win_shell: docker rm dotnetbot-container --force
