@@ -22,10 +22,17 @@
     win_shell: "wget.exe --no-cookies --no-check-certificate --header \"Cookie: oraclelicense=accept-securebackup-cookie\" \"http://download.oracle.com/otn-pub/java/jdk/8u{{java8_update_version}}-{{java_build_version}}/aa0333dd3019491ca4f6ddbe78cdb6d0/{{server_jre_name}}\" -O {{image_path}}\\{{server_jre_name}}"
     when: server_jre_on_server.stat.size is undefined
 
-  - name: Template and copy Spring Boot app´s Dockerfile to directory C:\spring-boot\spring_boot_app.name
+  - name: Template and copy Spring Boot app´s Dockerfile (version 2016) to directory C:\spring-boot\spring_boot_app.name
     win_template:
       src: "templates/Dockerfile-SpringBoot-OracleJRE-Nanoserver.j2"
       dest: "{{image_path}}\\Dockerfile"
+    when: windows_version == "pre-1709"
+
+  - name: Template and copy Spring Boot app´s Dockerfile (version 1709) to directory C:\spring-boot\spring_boot_app.name
+    win_template:
+      src: "templates/Dockerfile-SpringBoot-OracleJRE-Nanoserver-1709.j2"
+      dest: "{{image_path}}\\Dockerfile"
+    when: windows_version == "1709"
 
   - name: Remove older springboot-oraclejre-nanoserver Docker image (if there)
     win_shell: docker rmi springboot-oraclejre-nanoserver:latest --force
