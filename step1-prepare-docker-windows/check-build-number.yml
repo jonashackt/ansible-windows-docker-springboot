@@ -18,7 +18,7 @@
     fail:
       msg: "Windows Build Number {{hal_dll_version_return.win_file_version.product_version}} doesn´t support Windows Docker Container correctly ({{hal_dll_version_return.win_file_version.file_private_part}} is to small)"
     when: (windows_version == "pre-1709") and
-          (windows_version.win_file_version.file_private_part|int < 206)
+          (hal_dll_version_return.win_file_version.file_private_part|int < 206)
 
   - name: Congratulations
     debug:
