@@ -7,10 +7,9 @@
         jar: "{{ item.path_to_jar }}"
         registry_name: "{{ item.service_registry_name }}"
 
-  # Prepare for Docker Image build
-  - name: Preparing the following Spring Boot App´s Files for docker-compose run
+  - name: Preparing the following Spring Boot App´s Docker build files
     debug:
-      msg: "Processing '{{spring_boot_app.name}}' with port '{{ spring_boot_app.port }}'"
+      msg: "Processing '{{spring_boot_app.name}}' with port '{{ spring_boot_app.port }}' on {{ item.deploy_target }}"
 
   - name: Create directory C:\springboot\spring_boot_app.name, if not there
     win_file:
