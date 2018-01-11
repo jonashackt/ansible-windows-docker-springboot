@@ -35,6 +35,7 @@ Vagrant.configure("2") do |config|
 
         # Open App ports for access from outside the VM
         masterlinux.vm.network "forwarded_port", guest: 8761, host: 8761, host_ip: "127.0.0.1", id: "eureka"
+        masterlinux.vm.network "forwarded_port", guest: 8092, host: 8092, host_ip: "127.0.0.1", id: "spring-boot-admin"
         masterlinux.vm.network "forwarded_port", guest: 8090, host: 8090, host_ip: "127.0.0.1", id: "weatherbackend"
         masterlinux.vm.network "forwarded_port", guest: 8091, host: 8091, host_ip: "127.0.0.1", id: "weatherbockend"
         masterlinux.vm.network "forwarded_port", guest: 8095, host: 8095, host_ip: "127.0.0.1", id: "weatherservice"

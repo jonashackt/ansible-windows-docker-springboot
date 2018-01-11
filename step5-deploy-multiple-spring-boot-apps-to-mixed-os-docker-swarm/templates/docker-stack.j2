@@ -16,7 +16,7 @@ services:
       unless-stopped
     deploy:
       endpoint_mode: vip
-      replicas: 2
+      replicas: {{ service.replicas }}
       placement:
 {% if service.deploy_target == 'windows' %}
         constraints: [node.labels.os==windows]
@@ -56,7 +56,7 @@ services:
       - --docker.domain={{ docker_domain }}
       - --docker.watch
       - --web
-      - --logLevel=DEBUG
+      - --logLevel=INFO
     volumes:
       - type: bind
         source: /var/run/docker.sock
