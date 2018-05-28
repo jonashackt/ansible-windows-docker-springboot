@@ -2,13 +2,12 @@ Vagrant.configure("2") do |config|
 
     # One Master / Manager Node with Linux
     config.vm.define "masterlinux" do |masterlinux|
-        masterlinux.vm.box = "ubuntu/trusty64"
+        masterlinux.vm.box = "ubuntu/xenial64"
         masterlinux.vm.hostname = "masterlinux01"
 
         # Register domain test for later routing prettiness with Traefik
         masterlinux.dns.tld = "test"
 
-        masterlinux.ssh.insert_key = false
         # Forwarding the port for Ansible explicitely to not run into Vagrants 'Port Collisions and Correction'
         # see https://www.vagrantup.com/docs/networking/forwarded_ports.html, which would lead to problems with Ansible later
         masterlinux.vm.network "forwarded_port", guest: 22, host: 2222, host_ip: "127.0.0.1", id: "ssh"
@@ -43,9 +42,9 @@ Vagrant.configure("2") do |config|
 
     # One Worker Node with Linux
     config.vm.define "workerlinux" do |workerlinux|
-        workerlinux.vm.box = "ubuntu/trusty64"
+        workerlinux.vm.box = "ubuntu/xenial64"
         workerlinux.vm.hostname = "workerlinux01"
-        workerlinux.ssh.insert_key = false
+
         # Forwarding the port for Ansible explicitely to not run into Vagrants 'Port Collisions and Correction'
         # see https://www.vagrantup.com/docs/networking/forwarded_ports.html, which would lead to problems with Ansible later
         workerlinux.vm.network "forwarded_port", guest: 22, host: 2232, host_ip: "127.0.0.1", id: "ssh"

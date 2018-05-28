@@ -25,6 +25,6 @@
   - name: When Containers and/or Hyper-V had to be installed, we have to reboot the Machine to have them take effect (mostly this step will fail, but it should work nevertheless)
     win_reboot:
       reboot_timeout_sec: 60
-      shutdown_timeout_sec: 60
+      connect_timeout: 60
     when: feature_container_installation.changed or feature_hyperv_installation.changed
     ignore_errors: yes
