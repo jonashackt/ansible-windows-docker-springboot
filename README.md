@@ -23,11 +23,11 @@ Firing up Spring Boot apps with Ansible on Windows using Docker sound´s like th
 
 __Good build number:__
 
-![Windows_build_number_Docker_working](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/Windows_build_number_Docker_working.png)
+![Windows_build_number_Docker_working](screenshots/Windows_build_number_Docker_working.png)
 
 __Bad build number:__
 
-![Windows_build_number_Docker_failing](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/Windows_build_number_Docker_failing.png)
+![Windows_build_number_Docker_failing](screenshots/Windows_build_number_Docker_failing.png)
 
 Because of the minimal required build of Windows 10 or Server 2016, we sadly can´t use the easy to download and easy to handle [Vagrant box with Windows 10 from the Microsoft Edge developer site](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/#downloads). So we have to look after an alternative box to start from. My goal was to start from a original Microsoft Image and show a 100% replicable way how to get to a running Vagrant box. Because besides the Microsoft Edge boxes (which have don´t have the correct build number for now) there aren´t any official from Microsoft around in [Vagrant Atlas](https://atlas.hashicorp.com/boxes/search?utf8=%E2%9C%93&sort=&provider=&q=windows+10). And hey - we´re dealing with Windows! I don´t want to have someone installing things on a VM I don´t know... 
 
@@ -181,7 +181,7 @@ ansible-playbook -i hostsfile ansible-windows-docker-springboot.yml --extra-vars
 
 This should run a single Spring Boot app inside a Docker Windows Container on your Windows box.
 
-![spring-boot-example-running-docker-windows-containers](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/spring-boot-example-running-docker-windows-containers.png)
+![spring-boot-example-running-docker-windows-containers](screenshots/spring-boot-example-running-docker-windows-containers.png)
 
 ## Step 3 - How to scale multiple Spring Boot Apps inside a Docker Windows Containers with Ansible, docker-compose and Spring Cloud Netflix ([step4-multiple-spring-boot-apps-docker-compose](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-multiple-spring-boot-apps-docker-compose))
 
@@ -203,7 +203,7 @@ docker-compose scale weatherbackend=5
 
 A few seconds later (depending on the power of your machine), you should be able to see them all in Eureka:
 
-![spring-cloud-example-running-docker-windows-containers-docker-compose](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/spring-cloud-example-running-docker-windows-containers-docker-compose.png)
+![spring-cloud-example-running-docker-windows-containers-docker-compose](screenshots/spring-cloud-example-running-docker-windows-containers-docker-compose.png)
 
 
 
@@ -260,7 +260,7 @@ And network seems to be a really tricky part with all this non-localhost, Hyper-
 
 Good overview:
 
-![windows-docker-network-architecture](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/windows-docker-network-architecture.png)
+![windows-docker-network-architecture](screenshots/windows-docker-network-architecture.png)
 (from https://blogs.technet.microsoft.com/virtualization/2016/05/05/windows-container-networking/)
 
 ###### Useful commands
@@ -277,7 +277,7 @@ docker network inspect networkNameHere
 
 A good (e.g. working) starting configuration for the Windows Docker Network shows something like this
 
-![docker-network-correct-nat-config](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-network-correct-nat-config.png)
+![docker-network-correct-nat-config](screenshots/docker-network-correct-nat-config.png)
 
 If the "IPAM" section shows an empty Subnet & Gateway, you may have the problem, that your NAT wont work and you can´t connect to your Docker-Containers from the Windows Docker Host itself (see Caveats and Gotchas section on https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-networking)
 
@@ -642,7 +642,7 @@ This will deploy a Portainer instance onto our Linux Manager nodes (masterlinux0
 
 But there´s one thing, that could lead to frustration: Use a current Browser to access Portainer UI inside your Windows Boxes! It doesn´t work inside the pre-installed IE! Just head to http://172.16.2.10:9000.
 
-![first-docker-swarm-services-running-portainer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-docker-swarm-services-running-portainer.png)
+![first-docker-swarm-services-running-portainer](screenshots/first-docker-swarm-services-running-portainer.png)
 
 
 ###### Checking swarm status
@@ -708,7 +708,7 @@ Don´t try to search for "Docker Stack command reference", just head over to the
 
 We should see our applications in Portainer now:
 
-![portainer-swarm-visualizer](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/portainer-swarm-visualizer.png)
+![portainer-swarm-visualizer](screenshots/portainer-swarm-visualizer.png)
 
 
 
@@ -716,7 +716,7 @@ We should see our applications in Portainer now:
 
 Fore more indepth information how Docker Swarm works, have a look at https://docs.docker.com/engine/swarm/how-swarm-mode-works/services/
 
-![how-swarm-services-work](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/how-swarm-services-work.png)
+![how-swarm-services-work](screenshots/how-swarm-services-work.png)
 
 To get to know, where your App is accessible in the Swarm, there are some commands you can use. On a manager node do a
 
@@ -726,7 +726,7 @@ docker service ls
 
 to see all the deployed Docker Swarm services. It should output something like:
 
-![docker-service-ls](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-service-ls.png)
+![docker-service-ls](screenshots/docker-service-ls.png)
 
 Now pick one of your Services to inspect and do a
 
@@ -736,7 +736,7 @@ docker service ps clearsky_weatherbackend
 
 This should show us, on which node the Swarm manager is running the Docker Swarm task including our App´s container:
 
-![docker-service-ps-app](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-service-ps-app.png)
+![docker-service-ps-app](screenshots/docker-service-ps-app.png)
 
 It´s `workerlinux01` in this example.
 
@@ -748,11 +748,11 @@ docker service inspect --pretty clearsky_weatherbackend
 
 This should give you more insights into this app, including the mapped Port 30001:
 
-![docker-service-inspect-app](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-service-inspect-app.png)
+![docker-service-inspect-app](screenshots/docker-service-inspect-app.png)
 
 With all this information, you could check out your first Docker Swarm deployed App. Just log into `workerlinux01` and call your App, e.g. with a `curl http://localhost:30001/swagger-ui.html` - as the [weatherbackend](https://github.com/jonashackt/cxf-spring-cloud-netflix-docker) is usind [Springfox](https://github.com/springfox/springfox) together with Swagger to show all of it´s REST endpoints:
 
-![curl-linux-container](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/curl-linux-container.png)
+![curl-linux-container](screenshots/curl-linux-container.png)
 
 As Windows doesn´t support localhost loopback, we have to add one more step, to access an App which is deployed into a Windows native Docker Container: We need to know the Container´s IP:
 
@@ -763,7 +763,7 @@ __BUT:__ We´re not in Docker Engine´s standard mode anymore, we´re in Swarm m
 
 https://docs.docker.com/engine/swarm/ingress/
 
-![ingress-routing-mesh](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/ingress-routing-mesh.png)
+![ingress-routing-mesh](screenshots/ingress-routing-mesh.png)
 
 Note: this is only possible with Windows Server 2016, if you opened the needed ports before initializing the Swarm (this is already done in [step4-windows-linux-multimachine-vagrant-docker-swarm-setup](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup) for you ;) ).
 
@@ -871,7 +871,7 @@ As we also added a port forwarding configuration for every app in our [Vagrantfi
 
 , we should now be able to access every app from our Vagrant/VirtualBox host:
 
-![all-apps-available-via-routing-mesh](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/all-apps-available-via-routing-mesh.png).
+![all-apps-available-via-routing-mesh](screenshots/all-apps-available-via-routing-mesh.png).
 
 Now we should check, if the containers are able to reach themselfes. So for example we could try to reach a Windows Container from within the scope of an Linux Container from `masterlinux01`:
 
@@ -898,15 +898,15 @@ curl -H Host:weatherbackend.sky.test http://localhost:40080 -v
 
 And __IT WORKS!!!__:
 
-![first-successful-call-to-both-windows-and-linux-containers-through-traefik](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-successful-call-to-both-windows-and-linux-containers-through-traefik.png).
+![first-successful-call-to-both-windows-and-linux-containers-through-traefik](screenshots/first-successful-call-to-both-windows-and-linux-containers-through-traefik.png).
 
 Also all the example apps ([cxf-spring-cloud-netflix-docker](https://github.com/jonashackt/cxf-spring-cloud-netflix-docker)) will call themselfes if you call the weatherservice with SoapUI for example:
 
-![first-full-call-through-traefik-mixed-os-apps-incl-eureka-feign-soapui-client](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-full-call-through-traefik-mixed-os-apps-incl-eureka-feign-soapui-client.png)
+![first-full-call-through-traefik-mixed-os-apps-incl-eureka-feign-soapui-client](screenshots/first-full-call-through-traefik-mixed-os-apps-incl-eureka-feign-soapui-client.png)
 
 The really use Eureka & Feign to call each other:
 
-![docker-swarm-services-registered-eureka](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/docker-swarm-services-registered-eureka.png)
+![docker-swarm-services-registered-eureka](screenshots/docker-swarm-services-registered-eureka.png)
 
 
 
@@ -1099,7 +1099,7 @@ fatal: [masterwindows01]: FAILED! => {"changed": true, "cmd": "docker stack rm c
 
 If you now access http://localhost:48080/, you should see the Traefik dashboard with all the Services deployed:
 
-![first-successful-traefik-service-deployment-incl-registered-apps](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-successful-traefik-service-deployment-incl-registered-apps.png)
+![first-successful-traefik-service-deployment-incl-registered-apps](screenshots/first-successful-traefik-service-deployment-incl-registered-apps.png)
 
 Therefore the [Vagrantfile](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup/Vagrantfile) has some more port forwardings prepared:
 
@@ -1164,7 +1164,7 @@ Finally the first curls are working:
 curl -H Host:eureka-serviceregistry.sky.test http://localhost:40080 -v
 ```
 
-![first-successful-app-call-through-traefik](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/first-successful-app-call-through-traefik.png)
+![first-successful-app-call-through-traefik](screenshots/first-successful-app-call-through-traefik.png)
 
 
 # Links
