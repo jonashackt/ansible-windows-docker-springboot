@@ -24,8 +24,8 @@
     include_tasks: build-springboot-oraclejre-nanoserver-image.yml
     vars:
       image_name: springboot-oraclejre-nanoserver
-      java8_update_version: 162
-      java_build_version: b12
+      java8_update_version: 172
+      java_build_version: b11
       server_jre_name: server-jre-8u{{java8_update_version}}-windows-x64.tar.gz
     tags: baseimage
 
