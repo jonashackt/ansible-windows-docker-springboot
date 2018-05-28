@@ -1,13 +1,23 @@
 ---
-  - name: Install latest PSWindowsUpdate
-    win_chocolatey:
-      name: pswindowsupdate
-      state: latest
+  - name: Install all security, critical, and rollup updates
+    win_updates:
+      category_names:
+        - SecurityUpdates
+        - CriticalUpdates
+        - UpdateRollups
+      reboot: yes
+      reboot_timeout: 60
 
-  - name: Register Microsoft Update Service instead of default Windows Update Service
-    win_shell: "Add-WUServiceManager -ServiceID 7971f918-a847-4430-9279-4a52d1efe18d -Confirm:$false"
-    ignore_errors: yes
 
-  - name: Install all Windows Updates
-    win_shell: Get-WUInstall –MicrosoftUpdate –AcceptAll –AutoReboot -IgnoreUserInput -WhatIf -Verbose
-    ignore_errors: yes
+#  - name: Install latest PSWindowsUpdate
+#    win_chocolatey:
+#      name: pswindowsupdate
+#      state: latest
+#
+#  - name: Register Microsoft Update Service instead of default Windows Update Service
+#    win_shell: "Add-WUServiceManager -ServiceID 7971f918-a847-4430-9279-4a52d1efe18d -Confirm:$false"
+#    ignore_errors: yes
+#
+#  - name: Install all Windows Updates
+#    win_shell: Get-WUInstall –MicrosoftUpdate –AcceptAll –AutoReboot -IgnoreUserInput -WhatIf -Verbose
+#    ignore_errors: yes
