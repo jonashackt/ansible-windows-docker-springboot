@@ -76,11 +76,12 @@
   - name: Open all published ports of every app on every node for later access from outside the Swarm
     include_tasks: prepare-firewall-app-access.yml
     with_items: "{{ vars.services }}"
-    tags: buildapps
+    tags: firewall
 
   - name: Deploy the Stack to the Swarm on Windows Manager node
     include_tasks: deploy-services-swarm.yml
     when: inventory_hostname == "masterwindows01"
+    tags: deploy
 
 #  - name: Do healthchecks for all services
 #    include_tasks: spring-boot-app-health-check.yml

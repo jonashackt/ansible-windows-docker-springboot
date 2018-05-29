@@ -8,7 +8,7 @@
       rule: allow
       port: "{{ item.port }}"
       proto: tcp
-      comment: "{{ item.name }}'s port {{ item.port }}"
+      comment: "{{ item.name }}s port {{ item.port }}"
     become: true
     when: inventory_hostname in groups['linux']
 
