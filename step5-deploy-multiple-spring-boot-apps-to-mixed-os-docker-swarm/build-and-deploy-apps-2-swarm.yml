@@ -83,6 +83,9 @@
     when: inventory_hostname == "masterwindows01"
     tags: deploy
 
+  - name: Display the current Docker Swarm status
+    include_tasks: ../step4-windows-linux-multimachine-vagrant-docker-swarm-setup/display-swarm-status.yml
+
 #  - name: Do healthchecks for all services
 #    include_tasks: spring-boot-app-health-check.yml
 #    with_items: "{{ vars.services }}"
