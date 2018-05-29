@@ -18,5 +18,3 @@ packer build -var iso_url=en_windows_server_version_1803_x64_dvd_12063476.iso -v
 
 # add it to local Vagrant Boxes
 vagrant box add --name windows_1803_docker_multimachine windows_1803_docker_multimachine_virtualbox.box
-
-
