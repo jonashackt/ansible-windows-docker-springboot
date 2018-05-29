@@ -19,19 +19,6 @@
     register: add_repository_key
     ignore_errors: true
 
-  - name: Ensure curl is present (on older systems without SNI).
-    apt:
-      name: curl
-      state: latest
-    become: true
-    when: add_repository_key|failed
-
-  - name: Add Docker apt key (alternative for older systems without SNI).
-    shell: "curl -sSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -"
-    args:
-      warn: no
-    when: add_repository_key|failed
-
   - name: Add docker apt repo
     apt_repository:
       repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_lsb.codename}} edge"
