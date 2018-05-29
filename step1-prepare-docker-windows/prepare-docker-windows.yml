@@ -8,6 +8,7 @@
 
   - name: Install Windows Containers and Hyper-V Windows Features (if not already present)
     include_tasks: install-windows-container-features.yml
+    tags: dockerinstall
 
   - name: Install Docker on Windows (always the newest version) and pull needed base images
     include_tasks: install-docker.yml
