@@ -1167,6 +1167,11 @@ curl -H Host:eureka-serviceregistry.sky.test http://localhost:40080 -v
 ![first-successful-app-call-through-traefik](screenshots/first-successful-app-call-through-traefik.png)
 
 
+# Upgrade to Windows Server 1803
+
+What´s new in 1803: https://docs.microsoft.com/en-us/windows-server/get-started/whats-new-in-windows-server-1803
+
+
 # Links
 
 #### General comparison of Docker Container Orchestrators

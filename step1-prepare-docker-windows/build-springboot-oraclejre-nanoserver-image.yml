@@ -34,6 +34,12 @@
       dest: "{{image_path}}\\Dockerfile"
     when: windows_version == "1709"
 
+  - name: Template and copy Spring Boot app´s Dockerfile (version 1803) to directory C:\spring-boot\spring_boot_app.name
+    win_template:
+      src: "templates/Dockerfile-SpringBoot-OracleJRE-Nanoserver-1803.j2"
+      dest: "{{image_path}}\\Dockerfile"
+    when: windows_version == "1803"
+
   - name: Remove older springboot-oraclejre-nanoserver Docker image (if there)
     win_shell: docker rmi springboot-oraclejre-nanoserver:latest --force
     ignore_errors: yes

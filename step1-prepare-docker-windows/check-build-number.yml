@@ -4,6 +4,11 @@
       path: C:\Windows\System32\hal.dll
     register: hal_dll_version_return
 
+  - name: Windows is 1803
+    set_fact:
+      windows_version: "1803"
+    when: hal_dll_version_return.win_file_version.file_build_part == "17134"
+
   - name: Windows is 1709 (Fall Creators Update)
     set_fact:
       windows_version: "1709"
