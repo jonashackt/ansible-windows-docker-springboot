@@ -4,7 +4,7 @@
   tasks:
   - name: Check the minimum Windows build number
     include_tasks: check-build-number.yml
-    tags: baseimage
+    tags: check
 
   - name: Install Windows Containers and Hyper-V Windows Features (if not already present)
     include_tasks: install-windows-container-features.yml
