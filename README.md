@@ -13,6 +13,28 @@ This is a follow-up to the repository [ansible-windows-springboot](https://githu
 
 This repository uses the following example Spring Boot / Cloud applications for provisioning: [cxf-spring-cloud-netflix-docker](https://github.com/jonashackt/cxf-spring-cloud-netflix-docker)
 
+
+##### Table of Contents  
+[Before you start...](#before-you-start)  
+
+[Preperation: Find a Windows Box - the Evalutation ISO](#preperation-find-a-windows-box---the-evalutation-iso)
+
+[Step 0 - How to build Ansible-ready Vagrant box from a Windows ISO](#step-0---how-to-build-ansible-ready-vagrant-box-from-a-windows-iso-step0-packer-windows-vagrantbox)
+
+[Step 1 - Prepare your Windows Box to run Docker Windows Containers with Ansible](#step-1---prepare-your-windows-box-to-run-docker-windows-containers-with-ansible-step1-prepare-docker-windows)
+
+[Step 2 - How to run a simple Spring Boot App inside a Docker Windows Container with Ansible](#step-2---how-to-run-a-simple-spring-boot-app-inside-a-docker-windows-container-with-ansible-step2-single-spring-boot-app)
+
+[Step 3 - How to scale multiple Spring Boot Apps inside a Docker Windows Containers with Ansible, docker-compose and Spring Cloud Netflix](#step-3---how-to-scale-multiple-spring-boot-apps-inside-a-docker-windows-containers-with-ansible-docker-compose-and-spring-cloud-netflix-step4-multiple-spring-boot-apps-docker-compose)
+
+[Docker Container Orchestration with Linux & Windows mixed OS setup](#docker-container-orchestration-with-linux--windows-mixed-os-setup)
+
+[Step 4 - A Multi-machine Windows- & Linux- mixed OS Vagrant setup for Docker Swarm](#step-4---a-multi-machine-windows---linux--mixed-os-vagrant-setup-for-docker-swarm-step4-windows-linux-multimachine-vagrant-docker-swarm-setup)
+
+[Step 5 - Deploy multiple Spring Boot Apps on mixed-OS Docker Windows- & Linux Swarm with Ansible](#step-5---deploy-multiple-spring-boot-apps-on-mixed-os-docker-windows---linux-swarm-with-ansible-step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm)
+
+
+
 ## Before you start...
 
 Because [Microsoft &amp; Docker Inc. developed a native Docker implementation on Windows](https://blog.docker.com/2016/09/dockerforws2016/) using Hyper-V (or even a thinner layer) which let´s you run tiny little Windows containers inside your Windows box, which are accessible through the Docker API, I wanted to get my hands on them as soon as I heard of it. A list of [example Windows Docker Images is provided here](https://hub.docker.com/r/microsoft/).
