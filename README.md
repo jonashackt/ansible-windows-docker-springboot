@@ -675,6 +675,7 @@ This means that our Docker Swarm cluster is ready for service deployment!
 
 
 
+
 ## Step 5 - Deploy multiple Spring Boot Apps on mixed-OS Docker Windows- & Linux Swarm with Ansible ([step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm))
 
 As Microsoft states in the [Swarm docs](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode), Docker Swarm Services can be easily deployed to the Swarm with the `docker service create` command and afterwards scaled with `docker service scale`. There´s a huge amount on configuration parameters you can use [with docker service create](https://docs.docker.com/engine/swarm/services/).
@@ -686,13 +687,188 @@ __BUT:__ That approach reminds us of those first days with Docker not using Dock
 Back to the concrete docker-compose.yml file. Let´s use the [newest 3.3 version](https://docs.docker.com/compose/compose-file/compose-versioning/#version-33) here, so that we can leverage the most out of Swarm´s functionality, which is broadened with each Compose (file) version.
 
 
-#### Pre-Deploy preparations: Build Docker images of all Spring Boot apps and push them to Docker Swarm registry
+
+#### The Windows Server 2016 Issue
+
+I really like to have completely comprehensible setups! The problem here is, that our setup based on __Windows Server 2016 isn´t going to support access to our deployed applications__ in the end! Why is that? The problem is all about the unsupported routing mesh!
+ 
+You may say, hey there´s a workaround: Docker Swarm publish-port mode! As https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode#publish-ports-for-service-endpoints states, there´s an alternative to routing mesh: Docker Swarm´s publish-port mode. With a Docker Stack deploy, this could look like the following in the docker-stack.yml:
+
+```
+    deploy:
+      ...
+      endpoint_mode: dnsrr
+```
+
+But together with setting the `endpoint_mode` to DNS round-robin (DNSRR) as [described in the docs](https://docs.docker.com/compose/compose-file/#endpoint_mode), we also need to alter the [exported Ports settings](https://docs.docker.com/compose/compose-file/#ports). We need to set it to `mode: host`, which is only possible with [the long syntax](https://docs.docker.com/compose/compose-file/#long-syntax-2) in the Docker Stack / Compose file format:
+
+```
+    ports:
+      - target: {{ service.port }}
+        published: {{ service.port }}
+        protocol: tcp
+        mode: host
+```
+
+Otherwise the Docker engine will tell us the following error: `Error response from daemon: rpc error: code = 3 desc = EndpointSpec: port published with ingress mode can't be used with dnsrr mode`
+
+__BUT!__ the problem with this configuration is, that Traefik won´t support this in the end! It really took me days to find out, that using Windows Server 2016 together with Docker Swarm publish-port mode and `endpoint_mode` isn´t going to work together with a Loadbalancer like Traefik. And we´ll need one! The following paragraphs will show you, why.
+
+
+
+
+#### The Alternative: Windows Server 1709 or 1803 (Semi-annual Channel)
+
+Windows Server 2016 is the LTS version of the Windows Server family, which will be supported with smaller Updates - but no real new bleeding edge stuff. And Docker network routing mesh support is introduced first in Windows Server 1709: 
+https://blog.docker.com/2017/09/docker-windows-server-1709/
+https://blogs.technet.microsoft.com/virtualization/2017/09/26/dockers-ingress-routing-mesh-available-with-windows-server-version-1709/
+
+Also see my comments there:
+
+> Hi Kallie, to use the new features in production at the customer, we need to have access to the new 1709 build of Windows Server 2016. As this post here https://blogs.technet.microsoft.com/windowsserver/2017/10/17/windows-server-version-1709-available-for-download/ states, the 1709 build will only be available in the so called “Semi-annual channel”, which is only available for customers if they have the “Software Assurance” package (as this post states https://cloudblogs.microsoft.com/hybridcloud/2017/06/15/delivering-continuous-innovation-with-windows-server/).
+
+> To provide a recommendation for the customer, that is based on a proven and fully automated “infrastructure as code” example, I successfully build a GitHub repo (https://github.com/jonashackt/ansible-windows-docker-springboot) with EVERY needed step, beginning with the download of a evaluation copy of Windows Server 2016 from here https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016, going over to a setup with VirtualBox/Vagrant (https://www.vagrantup.com/), Provisioning with Ansible and (https://www.ansible.com/) and finally running and scaling Spring Boot apps Dockerized on the Windows Server.
+
+> Now the next step is Docker orchestration with Swarm (and later Kubernetes). But with the current version of https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016, the mentioned Docker network routing mesh support isn´t available for us. Is there any chance to update this version in the evalcenter? I know there´s the Insiderprogram, but I doesn´t really help my to have a fully trustable setup where I can prove for everybody, that everything will work.
+
+__TLDR:__
+
+--> only available in Windows Server 1709: https://blogs.technet.microsoft.com/windowsserver/2017/10/17/windows-server-version-1709-available-for-download/
+
+--> only available in the "Semi-annual channel", which is according to https://cloudblogs.microsoft.com/hybridcloud/2017/06/15/delivering-continuous-innovation-with-windows-server/ only available with the "Software Assurance" package you have to buy separately to the Server licence 
+
+--> only alternative: Windows Insider program: https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewserver
+
+--> but this isn´t a good start with customers!
+
+
+
+#### Building a Windows Server 1709 or 1803 Vagrant Box with Packer
+
+Now that __we need__ to use Windows Server 1709 or 1803 as a basis, we have to build a new Vagrant Box with Packer. The Packer configuration file [windows_server_2016_docker.json](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/step0-packer-windows-vagrantbox/windows_server_2016_docker.json) is flexible enough to support all three Windows Server variants: 2016, 1709 or 1803. 
+
+So let´s build our Windows Server 1803 Vagrant Box. All you need is an ISO like `en_windows_server_version_1803_x64_dvd_12063476.iso` incl. a matching MD5 checksum, which should be available through the "Software Assurance" package or a MSDN Subscription (if you have one) - or at least at the [Windows Insider program]( https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewserver). If you have the ISO and MD5 ready, fire up the Packer build:
+
+```
+packer build -var iso_url=en_windows_server_version_1803_x64_dvd_12063476.iso -var iso_checksum=e34b375e0b9438d72e6305f36b125406 -var template_url=vagrantfile-windows_1803-multimachine.template -var box_output_prefix=windows_1803_docker_multimachine windows_server_2016_docker.json
+```
+
+If that is finished, add the new box to your Vagrant installation:
+
+```
+vagrant box add --name windows_1803_docker_multimachine windows_1803_docker_multimachine_virtualbox.box
+```
+
+##### TODO:
+Be sure to have the latest updates installed! For me, it only worked after the November 2017 culmulative update package, with [KB4048955](https://support.microsoft.com/en-us/help/4048955/windows-10-update-kb4048955) inside. Otherwise ingress networking mode (`deploy: endpoint_mode: vip`) __DOESN´T WORK!__
+
+
+
+#### Switch the base Docker image
+
+
+There´s another difference to the Standard Windows Server 2016 LTS Docker images: The nanoserver and windowsservercore Images are much smaller! BUT: The nanoserver now misses the Powershell! Well, that´s kind of weird - but it´s kind of like in the Linux world, where you don´t have a bash installed per se, but only sh... But there´s help. Microsoft provides a nanoserver with Powershell on top right on Dockerhub: https://hub.docker.com/r/microsoft/powershell/ To pull the correct nanoserver with Powershell, just use:
+
+```
+docker pull microsoft/powershell:nanoserver
+```
+
+But as we use the latest `nanoserver:1709 image, we also have to use the suitable 1709er image for powershell: `microsoft/powershell:6.0.0-rc-nanoserver-1709` - kind of weird again that its only __rc__ right now, but hey. :)
+
+Now you also have to keep in mind, that you have to use `pwsh` instead of `powershell` to enter the Powershell inside a Container:
+
+```
+docker exec -it ContainerID pwsh
+```
+
+
+
+
+
+#### Main Playbook build-and-deploy-apps-2-swarm.yml structure 
 
 cd into [step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step5-deploy-multiple-spring-boot-apps-to-mixed-os-docker-swarm) and run:
 
 ```
 ansible-playbook -i hostsfile build-and-deploy-apps-2-swarm.yml
 ```
+
+The playbook has 4 main steps:
+
+```
+  - name: 1. Build Linux Apps Docker images on Linux manager node and push to Docker Swarm registry
+    include_tasks: prepare-docker-images-linux.yml
+    with_items: "{{ vars.services }}"
+    when: inventory_hostname == "masterlinux01" and item.deploy_target == 'linux'
+    tags: buildapps
+
+  - name: 2. Build Windows Apps Docker images on Windows manager node and push to Docker Swarm registry
+    include_tasks: prepare-docker-images-windows.yml
+    with_items: "{{ vars.services }}"
+    when: inventory_hostname == "masterwindows01" and item.deploy_target == 'windows'
+    tags: buildapps
+
+  - name: 3. Open all published ports of every app on every node for later access from outside the Swarm
+    include_tasks: prepare-firewall-app-access.yml
+    with_items: "{{ vars.services }}"
+    tags: firewall
+
+  - name: 4. Deploy the Stack to the Swarm on Windows Manager node
+    include_tasks: deploy-services-swarm.yml
+    when: inventory_hostname == "masterwindows01"
+    tags: deploy
+```
+
+
+#### Build Docker images of all Spring Boot apps and push them to Docker Swarm registry
+
+First we need to build all Docker images of all Spring Boot apps (according to which OS they should run on) and push them to Docker Swarm registry. This is done by the [prepare-docker-images-linux.yml](prepare-docker-images-linux.yml) and the [prepare-docker-images-windows.yml](prepare-docker-images-windows.yml). They are pushing the Applications new Docker image into our Swarm registry at the end:
+
+```
+  - name: Push the Docker Container image to the Swarm Registry
+    shell: "docker push {{registry_host}}/{{spring_boot_app.name}}:latest"
+```
+
+
+#### Open all Apps´ ports on every host!
+
+
+From https://docs.docker.com/engine/swarm/ingress/:
+
+> "You must also open the published port between the swarm nodes and any external resources, such as an external load balancer, that require access to the port."
+
+So we need to open every port of every application on every host! Therefor we use __prepare-firewall-app-access.yml__, that opens all needed ports in our hybrid swarm:
+
+```
+  - name: Preparing to open...
+    debug:
+      msg: "'{{ item.name }}' with port '{{ item.port }}'"
+
+  - name: Open the apps published port on Linux node for later access from outside the Swarm
+    ufw:
+      rule: allow
+      port: "{{ item.port }}"
+      proto: tcp
+      comment: "{{ item.name }}'s port {{ item.port }}"
+    become: true
+    when: inventory_hostname in groups['linux']
+
+  - name: Open the apps published port on Windows node for later access from outside the Swarm
+    win_firewall_rule:
+      name: "{{ item.name }}'s port {{ item.port }}"
+      localport: "{{ item.port }}"
+      action: allow
+      direction: in
+      protocol: tcp
+      state: present
+      enabled: yes
+    when: inventory_hostname in groups['windows']
+```
+
+
+
+
+#### Deploy the Stack to the Swarm
 
 From https://docs.docker.com/get-started/part5/#introduction:
 > "A stack is a group of interrelated services that share dependencies, and can be orchestrated and scaled together. A single stack is capable of defining and coordinating the functionality of an entire application."
@@ -705,14 +881,16 @@ tbadded
 
 Don´t try to search for "Docker Stack command reference", just head over to the Docker Compose docs and you should find, what you need: https://docs.docker.com/compose/compose-file/#deploy Because Docker Swarm makes use of Docker Compose files, the Swarm capabilities of Stack are only just a section (`deploy`) in the Compose docs.
 
-
 We should see our applications in Portainer now:
 
 ![portainer-swarm-visualizer](screenshots/portainer-swarm-visualizer.png)
 
 
 
+
+
 #### Accessing Spring Boot applications deployed in the Swarm
+
 
 Fore more indepth information how Docker Swarm works, have a look at https://docs.docker.com/engine/swarm/how-swarm-mode-works/services/
 
@@ -765,43 +943,9 @@ https://docs.docker.com/engine/swarm/ingress/
 
 ![ingress-routing-mesh](screenshots/ingress-routing-mesh.png)
 
-Note: this is only possible with Windows Server 2016, if you opened the needed ports before initializing the Swarm (this is already done in [step4-windows-linux-multimachine-vagrant-docker-swarm-setup](https://github.com/jonashackt/ansible-windows-docker-springboot/tree/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup) for you ;) ).
 
+##### Test ingress networking 
 
-#### Routing mesh problems on Windows
-
-Docker network routing mesh support in Windows Server 2016 1709: https://blog.docker.com/2017/09/docker-windows-server-1709/ & https://blogs.technet.microsoft.com/virtualization/2017/09/26/dockers-ingress-routing-mesh-available-with-windows-server-version-1709/
-
-__BUT:__ See my comment there:
-
-> Hi Kallie, to use the new features in production at the customer, we need to have access to the new 1709 build of Windows Server 2016. As this post here https://blogs.technet.microsoft.com/windowsserver/2017/10/17/windows-server-version-1709-available-for-download/ states, the 1709 build will only be available in the so called “Semi-annual channel”, which is only available for customers if they have the “Software Assurance” package (as this post states https://cloudblogs.microsoft.com/hybridcloud/2017/06/15/delivering-continuous-innovation-with-windows-server/).
-
-> To provide a recommendation for the customer, that is based on a proven and fully automated “infrastructure as code” example, I successfully build a GitHub repo (https://github.com/jonashackt/ansible-windows-docker-springboot) with EVERY needed step, beginning with the download of a evaluation copy of Windows Server 2016 from here https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016, going over to a setup with VirtualBox/Vagrant (https://www.vagrantup.com/), Provisioning with Ansible and (https://www.ansible.com/) and finally running and scaling Spring Boot apps Dockerized on the Windows Server.
-
-> Now the next step is Docker orchestration with Swarm (and later Kubernetes). But with the current version of https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016, the mentioned Docker network routing mesh support isn´t available for us. Is there any chance to update this version in the evalcenter? I know there´s the Insiderprogram, but I doesn´t really help my to have a fully trustable setup where I can prove for everybody, that everything will work.
-
-__TLDR:__
-
---> only available in Windows Server 2016 1709: https://blogs.technet.microsoft.com/windowsserver/2017/10/17/windows-server-version-1709-available-for-download/
-
---> only available in the "Semi-annual channel", which is according to https://cloudblogs.microsoft.com/hybridcloud/2017/06/15/delivering-continuous-innovation-with-windows-server/ only available with the "Software Assurance" package you have to buy separately to the Server licence 
-
---> only alternative: Windows Insider program: https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewserver
-
---> but this isn´t a good start with customers!
-
-#### Test Packer build
-
-```
-packer build -var iso_url=en_windows_server_version_1709_x64_dvd_100090904.iso -var iso_checksum=7c73ce30c3975652262f794fc35127b5 -var template_url=vagrantfile-windows_1709-multimachine.template -var box_output_prefix=windows_1709_docker_multimachine windows_server_2016_docker.json
-```
-
-```
-vagrant box add --name windows_1709_docker_multimachine windows_1709_docker_multimachine_virtualbox.box
-```
-
-
-Be sure to have the latest updates installed! For me, it only worked after the November 2017 culmulative update package, with [KB4048955](https://support.microsoft.com/en-us/help/4048955/windows-10-update-kb4048955) inside. Otherwise ingress networking mode (`deploy: endpoint_mode: vip`) __DOESN´T WORK!__
 
 To see, if a Docker Swarm service with ingress networking mode is able to run, fire up a test service:
 
@@ -811,102 +955,8 @@ __TODO__: use a service, that doesn´t need the other following steps
 docker service create --name weathertest --network swarmtest --publish 9099:9099 --endpoint-mode vip 172.16.2.10:5000/weatherbockend
 ``` 
 
-There´s another difference to the Standard Windows Server 2016 LTS Docker images: The nanoserver and windowsservercore Images are much smaller! BUT: The nanoserver now misses the Powershell! Well, that´s kind of weird - but it´s kind of like in the Linux world, where you don´t have a bash installed per se, but only sh... But there´s help. Microsoft provides a nanoserver with Powershell on top right on Dockerhub: https://hub.docker.com/r/microsoft/powershell/ To pull the correct nanoserver with Powershell, just use:
-
-```
-docker pull microsoft/powershell:nanoserver
-```
-
-But as we use the latest `nanoserver:1709 image, we also have to use the suitable 1709er image for powershell: `microsoft/powershell:6.0.0-rc-nanoserver-1709` - kind of weird again that its only __rc__ right now, but hey. :)
-
-Now you also have to keep in mind, that you have to use `pwsh` instead of `powershell` to enter the Powershell inside a Container:
-
-```
-docker exec -it ContainerID pwsh
-```
 
 
-
-From https://docs.docker.com/engine/swarm/ingress/:
-
-> "You must also open the published port between the swarm nodes and any external resources, such as an external load balancer, that require access to the port."
-
-So we need to open every port of every application on every host! Therefor we use __prepare-firewall-app-access.yml__, that opens all needed ports in our hybrid swarm:
-
-```
-  - name: Preparing to open...
-    debug:
-      msg: "'{{ item.name }}' with port '{{ item.port }}'"
-
-  - name: Open the apps published port on Linux node for later access from outside the Swarm
-    ufw:
-      rule: allow
-      port: "{{ item.port }}"
-      proto: tcp
-      comment: "{{ item.name }}'s port {{ item.port }}"
-    become: true
-    when: inventory_hostname in groups['linux']
-
-  - name: Open the apps published port on Windows node for later access from outside the Swarm
-    win_firewall_rule:
-      name: "{{ item.name }}'s port {{ item.port }}"
-      localport: "{{ item.port }}"
-      action: allow
-      direction: in
-      protocol: tcp
-      state: present
-      enabled: yes
-    when: inventory_hostname in groups['windows']
-```
-
-As we also added a port forwarding configuration for every app in our [Vagrantfile](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup/Vagrantfile):
-
-```
-        # Open App ports for access from outside the VM
-        masterlinux.vm.network "forwarded_port", guest: 8761, host: 8761, host_ip: "127.0.0.1", id: "eureka"
-        masterlinux.vm.network "forwarded_port", guest: 8090, host: 8090, host_ip: "127.0.0.1", id: "weatherbackend"
-        masterlinux.vm.network "forwarded_port", guest: 8091, host: 8091, host_ip: "127.0.0.1", id: "weatherbockend"
-        masterlinux.vm.network "forwarded_port", guest: 8095, host: 8095, host_ip: "127.0.0.1", id: "weatherservice"
-```
-
-, we should now be able to access every app from our Vagrant/VirtualBox host:
-
-![all-apps-available-via-routing-mesh](screenshots/all-apps-available-via-routing-mesh.png).
-
-Now we should check, if the containers are able to reach themselfes. So for example we could try to reach a Windows Container from within the scope of an Linux Container from `masterlinux01`:
-
-```
-docker exec -it e71 ping weatherservice
-```
-
-Let´s have a look onto all containers and services in the network. Therefore you __MUST__ use the full network name, the id isn´t giving you the full output of everything in the Cluster! (as https://github.com/moby/moby/pull/31710 states, you need `--verbose` to see all data from all nodes!)
-
-```
-docker network inspect --verbose clearsky_mixed_swarm_net
-```
-
-https://github.com/docker/for-win/issues/1366
-
---> Let´s try another Baseimage and switch to https://hub.docker.com/r/microsoft/windowsservercore/ with `microsoft/windowsservercore:1709`
-
-
-Test via Traefik:
-
-```
-curl -H Host:weatherbackend.sky.test http://localhost:40080 -v
-```
-
-And __IT WORKS!!!__:
-
-![first-successful-call-to-both-windows-and-linux-containers-through-traefik](screenshots/first-successful-call-to-both-windows-and-linux-containers-through-traefik.png).
-
-Also all the example apps ([cxf-spring-cloud-netflix-docker](https://github.com/jonashackt/cxf-spring-cloud-netflix-docker)) will call themselfes if you call the weatherservice with SoapUI for example:
-
-![first-full-call-through-traefik-mixed-os-apps-incl-eureka-feign-soapui-client](screenshots/first-full-call-through-traefik-mixed-os-apps-incl-eureka-feign-soapui-client.png)
-
-The really use Eureka & Feign to call each other:
-
-![docker-swarm-services-registered-eureka](screenshots/docker-swarm-services-registered-eureka.png)
 
 
 
@@ -1008,92 +1058,7 @@ vagrant plugin install vagrant-vbguest
 
 
 
-
-
-
-
-#### Workaround: Docker Swarm publish-port mode
-
-As https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/swarm-mode#publish-ports-for-service-endpoints states, there´s an alternative to routing mesh: Docker Swarm´s publish-port mode. With a Docker Stack deploy, this looks like the following in the docker-stack.yml:
-
-```
-...
-    deploy:
-      ...
-      endpoint_mode: dnsrr
-```
-
-But together with setting the `endpoint_mode` to DNS round-robin (DNSRR) as [described in the docs](https://docs.docker.com/compose/compose-file/#endpoint_mode), we also need to alter the [exported Ports settings](https://docs.docker.com/compose/compose-file/#ports). We need to set it to `mode: host`, which is only possible with [the long syntax](https://docs.docker.com/compose/compose-file/#long-syntax-2) in the Docker Stack / Compose file format:
-
-```
-    ports:
-      - target: {{ service.port }}
-        published: {{ service.port }}
-        protocol: tcp
-        mode: host
-```
-
-Otherwise the Docker engine will tell us the following error:
-
-```
-Error response from daemon: rpc error: code = 3 desc = EndpointSpec: port published with ingress mode can't be used with dnsrr mode
-```
-
-#### Accessing Services in publish-port mode with Traefik
-
-As [Traefik is a good choice for Docker](https://blog.codecentric.de/en/2017/09/traefik-modern-reverse-proxy/) deployments and it also supports Docker Swarm & Kubernetes, we could give it a shot in our hybrid Docker Swarm Cluster. There´s a good [user guide for Traefik and Swarm around](https://docs.traefik.io/user-guide/swarm-mode/) and we´ll try to deploy Traefik as a Docker Swarm Service first. Therefor we add a traefik Docker Swarm Service to our Stack (or the template docker-stack.j2):
-
-```
-...
-
-  traefik:
-    image: traefik
-    ports:
-      - target: 80
-        published: 80
-        protocol: tcp
-        mode: host
-      - target: 8080
-        published: 8080
-        protocol: tcp
-        mode: host
-    tty:
-      true
-    restart:
-      unless-stopped
-    deploy:
-      endpoint_mode: dnsrr
-      replicas: 1
-      placement:
-        constraints: [node.labels.os==linux]
-        constraints: [node.role == manager]
-    command:
-      - --docker
-      - --docker.swarmmode
-      - --docker.domain={{ docker_domain }}
-      - --docker.watch
-      - --web
-      - --logLevel=INFO
-    volumes:
-      - type: bind
-        source: /var/run/docker.sock
-        target: /var/run/docker.sock
-
-    networks:
-     - {{swarm_network_name }}
-
-networks:
-  {{ swarm_network_name }}:
-```
-
-The last network definition will take care of the networkcreation, which is better then 2 seperate docker-stack.ymls with one for the apps and one for Traefik - because this will lead to an Docker Stack deploy network removal error like this:
-
-```
-fatal: [masterwindows01]: FAILED! => {"changed": true, "cmd": "docker stack rm clearsky", "delta": "0:00:01.006847", "end": "2017-11-13 08:06:56.286584", "failed": true, "msg": "non-zero return code", "rc": 1, "start": "2017-11-13 08:06:55.279736", "stderr": "Removing service clearsky_weatherbackend\nRemoving service clearsky_eureka-serviceregistry\nRemoving service clearsky_weatherservice\nRemoving service clearsky_eureka-serviceregistry-second\nRemoving network clearsky_mixed_swarm_net\nFailed to remove network c9np7umv1vnk7whxthlc7r28u: Error response from daemon: rpc error: code = 9 desc = network c9np7umv1vnk7whxthlc7r28u is in use by service iu5x4d1oh1brpd3p6spxd50kgFailed to remove some resources from stack: clearsky", "stderr_lines": ["Removing service clearsky_weatherbackend", "Removing service clearsky_eureka-serviceregistry", "Removing service clearsky_weatherservice", "Removing service clearsky_eureka-serviceregistry-second", "Removing network clearsky_mixed_swarm_net", "Failed to remove network c9np7umv1vnk7whxthlc7r28u: Error response from daemon: rpc error: code = 9 desc = network c9np7umv1vnk7whxthlc7r28u is in use by service iu5x4d1oh1brpd3p6spxd50kgFailed to remove some resources from stack: clearsky"], "stdout": "", "stdout_lines": []}
-```
-
-
-#### Give your Apps access to Traefik
+#### Using Traefik to access Spring Boot Apps
 
 [Docker Stack deploy for Apps provided by Traefik](https://github.com/containous/traefik/issues/994#issuecomment-269095109)
 
@@ -1112,27 +1077,22 @@ Therefore the [Vagrantfile](https://github.com/jonashackt/ansible-windows-docker
 The Apps are templated over the docker-stack.yml:
 
 ```
+services:
+
 {% for service in vars.services %}
   {{ service.name }}:
     image: {{registry_host}}/{{ service.name }}
-{% if service.map_to_same_port_on_host is defined %}
     ports:
       - target: {{ service.port }}
         published: {{ service.port }}
         protocol: tcp
-        mode: host
-{% else %}
-    ports:
-      - target: {{ service.port }}
-        protocol: tcp
-        mode: host
-{% endif %}
     tty:
       true
     restart:
       unless-stopped
     deploy:
-      endpoint_mode: dnsrr
+      endpoint_mode: vip
+      replicas: {{ service.replicas }}
       placement:
 {% if service.deploy_target == 'windows' %}
         constraints: [node.labels.os==windows]
@@ -1141,11 +1101,11 @@ The Apps are templated over the docker-stack.yml:
 {% endif %}
       labels:
         - "traefik.port={{ service.port }}"
+        - "traefik.docker.network={{ swarm_network_name }}"
         - "traefik.backend={{ service.name }}"
 # Use Traefik healthcheck        "traefik.backend.healthcheck.path": "/healthcheck",
         - "traefik.frontend.rule=Host:{{ service.name }}.{{ docker_domain }}"
-    networks:
-     - {{swarm_network_name }}
+
 ```
 
 Note that the `traefik.port=YourAppPort` must be the same port, that your Spring Boot application uses (via `server.port=YourAppPort`) and your Container exposes. Then Traefik will automatically route a Request through to the App over the configured first published Port:
@@ -1167,20 +1127,69 @@ curl -H Host:eureka-serviceregistry.sky.test http://localhost:40080 -v
 ![first-successful-app-call-through-traefik](screenshots/first-successful-app-call-through-traefik.png)
 
 
-# Upgrade to Windows Server 1803
 
-What´s new in 1803: https://docs.microsoft.com/en-us/windows-server/get-started/whats-new-in-windows-server-1803
+
+As we also added a port forwarding configuration for every app in our [Vagrantfile](https://github.com/jonashackt/ansible-windows-docker-springboot/blob/master/step4-windows-linux-multimachine-vagrant-docker-swarm-setup/Vagrantfile):
+
+```
+        # Open App ports for access from outside the VM
+        masterlinux.vm.network "forwarded_port", guest: 8761, host: 8761, host_ip: "127.0.0.1", id: "eureka"
+        masterlinux.vm.network "forwarded_port", guest: 8090, host: 8090, host_ip: "127.0.0.1", id: "weatherbackend"
+        masterlinux.vm.network "forwarded_port", guest: 8091, host: 8091, host_ip: "127.0.0.1", id: "weatherbockend"
+        masterlinux.vm.network "forwarded_port", guest: 8095, host: 8095, host_ip: "127.0.0.1", id: "weatherservice"
+```
+
+, we should now be able to access every app from our Vagrant/VirtualBox host:
+
+![all-apps-available-via-routing-mesh](screenshots/all-apps-available-via-routing-mesh.png).
+
+Now we should check, if the containers are able to reach themselfes. So for example we could try to reach a Windows Container from within the scope of an Linux Container from `masterlinux01`:
+
+```
+docker exec -it e71 ping weatherservice
+```
+
+Let´s have a look onto all containers and services in the network. Therefore you __MUST__ use the full network name, the id isn´t giving you the full output of everything in the Cluster! (as https://github.com/moby/moby/pull/31710 states, you need `--verbose` to see all data from all nodes!)
+
+```
+docker network inspect --verbose clearsky_mixed_swarm_net
+```
+
+https://github.com/docker/for-win/issues/1366
+
+--> Let´s try another Baseimage and switch to https://hub.docker.com/r/microsoft/windowsservercore/ with `microsoft/windowsservercore:1709`
+
+
+Test via Traefik:
+
+```
+curl -H Host:weatherbackend.sky.test http://localhost:40080 -v
+```
+
+And __IT WORKS!!!__:
+
+![first-successful-call-to-both-windows-and-linux-containers-through-traefik](screenshots/first-successful-call-to-both-windows-and-linux-containers-through-traefik.png).
+
+Also all the example apps ([cxf-spring-cloud-netflix-docker](https://github.com/jonashackt/cxf-spring-cloud-netflix-docker)) will call themselfes if you call the weatherservice with SoapUI for example:
+
+![first-full-call-through-traefik-mixed-os-apps-incl-eureka-feign-soapui-client](screenshots/first-full-call-through-traefik-mixed-os-apps-incl-eureka-feign-soapui-client.png)
+
+The really use Eureka & Feign to call each other:
+
+![docker-swarm-services-registered-eureka](screenshots/docker-swarm-services-registered-eureka.png)
+
+
+
 
 
 # Links
 
 #### General comparison of Docker Container Orchestrators
 
-
-
 marketshare: https://blog.netsil.com/kubernetes-vs-docker-swarm-vs-dc-os-may-2017-orchestrator-shootout-fdc59c28ec16
 
 https://www.loomsystems.com/blog/single-post/2017/06/19/kubernetes-vs-docker-swarm-vs-apache-mesos-container-orchestration-comparison
+
 
 #### Windows Server
 
@@ -1194,6 +1203,7 @@ Current state discription: https://blogs.windows.com/windowsexperience/2017/07/1
 
 --> LinuxKit in Hyper-V for Side-by-Side Windows and Linux deployments: https://dockercon.docker.com/watch/U7Bxp66uKmemZssjCTyXkm
 
+What´s new in 1803: https://docs.microsoft.com/en-us/windows-server/get-started/whats-new-in-windows-server-1803
 
 
 #### Docker Swarm
