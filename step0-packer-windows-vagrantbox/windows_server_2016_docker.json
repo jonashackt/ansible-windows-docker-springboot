@@ -16,15 +16,15 @@
       "post_shutdown_delay": "10s",
       "guest_os_type": "Windows2016_64",
       "guest_additions_mode": "attach",
-      "disk_size": 61440,
+      "disk_size": 50000,
       "floppy_files": [
         "{{user `autounattend_file`}}",
         "./scripts/configure-ansible.ps1",
         "./scripts/oracle-cert.cer"
       ],
       "vboxmanage": [
-        ["modifyvm", "{{.Name}}", "--memory", "4096"],
-        ["modifyvm", "{{.Name}}", "--cpus", "4"],
+        ["modifyvm", "{{.Name}}", "--memory", "2048"],
+        ["modifyvm", "{{.Name}}", "--cpus", "1"],
         ["modifyvm", "{{.Name}}", "--vram", "32"]
       ]
     }
@@ -53,7 +53,7 @@
     }
   ],
   "variables": {
-    "iso_url": "http://care.dlservice.microsoft.com/dl/download/1/4/9/149D5452-9B29-4274-B6B3-5361DBDA30BC/14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO",
+    "iso_url": "https://software-download.microsoft.com/download/pr/Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO",
     "iso_checksum_type": "md5",
     "iso_checksum": "70721288BBCDFE3239D8F8C0FAE55F1F",
     "template_url": "vagrantfile-windows_2016.template",
