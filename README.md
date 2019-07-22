@@ -82,12 +82,12 @@ If you like to dig deeper into the myriads of configuration options, have a look
 
 #### Build your Windows Server 2016 Vagrant box
 
-Download the [14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016) and place it into the __/packer__ folder.
+Download the [Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO](https://www.microsoft.com/de-de/evalcenter/evaluate-windows-server-2016) and place it into the __/packer__ folder.
 
 Inside the `step0-packer-windows-vagrantbox` directory start the build with this command:
 
 ```
-packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2016_docker.json
+packer build -var iso_url=Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2016_docker.json
 ```
 
 Now get yourself a coffee. This will take some time ;)

@@ -1,6 +1,6 @@
 
 # Run Packer build with Windows Server 2016
-packer build -var iso_url=14393.0.161119-1705.RS1_REFRESH_SERVER_EVAL_X64FRE_EN-US.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2016_docker.json
+packer build -var iso_url=Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO -var iso_checksum=70721288bbcdfe3239d8f8c0fae55f1f windows_server_2016_docker.json
 
 # add it to local Vagrant Boxes
 vagrant box add --name windows_2016_multimachine windows_2016_docker_multimachine_virtualbox.box
