@@ -16,15 +16,15 @@
       "post_shutdown_delay": "10s",
       "guest_os_type": "Windows2016_64",
       "guest_additions_mode": "attach",
-      "disk_size": 61440,
+      "disk_size": 50000,
       "floppy_files": [
         "{{user `autounattend_file`}}",
         "./scripts/configure-ansible.ps1",
         "./scripts/oracle-cert.cer"
       ],
       "vboxmanage": [
-        ["modifyvm", "{{.Name}}", "--memory", "4096"],
-        ["modifyvm", "{{.Name}}", "--cpus", "4"],
+        ["modifyvm", "{{.Name}}", "--memory", "2048"],
+        ["modifyvm", "{{.Name}}", "--cpus", "1"],
         ["modifyvm", "{{.Name}}", "--vram", "32"]
       ]
     }
